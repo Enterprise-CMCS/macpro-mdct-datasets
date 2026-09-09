@@ -1,0 +1,86 @@
+import {
+  acceptReport,
+  createReport,
+  deleteReport,
+  deleteReportsForState,
+  getReport,
+  getReportByType,
+  getReportsForState,
+  putReport,
+  releaseReport,
+  submitReport,
+} from "./report";
+// types
+import { FormPageTemplate, Report, ReportType } from "@rhtp/shared";
+
+const report = {
+  type: ReportType.RHTP,
+  state: "PA",
+  name: "A Title",
+  pages: [] as FormPageTemplate[],
+} as Report;
+
+const mockGet = vi.fn();
+const mockPost = vi.fn();
+const mockPut = vi.fn();
+const mockDel = vi.fn();
+vi.mock("../apiLib", () => ({
+  apiLib: {
+    get: (path: string, opts: Record<string, any>) => mockGet(path, opts),
+    post: (path: string, opts: Record<string, any>) => mockPost(path, opts),
+    put: (path: string, opts: Record<string, any>) => mockPut(path, opts),
+    del: (path: string, opts: Record<string, any>) => mockDel(path, opts),
+  },
+}));
+
+describe("utils/report", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+  test("getReport", async () => {
+    await getReport("reportType", "PA", "mock-id");
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
+  test("getReportsForState", async () => {
+    await getReportsForState("reportType", "PA");
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
+  test("getReportByType", async () => {
+    await getReportByType("reportTyppe");
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
+  test("createReport", async () => {
+    await createReport("reportType", "PA");
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  test("putReport", async () => {
+    await putReport(report);
+    expect(mockPut).toHaveBeenCalledTimes(1);
+  });
+
+  test("submitReport", async () => {
+    await submitReport(report);
+    expect(mockPut).toHaveBeenCalledTimes(1);
+  });
+
+  test("releaseReport", async () => {
+    await releaseReport(report);
+    expect(mockPut).toHaveBeenCalledTimes(1);
+  });
+  test("releaseReport", async () => {
+    await acceptReport(report);
+    expect(mockPut).toHaveBeenCalledTimes(1);
+  });
+  test("deleteReport", async () => {
+    await deleteReport("reportType", "PA", "mock-id");
+    expect(mockDel).toHaveBeenCalledTimes(1);
+  });
+  test("deleteReportsForState", async () => {
+    await deleteReportsForState("reportType", "PA");
+    expect(mockDel).toHaveBeenCalledTimes(1);
+  });
+});

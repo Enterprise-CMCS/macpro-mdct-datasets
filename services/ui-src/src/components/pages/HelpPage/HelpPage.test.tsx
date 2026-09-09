@@ -1,0 +1,38 @@
+import { render, screen } from "@testing-library/react";
+import { HelpPage } from "components/pages/HelpPage/HelpPage";
+import { RouterWrappedComponent } from "utils/testing/setupTest";
+import { testA11y } from "utils/testing/commonTests";
+
+const helpView = (
+  <RouterWrappedComponent>
+    <HelpPage />
+  </RouterWrappedComponent>
+);
+
+describe("Test HelpPage", () => {
+  beforeEach(() => {
+    render(helpView);
+  });
+
+  test("Check that HelpPage renders", () => {
+    expect(screen.getByRole("heading")).toHaveTextContent(
+      "How can we help you?"
+    );
+  });
+
+  test("Check for email links", () => {
+    const email1 = screen.getByRole("link", { name: "mdct_help@cms.hhs.gov" });
+    expect(email1).toHaveAttribute("href", "mailto:mdct_help@cms.hhs.gov");
+    const email2 = screen.getByRole("link", {
+      name: "State Reporting Guide",
+    });
+    expect(email2).toHaveAttribute(
+      "href",
+      "http://localhost:3000/RHTP_State Reporting Expectations_Guide V7_6.12.26.pdf"
+    );
+  });
+});
+
+describe("Test HelpPage accessibility", () => {
+  testA11y(helpView);
+});

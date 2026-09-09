@@ -1,0 +1,165 @@
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
+import { useLocation, useNavigate } from "react-router";
+import {
+  fetchAuthSession,
+  signInWithRedirect,
+  signOut,
+} from "aws-amplify/auth";
+import config from "config";
+import { initAuthManager, updateTimeout, getExpiration, useStore } from "utils";
+import { PRODUCTION_HOST_DOMAIN } from "../../constants";
+import { User, UserContextShape } from "types/users";
+import { UserRoles } from "@rhtp/shared";
+import { useFlags } from "launchdarkly-react-client-sdk";
+
+type ExpectedTokenShape = {
+  email: string;
+  given_name: string;
+  family_name: string;
+  "custom:cms_roles": string;
+  "custom:cms_state": string | undefined;
+};
+
+export const UserContext = createContext<UserContextShape>({
+  logout: async () => {},
+  loginWithIDM: async () => {},
+  updateTimeout: () => {},
+  getExpiration: () => "",
+});
+
+const authenticateWithIDM = async () => {
+  // Clear any stale cached tokens before initiating the
+  // redirect. If a previous session left expired tokens or stale
+  // values in localStorage, signInWithRedirect can fail silently or
+  // produce an OAuth state mismatch when IDM redirects back.
+  try {
+    await signOut({ global: false });
+  } catch {
+    // Ignore — we only care about clearing local state, not server-side.
+  }
+  await signInWithRedirect({ provider: { custom: "Okta" } });
+};
+
+export const UserProvider = ({ children }: Props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isProduction = window.location.origin.includes(PRODUCTION_HOST_DOMAIN);
+  const flags = useFlags();
+
+  // state management
+  const { user, showLocalLogins, setUser, setShowLocalLogins } = useStore();
+
+  // initialize the authentication manager that oversees timeouts
+  initAuthManager();
+
+  const logout = async () => {
+    try {
+      setUser(undefined);
+      await signOut();
+      localStorage.clear();
+      navigate("/"); // reset pathname on logout
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // TODO: Update for non-rhtp users
+  const checkAuthState = useCallback(async () => {
+    // Allow Post Logout flow alongside user login flow
+    if (location?.pathname.toLowerCase() === "/postlogout") {
+      window.location.href = config.POST_SIGNOUT_REDIRECT;
+      return;
+    }
+
+    try {
+      const tokens = (await fetchAuthSession()).tokens;
+      if (!tokens?.idToken) {
+        throw new Error("Missing tokens auth session.");
+      }
+      const payload = tokens.idToken.payload;
+      const {
+        email,
+        given_name,
+        family_name,
+        "custom:cms_roles": cms_role,
+        "custom:cms_state": state,
+      } = payload as ExpectedTokenShape;
+
+      // "custom:cms_roles" is an string of concat roles so we need to check for the one applicable to RHTP
+      const userRole = cms_role.split(",").find((r) => r.includes("mdctrhtp"));
+      const full_name = [given_name, " ", family_name].join("");
+      const adminCanEditReport = flags?.adminCanEditReport ?? false;
+      const userIsAdmin =
+        userRole === UserRoles.ADMIN ||
+        userRole === UserRoles.APPROVER ||
+        userRole === UserRoles.PROJECT_OFFICER;
+      const userCheck = {
+        userIsAdmin,
+        userIsReadOnly:
+          userRole === UserRoles.HELP_DESK || userRole === UserRoles.INTERNAL,
+        // TODO: For the first year, Admins will be entering data manually for the states
+        // Switch the adminCanEditReport flag when we want to stop allowing Admins to create/edit reports.
+        userIsEndUser:
+          userRole === UserRoles.STATE_USER ||
+          (adminCanEditReport && userIsAdmin),
+      };
+      const currentUser: User = {
+        email,
+        given_name,
+        family_name,
+        full_name,
+        userRole,
+        state,
+        ...userCheck,
+      };
+      setUser(currentUser);
+    } catch {
+      if (isProduction) {
+        try {
+          await authenticateWithIDM();
+        } catch (error) {
+          console.log("Error initiating IDM sign-in:", error);
+        }
+      } else {
+        setShowLocalLogins(true);
+      }
+    }
+  }, [isProduction, location, flags]);
+
+  // re-render on auth state change, checking router location
+  useEffect(() => {
+    checkAuthState();
+  }, [location, checkAuthState]);
+
+  const loginWithIDM = useCallback(async () => {
+    try {
+      await authenticateWithIDM();
+    } catch (error) {
+      console.log("Error initiating IDM sign-in:", error);
+    }
+  }, []);
+
+  const values: UserContextShape = useMemo(
+    () => ({
+      user,
+      logout,
+      showLocalLogins,
+      loginWithIDM,
+      updateTimeout,
+      getExpiration,
+    }),
+    [user, logout, showLocalLogins, loginWithIDM]
+  );
+
+  return <UserContext.Provider value={values}>{children}</UserContext.Provider>;
+};
+
+interface Props {
+  children?: ReactNode;
+}

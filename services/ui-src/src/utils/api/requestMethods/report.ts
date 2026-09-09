@@ -1,0 +1,121 @@
+import { apiLib } from "utils";
+import { getRequestHeaders } from "./getRequestHeaders";
+import { CreateReportOptions, LiteReport, Report } from "@rhtp/shared";
+
+export async function createReport(
+  reportType: string,
+  state: string,
+  reportOptions?: CreateReportOptions
+) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+    body: { ...reportOptions },
+  };
+
+  return await apiLib.post<Report>(`/reports/${reportType}/${state}`, options);
+}
+
+export async function getReport(reportType: string, state: string, id: string) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  return await apiLib.get<Report>(
+    `/reports/${reportType}/${state}/${id}`,
+    options
+  )!;
+}
+
+export async function getReportByType(reportType: string) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  return await apiLib.get<Report[]>(`/reports/${reportType}`, options)!;
+}
+
+export async function putReport(report: Report) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+    body: { ...report },
+  };
+
+  return await apiLib.put(
+    `/reports/${report.type}/${report.state}/${report.id}`,
+    options
+  );
+}
+
+export async function submitReport(report: Report) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+    body: { ...report },
+  };
+  return await apiLib.put<Report>(
+    `/reports/submit/${report.type}/${report.state}/${report.id}`,
+    options
+  );
+}
+
+export async function getReportsForState(reportType: string, state: string) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  return await apiLib.get<LiteReport[]>(
+    `/reports/${reportType}/${state}`,
+    options
+  );
+}
+
+export async function releaseReport(report: LiteReport) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  await apiLib.put(
+    `/reports/release/${report.type}/${report.state}/${report.id}`,
+    options
+  );
+}
+
+export async function acceptReport(report: LiteReport) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  await apiLib.put(
+    `/reports/accept/${report.type}/${report.state}/${report.id}`,
+    options
+  );
+}
+
+export async function deleteReport(
+  reportType: string,
+  state: string,
+  id: string
+) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  await apiLib.del(`/reports/${reportType}/${state}/${id}`, options);
+}
+
+export async function deleteReportsForState(reportType: string, state: string) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  await apiLib.del(`/reports/${reportType}/${state}`, options);
+}
