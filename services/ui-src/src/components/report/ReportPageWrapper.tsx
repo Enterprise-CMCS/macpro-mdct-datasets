@@ -1,0 +1,184 @@
+import { useContext, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  VStack,
+  Image,
+  Spinner,
+  Divider,
+} from "@chakra-ui/react";
+import { getReport, useStore } from "utils";
+import { ReportModal, Sidebar, Page, PraDisclosure } from "components";
+import { currentPageSelector } from "utils/state/selectors";
+
+import nextArrowIcon from "assets/icons/arrows/icon_arrow_next_white.svg";
+import prevArrowIcon from "assets/icons/arrows/icon_arrow_prev_primary.svg";
+import { isReviewSubmitPage } from "types";
+import { isCompleteStatus, PageElement, PageType } from "@rhtp/shared";
+import { ReportAutosaveContext } from "./ReportAutosaveProvider";
+import { SubmissionBar } from "./SubmissionBar";
+import { DevTools, ToolType } from "components/devTools/DevTools";
+
+export const ReportPageWrapper = () => {
+  const {
+    report,
+    parentPage,
+    loadReport: setReport,
+    setAnswers,
+    setCurrentPageId,
+  } = useStore();
+  const currentPage = useStore(currentPageSelector);
+
+  const { reportType, state, reportId, pageId } = useParams();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { autosave } = useContext(ReportAutosaveContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pageId) {
+      setCurrentPageId(pageId);
+    }
+  }, [pageId]);
+
+  const fetchReport = async () => {
+    if (!reportType || !state || !reportId) return;
+    try {
+      const result = await getReport(reportType, state, reportId);
+      setReport(result);
+      if (pageId) {
+        setCurrentPageId(pageId);
+      }
+      setIsLoading(false);
+    } catch {
+      //navigate user to access denied page
+      navigate("/403");
+    }
+  };
+
+  useEffect(() => {
+    fetchReport();
+  }, []);
+
+  if (!reportType || !state || !reportId) {
+    return <div>bad params</div>; // TODO: error page
+  }
+
+  if (isLoading || !currentPage) {
+    return (
+      <Flex sx={sx.spinnerContainer}>
+        <Spinner size="md" />
+      </Flex>
+    );
+  }
+
+  const SetPageIndex = (newPageIndex: number) => {
+    if (!parentPage) return; // Pages can exist outside of the direct parentage structure
+    const sectionId = parentPage.childPageIds[newPageIndex];
+    navigate(`/report/${reportType}/${state}/${reportId}/${sectionId}`);
+  };
+
+  const submittedView =
+    isReviewSubmitPage(currentPage) && isCompleteStatus(report?.status);
+  const renderedElements = submittedView
+    ? currentPage.submittedView
+    : currentPage.elements;
+  return (
+    <>
+      <HStack position="relative" spacing="0" height="100%">
+        <DevTools
+          reportType={reportType}
+          state={state}
+          reloadReports={undefined}
+          reports={[]}
+          type={ToolType.REPORT}
+        ></DevTools>
+        <Box sx={sx.sidebarContainer}>{currentPage.sidebar && <Sidebar />}</Box>
+        <VStack
+          height="100%"
+          padding={
+            currentPage.sidebar
+              ? { base: "3.5rem 1rem", md: "3.5rem 0rem" }
+              : { base: "2rem 1rem", md: "2rem 0rem" }
+          }
+          margin={currentPage.sidebar ? { md: "0 4rem" } : { md: "0 6rem" }}
+          width="100%"
+          maxWidth={currentPage.sidebar ? "reportPageWidth" : "fullPageWidth"}
+          gap="0rem"
+        >
+          <Box
+            flex="auto"
+            alignItems="flex-start"
+            width="100%"
+            marginBottom="spacer4"
+          >
+            <form id="aFormId" autoComplete="off">
+              {currentPage.elements && (
+                <Page
+                  id={currentPage.id}
+                  setElements={(elements: PageElement[]) => {
+                    setAnswers({ ...currentPage, elements });
+                    autosave();
+                  }}
+                  elements={renderedElements ?? []}
+                ></Page>
+              )}
+            </form>
+          </Box>
+          {currentPage.hideNavButtons &&
+            currentPage.type === PageType.ReviewSubmit && <SubmissionBar />}
+
+          {!currentPage.hideNavButtons && parentPage && (
+            <>
+              <Divider></Divider>
+              <Flex width="100%" marginTop="spacer3">
+                {parentPage.index > 0 && (
+                  <Button
+                    onClick={() => SetPageIndex(parentPage.index - 1)}
+                    variant="outline"
+                    leftIcon={<Image src={prevArrowIcon} />}
+                  >
+                    Previous
+                  </Button>
+                )}
+                {parentPage.index < parentPage.childPageIds.length - 1 && (
+                  <Button
+                    onClick={() => SetPageIndex(parentPage.index + 1)}
+                    marginLeft="auto"
+                    rightIcon={<Image src={nextArrowIcon} />}
+                  >
+                    Continue
+                  </Button>
+                )}
+              </Flex>
+              {parentPage.index == 0 && (
+                <Box flex="auto" marginTop="spacer7">
+                  <PraDisclosure />
+                </Box>
+              )}
+            </>
+          )}
+        </VStack>
+        <ReportModal />
+      </HStack>
+    </>
+  );
+};
+
+const sx = {
+  spinnerContainer: {
+    alignItems: "center",
+    width: "100%",
+    justifyContent: "center",
+    padding: "10",
+  },
+  sidebarContainer: {
+    ".tablet &, .mobile &, .sidebarwide &": {
+      position: "absolute",
+    },
+    height: "100%",
+  },
+};

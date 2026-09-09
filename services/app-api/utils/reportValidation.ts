@@ -1,0 +1,634 @@
+// oxlint-disable unicorn/no-thenable
+import {
+  array,
+  boolean,
+  lazy,
+  mixed,
+  number,
+  object,
+  Schema,
+  string,
+} from "yup";
+import {
+  Report,
+  ReportStatus,
+  ReportType,
+  PageType,
+  ElementType,
+  PageElement,
+  CreateReportOptions,
+  CreateInitiativeOptions,
+  UpdateInitiativeOptions,
+  RhtpSubType,
+  Comment,
+  getExtension,
+  isAllowedFileExtension,
+  ZipRequestTypes,
+  ZipRequestBody,
+  CommentType,
+} from "@rhtp/shared";
+import { error } from "./constants";
+
+const helperTextLinkSchema = object()
+  .shape({
+    link: string(),
+    label: string(),
+    text: string(),
+  })
+  .notRequired();
+
+const hideConditionSchema = object()
+  .shape({
+    controllerElementId: string().required(),
+    answer: string().required(),
+  })
+  .notRequired()
+  .default(undefined);
+
+const headerTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Header)),
+  id: string().required(),
+  text: string().required(),
+  icon: string().notRequired(),
+});
+
+const subHeaderTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.SubHeader)),
+  id: string().required(),
+  text: string().required(),
+  helperText: string().notRequired(),
+  hideCondition: hideConditionSchema,
+});
+
+const paragraphTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Paragraph)),
+  id: string().required(),
+  text: string().required(),
+  title: string().notRequired(),
+  style: string().notRequired(),
+  helperTextLink: helperTextLinkSchema,
+});
+
+const inputElementSchema = {
+  id: string().required(),
+  label: string().required(),
+  helperText: string().notRequired(),
+  helperTextLink: helperTextLinkSchema,
+  required: boolean().required(),
+  quarterly: boolean().notRequired(),
+  disabled: boolean().notRequired(),
+  onlyCmsAdminCanEdit: boolean().notRequired(),
+  cmsAdminCanEditInSubmitted: boolean().notRequired(),
+  skipOptionalTag: boolean().notRequired(),
+};
+
+const textboxTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Textbox)),
+  ...inputElementSchema,
+  answer: string().notRequired(),
+  hideCondition: hideConditionSchema,
+  mask: string().notRequired(),
+});
+
+const listInputTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.ListInput)),
+  ...inputElementSchema,
+  fieldLabel: string().required(),
+  buttonText: string().required(),
+  answer: array().of(string()).notRequired(),
+  validation: string().notRequired(),
+});
+
+const numberFieldTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.NumberField)),
+  ...inputElementSchema,
+  answer: number().notRequired(),
+  mask: string().notRequired(),
+});
+
+const textAreaTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.TextAreaField)),
+  ...inputElementSchema,
+  answer: string().notRequired(),
+  hideCondition: hideConditionSchema,
+  charLimit: number().notRequired(),
+});
+
+const dateTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Date)),
+  ...inputElementSchema,
+  answer: string().notRequired(),
+});
+
+const dropdownTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Dropdown)),
+  ...inputElementSchema,
+  options: array().of(
+    object().shape({
+      label: string().required(),
+      value: string().required(),
+      checked: boolean().notRequired(),
+      checkedChildren: lazy(() => array().of(pageElementSchema).notRequired()),
+    })
+  ),
+  answer: string().notRequired(),
+});
+
+const accordionTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Accordion)),
+  id: string().required(),
+  label: string().required(),
+  value: string().required(),
+});
+
+const hasAllowedFileExtension = (value?: string) => {
+  const ext = getExtension(value ?? "");
+  return !!ext && isAllowedFileExtension(ext);
+};
+
+export const uploadListPropSchema = object().shape({
+  label: string().notRequired(),
+  name: string()
+    .transform((value) => (value === "" ? undefined : value))
+    .default("Uploaded File")
+    .required()
+    .test(
+      "allowed-extension",
+      "Unsupported file type",
+      hasAllowedFileExtension
+    ),
+  size: number().required(),
+  fileId: string()
+    .required()
+    .test("allowed-extension", "Unsupported file type", hasAllowedFileExtension)
+    .test(
+      "matches-name-extension",
+      "fileId extension must match name extension",
+      function (fileId) {
+        const nameExt = getExtension(this.parent.name ?? "");
+        const fileIdExt = getExtension(fileId ?? "");
+        return !!nameExt && nameExt === fileIdExt;
+      }
+    ),
+});
+
+const ObligatedAndSpentFundsAttachmentSchema = object().shape({
+  type: string()
+    .required()
+    .matches(new RegExp(ElementType.ObligatedAndSpentFundsAttachment)),
+  id: string().required(),
+  label: string().required(),
+  answer: array().of(uploadListPropSchema).notRequired(),
+  required: boolean().required(),
+});
+
+const pageElementSchema = lazy((value: PageElement): Schema => {
+  if (!value.type) {
+    throw new Error("Some error message");
+  }
+  switch (value.type) {
+    case ElementType.Header:
+      return headerTemplateSchema;
+    case ElementType.SubHeader:
+      return subHeaderTemplateSchema;
+    case ElementType.Paragraph:
+      return paragraphTemplateSchema;
+    case ElementType.Textbox:
+      return textboxTemplateSchema;
+    case ElementType.TextAreaField:
+      return textAreaTemplateSchema;
+    case ElementType.NumberField:
+      return numberFieldTemplateSchema;
+    case ElementType.Date:
+      return dateTemplateSchema;
+    case ElementType.Dropdown:
+      return dropdownTemplateSchema;
+    case ElementType.Accordion:
+      return accordionTemplateSchema;
+    case ElementType.Radio:
+      return radioTemplateSchema;
+    case ElementType.Checkbox:
+      return checkboxTemplateSchema;
+    case ElementType.ButtonLink:
+      return buttonLinkTemplateSchema;
+    case ElementType.StatusTable:
+      return statusTableTemplateSchema;
+    case ElementType.StatusAlert:
+      return statusAlertSchema;
+    case ElementType.Divider:
+      return dividerSchema;
+    case ElementType.SubmissionParagraph:
+      return submissionParagraphSchema;
+    case ElementType.ListInput:
+      return listInputTemplateSchema;
+    case ElementType.TableCheckpoint:
+      return tableCheckpointTemplateSchema;
+    case ElementType.ObligatedAndSpentFundsAttachment:
+      return ObligatedAndSpentFundsAttachmentSchema;
+    case ElementType.InitiativesTable:
+      return initiativesTableSchema;
+    case ElementType.AttachmentArea:
+      return attachmentAreaSchema;
+    case ElementType.AccordionGroup:
+      return accordionGroupTemplateSchema;
+    case ElementType.AttachmentTable:
+      return attachmentTableSchema;
+    case ElementType.ActionTable:
+      return actionTableSchema;
+    case ElementType.RequestFeedbackButton:
+      return requestFeedbackButtonSchema;
+    default:
+      throw new Error("Page Element type is not valid");
+  }
+});
+
+const radioTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Radio)),
+  ...inputElementSchema,
+  choices: array().of(
+    object().shape({
+      label: string().required(),
+      value: string().required(),
+      checked: boolean().notRequired(),
+      checkedChildren: lazy(() => array().of(pageElementSchema).notRequired()),
+    })
+  ),
+  answer: string().notRequired(),
+  clickAction: string().notRequired(),
+  hideCondition: hideConditionSchema,
+});
+
+const checkboxTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Checkbox)),
+  ...inputElementSchema,
+  choices: array().of(
+    object().shape({
+      label: string().required(),
+      value: string().required(),
+      checked: boolean().notRequired(),
+      checkedChildren: lazy(() => array().of(pageElementSchema).notRequired()),
+    })
+  ),
+  answer: array().of(string()).notRequired(),
+});
+
+const tableCheckpointTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.TableCheckpoint)),
+  id: string().required(),
+  required: boolean().required(),
+  answer: array()
+    .of(
+      object().shape({
+        id: string().required(),
+        checked: boolean().required(),
+      })
+    )
+    .notRequired(),
+});
+
+const accordionGroupTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.AccordionGroup)),
+  id: string().required(),
+  accordions: array()
+    .of(
+      object().shape({
+        label: string().required(),
+        elements: lazy(() => array().of(pageElementSchema).required()),
+      })
+    )
+    .required(),
+  required: boolean().required(),
+  answer: array().of(boolean()).notRequired(),
+});
+
+const buttonLinkTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.ButtonLink)),
+  id: string().required(),
+  label: string().required(),
+  to: string().required(),
+  style: string().optional(),
+});
+
+const attachmentAreaSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.AttachmentArea)),
+  ...inputElementSchema,
+  answer: array().of(uploadListPropSchema),
+  subLabel: string().notRequired(),
+  message: string().notRequired(),
+});
+
+const ActionElementsSchema = {
+  id: string().required(),
+  type: string().required(),
+  hintText: string().notRequired(),
+  disabled: boolean().notRequired(),
+  mask: string().notRequired(),
+};
+
+const actionTableSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.ActionTable)),
+  ...inputElementSchema,
+  heading: string().required(),
+  modal: object()
+    .shape({
+      title: string().required(),
+      hintText: string().notRequired(),
+      elements: array()
+        .of(
+          object().shape({
+            ...ActionElementsSchema,
+            label: string().required(),
+            editOnly: boolean().notRequired(),
+            children: array()
+              .of(
+                object().shape({
+                  label: string().required(),
+                  value: string().required(),
+                })
+              )
+              .notRequired(),
+            required: boolean().required(),
+            mask: string().notRequired(),
+          })
+        )
+        .required(),
+    })
+    .required(),
+  rows: array()
+    .of(
+      object().shape({
+        ...ActionElementsSchema,
+        header: string().required(),
+      })
+    )
+    .required(),
+  answer: array().of(mixed()).notRequired(),
+});
+
+const initiativesTableSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.InitiativesTable)),
+  id: string().required(),
+  quarterly: boolean().notRequired(),
+  disabled: boolean().notRequired(),
+  required: boolean().required(),
+});
+
+const attachmentTableSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.AttachmentTable)),
+  id: string().required(),
+  answer: array()
+    .of(
+      object().shape({
+        attachment: uploadListPropSchema,
+        initiatives: array().of(string().notRequired()).required(),
+        checkpoint: string().notRequired(),
+        status: string().required(),
+        canDelete: boolean().notRequired(),
+      })
+    )
+    .notRequired(),
+});
+
+const dividerSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.Divider)),
+  id: string().required(),
+});
+
+const submissionParagraphSchema = object().shape({
+  type: string()
+    .required()
+    .matches(new RegExp(ElementType.SubmissionParagraph)),
+  id: string().required(),
+});
+
+const statusTableTemplateSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.StatusTable)),
+  id: string().required(),
+  to: string().required(),
+});
+
+const parentPageTemplateSchema = object().shape({
+  id: string().required(),
+  childPageIds: array().of(string()).required(),
+});
+
+const statusAlertSchema = object().shape({
+  type: string().required().matches(new RegExp(ElementType.StatusAlert)),
+  id: string().required(),
+  title: string().required(),
+  text: string().required(),
+  status: string().required(),
+  for: string().notRequired(),
+});
+
+const formPageTemplateSchema = object().shape({
+  id: string().required(),
+  title: string().required(),
+  type: mixed<PageType>().oneOf(Object.values(PageType)).required(),
+  status: string().notRequired(),
+  elements: array().of(pageElementSchema).required(),
+  sidebar: boolean().notRequired(),
+  hideNavButtons: boolean().notRequired(),
+  childPageIds: array().of(string()).notRequired(),
+});
+
+const initiativePageTemplateSchema = formPageTemplateSchema.shape({
+  initiativeNumber: string().required(),
+});
+
+const reviewSubmitTemplateSchema = formPageTemplateSchema.shape({
+  submittedView: array().of(pageElementSchema).required(),
+});
+
+const requestFeedbackButtonSchema = object().shape({
+  type: string()
+    .required()
+    .matches(new RegExp(ElementType.RequestFeedbackButton)),
+  id: string().required(),
+});
+
+/**
+ * This schema is meant to represent the pages field in the ReportTemplate type.
+ * The following yup `lazy` function is building up the union type:
+ * `(ParentPageTemplate | FormPageTemplate | InitiativePageTemplate | ReviewSubmitTemplate)[]`
+ * and outputs the correct type in the union based on various fields
+ * on the page object that gets passed through.
+ */
+const pagesSchema = array()
+  .of(
+    lazy((pageObject) => {
+      if (pageObject.initiativeNumber) {
+        return initiativePageTemplateSchema;
+      }
+      if (!pageObject.type) {
+        if (pageObject.id && pageObject.childPageIds) {
+          return parentPageTemplateSchema;
+        } else {
+          throw new Error("Some error message");
+        }
+      } else {
+        switch (pageObject.type) {
+          case PageType.ReviewSubmit:
+            return reviewSubmitTemplateSchema;
+          default:
+            return formPageTemplateSchema;
+        }
+      }
+    })
+  )
+  .required();
+
+export const isCreateReportOptions = (
+  obj: object | undefined
+): obj is CreateReportOptions => {
+  const createReportOptionsValidationSchema = object()
+    .shape({
+      mockDate: string().notRequired(),
+    })
+    .required()
+    .noUnknown();
+
+  return createReportOptionsValidationSchema.isValidSync(obj, {
+    stripUnknown: false,
+    strict: true,
+  });
+};
+
+export const isCreateInitiativeBody = (
+  obj: object | undefined
+): obj is CreateInitiativeOptions => {
+  const createInitiativeSchema = object()
+    .shape({
+      initiativeName: string().required(),
+      initiativeNumber: string().required(),
+    })
+    .required()
+    .noUnknown();
+
+  return createInitiativeSchema.isValidSync(obj, {
+    stripUnknown: false,
+    strict: true,
+  });
+};
+
+export const isUpdateInitiativeBody = (
+  obj: object | undefined
+): obj is UpdateInitiativeOptions => {
+  const updateInitiativeSchema = object()
+    .shape({
+      initiativeAbandon: boolean().required(),
+    })
+    .required()
+    .noUnknown();
+
+  return updateInitiativeSchema.isValidSync(obj, {
+    stripUnknown: false,
+    strict: true,
+  });
+};
+
+export const isZipRequestBody = (
+  obj: object | undefined
+): obj is ZipRequestBody => {
+  const zipRequestBody = object()
+    .shape({
+      type: mixed<ZipRequestTypes>()
+        .oneOf(Object.values(ZipRequestTypes))
+        .required(),
+      report: object()
+        .shape({
+          state: string().required(),
+          id: string().required(),
+          reportType: mixed<ReportType>()
+            .oneOf(Object.values(ReportType))
+            .required(),
+        })
+        .when("type", {
+          is: ZipRequestTypes.REPORT,
+          then: (schema) =>
+            schema.required("Report information required for REPORT zip"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+      state: string().notRequired(),
+      reportSubTypeKeys: array()
+        .of(string().required())
+        .when("type", {
+          is: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
+          then: (schema) =>
+            schema.required(
+              "Report sub types required for OBLIGATED_AND_SPENT_FUNDS zip"
+            ),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+    })
+    .required()
+    .noUnknown();
+
+  return zipRequestBody.isValidSync(obj, {
+    stripUnknown: false,
+    strict: true,
+  });
+};
+
+const commentSchema = object().shape({
+  contextId: string().required(),
+  created: number().required(),
+  id: string().required(),
+  author: string().required(),
+  authorEmail: string().required(),
+  isInternal: boolean().required(),
+  type: mixed<CommentType>().oneOf(Object.values(CommentType)).required(),
+  comment: string().notRequired(),
+  statusChange: string().notRequired(),
+  parentReportId: string().notRequired(),
+});
+
+const reportValidateSchema = object().shape({
+  id: string().notRequired(),
+  state: string().required(),
+  created: number().notRequired(),
+  copyFromReportId: string().notRequired(),
+  lastEdited: number().notRequired(),
+  lastEditedBy: string().required(),
+  lastEditedByEmail: string().notRequired(),
+  submitted: number().notRequired(),
+  submissionDates: array()
+    .of(
+      object().shape({
+        submitted: number().notRequired(),
+      })
+    )
+    .notRequired(),
+  submittedBy: string().notRequired(),
+  submittedByEmail: string().notRequired(),
+  status: mixed<ReportStatus>().oneOf(Object.values(ReportStatus)).required(),
+  name: string().required(),
+  type: mixed<ReportType>().oneOf(Object.values(ReportType)).required(),
+  subType: mixed<RhtpSubType>().oneOf(Object.values(RhtpSubType)).required(),
+  subTypeKey: string().required(),
+  budgetPeriod: number().min(0).max(5).required(),
+  submissionCount: number().required(),
+  pages: pagesSchema,
+});
+
+export const validateReportPayload = async (payload: object | undefined) => {
+  if (!payload) {
+    throw new Error(error.MISSING_DATA);
+  }
+  const validatedPayload = await reportValidateSchema.validate(payload, {
+    stripUnknown: true,
+  });
+
+  return validatedPayload as Report;
+};
+
+export const validateCommentPayload = async (payload: object | undefined) => {
+  if (!payload) {
+    throw new Error(error.MISSING_DATA);
+  }
+  const validatedPayload = await commentSchema.validate(payload, {
+    stripUnknown: true,
+  });
+
+  return validatedPayload as Comment;
+};

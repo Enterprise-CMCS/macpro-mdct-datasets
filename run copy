@@ -1,0 +1,90 @@
+#!/bin/bash
+# This file is managed by macpro-mdct-core so if you'd like to change it let's do it there
+
+set -eu -o pipefail
+
+# this is the entrypoint for development. It wraps up compiling and calling run.ts
+# all arguments, changes, etc. should be found in cli/run.ts
+
+# this script checks for all the prereqs and then calls run.ts
+
+export REGION_A=us-east-1
+
+# Utilities
+require_cmd() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "$1 not found on the system. $2" >&2
+        exit 1
+    fi
+}
+
+# check node exists
+require_cmd node "Install version in .nvmrc. If using nvm, run 'nvm use'"
+
+# check node version
+if ! diff  <(cat .nvmrc | tr -d '\n') <(node -v | tr -d '\n') > /dev/null ; then
+    echo "node version does not match the version required in .nvmrc"
+    echo "If using nvm, run 'nvm use'"
+    exit 1
+fi
+
+# check yarn exists with corepack
+corepack enable 2>/dev/null || true
+
+# Parse arguments
+UPDATE_ENV=false
+LOCAL=false
+ARGS=()
+
+for arg in "$@"; do
+    case $arg in
+        # On some systems, --update-env must be exact in order for the
+        # flag to parse correctly based on the README instructions.
+        update-env|--update-env)
+            UPDATE_ENV=true
+        ;;
+        local)
+            LOCAL=true
+            ARGS+=("$arg")
+        ;;
+        *)
+        ARGS+=("$arg")
+        ;;
+    esac
+
+done
+
+if [ "$UPDATE_ENV" = true ]; then
+    require_cmd op "Install 1Password CLI: 'brew install --cask 1password-cli'"
+fi
+
+if [ "$LOCAL" = true ]; then
+    require_cmd docker "On macOS, install with 'brew install docker'"
+    require_cmd colima "On macOS, install with 'brew install colima'"
+    require_cmd localstack "On macOS, install with 'brew install localstack/tap/localstack-cli'"
+
+    if ! colima status 2>&1 | grep -q "colima is running" ; then
+        echo "colima installed but not running. We'll start it up for you now."
+        colima start --cpu 4 --memory 10
+    fi
+
+    if ! localstack status | grep -q "running" ; then
+        echo "localstack is installed but not running. We'll start it up for you now."
+        localstack start > /dev/null 2>&1 &
+    fi
+fi
+
+IMMUTABLE_FLAG=""
+[ -n "${CI:-}" ] && IMMUTABLE_FLAG="--immutable"
+
+yarn install $IMMUTABLE_FLAG >/dev/null 2>&1 || {
+echo "Dependency install failed" >&2; exit 1; }
+
+# If .env doesn't exist this needs to run before the CLI
+if [ "$UPDATE_ENV" = true ]; then
+    echo "Running update-env..."
+    ./cli/run.ts update-env
+fi
+
+# run the CLI
+./cli/run.ts "${ARGS[@]-}"

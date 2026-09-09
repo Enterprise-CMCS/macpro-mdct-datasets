@@ -1,0 +1,45 @@
+import { ComponentStyleConfig } from "@chakra-ui/react";
+
+const baseStyles = {
+  container: {},
+};
+
+const accordionVariant = {
+  container: {
+    paddingLeft: "1rem",
+  },
+};
+
+const uploadVariant = {
+  container: {
+    width: "100%",
+    maxWidth: "450px",
+  },
+  item: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "20px",
+    boxShadow: "0px 3px 9px #00000033",
+    ".progress": {
+      width: "100%",
+      background: "transparent",
+      borderRadius: "25px",
+      border: "2px solid #0071BC",
+    },
+    "&:not(:last-child)": {
+      marginBottom: "1.25rem",
+    },
+  },
+};
+
+const variants = {
+  accordion: accordionVariant,
+  upload: uploadVariant,
+};
+
+const listTheme: ComponentStyleConfig = {
+  baseStyle: baseStyles,
+  variants: variants,
+};
+
+export default listTheme;

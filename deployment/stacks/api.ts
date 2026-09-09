@@ -1,0 +1,558 @@
+import { Construct } from "constructs";
+import {
+  aws_apigateway as apigateway,
+  aws_logs as logs,
+  aws_wafv2 as wafv2,
+  aws_s3 as s3,
+  aws_ec2 as ec2,
+  aws_ses as ses,
+  aws_sns as sns,
+  aws_iam as iam,
+  Aws,
+  CfnOutput,
+  Duration,
+  RemovalPolicy,
+} from "aws-cdk-lib";
+import { Lambda } from "../constructs/lambda.ts";
+import { WafConstruct } from "../constructs/waf.ts";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { DynamoDBTable } from "../constructs/dynamodb-table.ts";
+import { isLocalStack } from "../local/util.ts";
+import { LambdaDynamoEventSource } from "../constructs/lambda-dynamo-event.ts";
+
+interface CreateApiComponentsProps {
+  scope: Construct;
+  stage: string;
+  project: string;
+  isDev: boolean;
+  tables: DynamoDBTable[];
+  vpc: ec2.IVpc;
+  kafkaAuthorizedSubnets: ec2.ISubnet[];
+  brokerString: string;
+  attachmentsBucket: s3.IBucket;
+  datasetBucket: s3.IBucket;
+  launchDarklyServer: string;
+  launchDarklyLocalFlags?: string;
+}
+
+export function createApiComponents(props: CreateApiComponentsProps) {
+  const {
+    scope,
+    stage,
+    project,
+    isDev,
+    vpc,
+    kafkaAuthorizedSubnets,
+    brokerString,
+    tables,
+    attachmentsBucket,
+    datasetBucket,
+    launchDarklyServer,
+    launchDarklyLocalFlags = '{"local": false, "flags": {}}',
+  } = props;
+
+  const isProduction = stage === "production";
+
+  const service = "app-api";
+
+  const kafkaSecurityGroup = new ec2.SecurityGroup(
+    scope,
+    "KafkaSecurityGroup",
+    {
+      vpc,
+      description:
+        "Security Group for streaming functions. Egress all is set by default.",
+      allowAllOutbound: true,
+    }
+  );
+
+  // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
+  let sesPolicy = new iam.PolicyStatement({
+    effect: iam.Effect.DENY,
+    actions: ["ses:SendEmail", "ses:SendRawEmail"],
+    resources: ["*"],
+  });
+  if (!isDev) {
+    const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
+    new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
+      topic: sns.Topic.fromTopicArn(
+        scope,
+        `${project}-${stage}-failed-email-topic`,
+        topic.topicArn
+      ),
+      endpoint: "mdct-integrations@coforma.io",
+      protocol: sns.SubscriptionProtocol.EMAIL,
+    });
+
+    const configSet = new ses.ConfigurationSet(
+      scope,
+      `${project}-${stage}-email-configuration-set`,
+      {
+        sendingEnabled: true,
+        configurationSetName: `${project}-${stage}-email-configuration-set`,
+        reputationMetrics: true,
+      }
+    );
+
+    configSet.addEventDestination("sns", {
+      destination: ses.EventDestination.snsTopic(topic),
+      configurationSetEventDestinationName: `${project}-${stage}-email-topic`,
+      enabled: isProduction, // only send alerts to sns in prod
+      events: [
+        ses.EmailSendingEvent.REJECT,
+        ses.EmailSendingEvent.BOUNCE,
+        ses.EmailSendingEvent.COMPLAINT,
+      ],
+    });
+
+    const senderIdentity = new ses.EmailIdentity(
+      scope,
+      "SenderDomainIdentity",
+      {
+        identity: ses.Identity.domain("cms.hhs.gov"),
+        configurationSet: configSet,
+      }
+    );
+
+    sesPolicy = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ["ses:SendEmail", "ses:SendRawEmail"],
+      resources: [
+        senderIdentity.emailIdentityArn,
+        `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:configuration-set/${configSet.configurationSetName}`,
+      ],
+    });
+  }
+
+  const logGroup = new logs.LogGroup(scope, "ApiAccessLogs", {
+    removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
+    retention: logs.RetentionDays.THREE_YEARS, // exceeds the 30 month requirement
+  });
+
+  const api = new apigateway.RestApi(scope, "ApiGatewayRestApi", {
+    restApiName: `${project}-${stage}-app-api`,
+    deploy: true,
+    cloudWatchRole: false,
+    deployOptions: {
+      stageName: stage,
+      tracingEnabled: true,
+      loggingLevel: isDev
+        ? apigateway.MethodLoggingLevel.OFF
+        : apigateway.MethodLoggingLevel.INFO,
+      dataTraceEnabled: true,
+      metricsEnabled: false,
+      throttlingBurstLimit: 5000,
+      throttlingRateLimit: 10000,
+      cachingEnabled: false,
+      cacheTtl: Duration.seconds(300),
+      cacheDataEncrypted: false,
+      accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
+      accessLogFormat: apigateway.AccessLogFormat.custom(
+        "requestId: $context.requestId, ip: $context.identity.sourceIp, " +
+          "caller: $context.identity.caller, user: $context.identity.user, " +
+          "requestTime: $context.requestTime, httpMethod: $context.httpMethod, " +
+          "resourcePath: $context.resourcePath, status: $context.status, " +
+          "protocol: $context.protocol, responseLength: $context.responseLength"
+      ),
+    },
+    defaultCorsPreflightOptions: {
+      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowMethods: apigateway.Cors.ALL_METHODS,
+    },
+  });
+
+  api.addGatewayResponse("Default4XXResponse", {
+    type: apigateway.ResponseType.DEFAULT_4XX,
+    responseHeaders: {
+      "Access-Control-Allow-Origin": "'*'",
+      "Access-Control-Allow-Headers": "'*'",
+    },
+  });
+
+  api.addGatewayResponse("Default5XXResponse", {
+    type: apigateway.ResponseType.DEFAULT_5XX,
+    responseHeaders: {
+      "Access-Control-Allow-Origin": "'*'",
+      "Access-Control-Allow-Headers": "'*'",
+    },
+  });
+
+  const environment = {
+    NODE_OPTIONS: "--enable-source-maps",
+    STAGE: stage,
+    launchDarklyServer,
+    launchDarklyLocalFlags,
+    attachmentsBucketName: attachmentsBucket.bucketName,
+    datasetBucketName: datasetBucket.bucketName,
+    ...Object.fromEntries(
+      tables.map((table) => [`${table.node.id}Table`, table.table.tableName])
+    ),
+    brokerString,
+    ...(isLocalStack && { AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL }),
+  };
+
+  const commonProps = {
+    brokerString,
+    stackName: `${project}-${stage}`,
+    api,
+    environment,
+    isDev,
+    tables,
+    buckets: [attachmentsBucket, datasetBucket],
+  };
+
+  // Banner handlers
+  new Lambda(scope, "createBanner", {
+    entry: "services/app-api/handlers/banners/create.ts",
+    handler: "createBanner",
+    path: "banners",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "updateBanner", {
+    entry: "services/app-api/handlers/banners/update.ts",
+    handler: "updateBanner",
+    path: "banners/{bannerId}",
+    method: "PUT",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteBanner", {
+    entry: "services/app-api/handlers/banners/delete.ts",
+    handler: "deleteBanner",
+    path: "banners/{bannerId}",
+    method: "DELETE",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getBanners", {
+    entry: "services/app-api/handlers/banners/fetch.ts",
+    handler: "getBanners",
+    path: "banners",
+    method: "GET",
+    ...commonProps,
+  });
+
+  // Report handlers
+  new Lambda(scope, "createReport", {
+    entry: "services/app-api/handlers/reports/create.ts",
+    handler: "createReport",
+    path: "reports/{reportType}/{state}",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getReportsByType", {
+    entry: "services/app-api/handlers/reports/get.ts",
+    handler: "getReportsByType",
+    path: "reports/{reportType}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getReport", {
+    entry: "services/app-api/handlers/reports/get.ts",
+    handler: "getReport",
+    path: "reports/{reportType}/{state}/{id}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getReportsForState", {
+    entry: "services/app-api/handlers/reports/get.ts",
+    handler: "getReportsForState",
+    path: "reports/{reportType}/{state}",
+    method: "GET",
+    ...commonProps,
+  });
+  //paths made only for dev tool, not to be used on real data
+  if (!isProduction) {
+    new Lambda(scope, "deleteReport", {
+      entry: "services/app-api/handlers/reports/delete.ts",
+      handler: "deleteReport",
+      path: "reports/{reportType}/{state}/{id}",
+      method: "DELETE",
+      ...commonProps,
+    });
+
+    new Lambda(scope, "deleteReportsForState", {
+      entry: "services/app-api/handlers/reports/delete.ts",
+      handler: "deleteReportsForState",
+      path: "reports/{reportType}/{state}",
+      method: "DELETE",
+      ...commonProps,
+    });
+  }
+  new Lambda(scope, "submitReport", {
+    entry: "services/app-api/handlers/reports/submit.ts",
+    handler: "submitReport",
+    path: "reports/submit/{reportType}/{state}/{id}",
+    method: "PUT",
+    additionalPolicies: [sesPolicy],
+    ...commonProps,
+  });
+
+  new Lambda(scope, "updateReport", {
+    entry: "services/app-api/handlers/reports/update.ts",
+    handler: "updateReport",
+    path: "reports/{reportType}/{state}/{id}",
+    method: "PUT",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "releaseReport", {
+    entry: "services/app-api/handlers/reports/release.ts",
+    handler: "releaseReport",
+    path: "reports/release/{reportType}/{state}/{id}",
+    method: "PUT",
+    additionalPolicies: [sesPolicy],
+    ...commonProps,
+  });
+
+  new Lambda(scope, "acceptReport", {
+    entry: "services/app-api/handlers/reports/accept.ts",
+    handler: "acceptReport",
+    path: "reports/accept/{reportType}/{state}/{id}",
+    method: "PUT",
+    additionalPolicies: [sesPolicy],
+    ...commonProps,
+  });
+
+  new Lambda(scope, "createUpload", {
+    entry: "services/app-api/handlers/uploads/create.ts",
+    handler: "createUpload",
+    path: "/reports/{reportType}/{state}/{id}/files",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getUploadsByFileId", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploadsByFileId",
+    path: "/reports/{reportType}/{state}/{id}/files/{fileId}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  const zipWorkerLambda = new Lambda(scope, "zipWorker", {
+    entry: "services/app-api/handlers/uploads/zip.ts",
+    handler: "zipWorker",
+    memorySize: 10240,
+    timeout: Duration.minutes(15),
+    ...commonProps,
+  });
+
+  new Lambda(scope, "triggerZipGeneration", {
+    entry: "services/app-api/handlers/uploads/zip.ts",
+    handler: "triggerZipGeneration",
+    path: "/zips",
+    method: "POST",
+    additionalPolicies: [
+      new PolicyStatement({
+        actions: ["lambda:InvokeFunction"],
+        resources: [zipWorkerLambda.lambda.functionArn],
+      }),
+    ],
+    ...commonProps,
+    environment: {
+      ...commonProps.environment,
+      zipWorkerFunctionName: zipWorkerLambda.lambda.functionName,
+    },
+  });
+
+  new Lambda(scope, "getZipStatus", {
+    entry: "services/app-api/handlers/uploads/zip.ts",
+    handler: "getZipStatus",
+    path: "/zips/{id}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteUpload", {
+    entry: "services/app-api/handlers/uploads/delete.ts",
+    handler: "deleteUploadedFile",
+    path: "/reports/{reportType}/{state}/{id}/files/{fileId}",
+    method: "DELETE",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "createInitiative", {
+    entry: "services/app-api/handlers/reports/initiatives/create.ts",
+    handler: "createInitiative",
+    path: "reports/{reportType}/{state}/{id}/initiatives",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "updateInitiative", {
+    entry: "services/app-api/handlers/reports/initiatives/update.ts",
+    handler: "updateInitiative",
+    path: "reports/{reportType}/{state}/{id}/initiatives/{initiativeId}",
+    method: "PUT",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "createComment", {
+    entry: "services/app-api/handlers/comments/create.ts",
+    handler: "createComment",
+    path: "comments/{state}/{contextId}",
+    method: "POST",
+    additionalPolicies: [sesPolicy],
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getComments", {
+    entry: "services/app-api/handlers/comments/fetch.ts",
+    handler: "getComments",
+    path: "comments/{state}/{contextId}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "createNotificationRecipient", {
+    entry: "services/app-api/handlers/notifications/recipients/create.ts",
+    handler: "createNotificationRecipient",
+    path: "notifications/recipients/{state}",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getNotificationRecipients", {
+    entry: "services/app-api/handlers/notifications/recipients/get.ts",
+    handler: "getNotificationRecipients",
+    path: "notifications/recipients",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getAssignedStatesByEmail", {
+    entry: "services/app-api/handlers/notifications/recipients/get.ts",
+    handler: "getAssignedStatesByEmail",
+    path: "notifications/recipientByEmail/{email}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteNotificationRecipient", {
+    entry: "services/app-api/handlers/notifications/recipients/delete.ts",
+    handler: "deleteNotificationRecipient",
+    path: "notifications/recipients/{state}/{id}",
+    method: "DELETE",
+    ...commonProps,
+  });
+
+  //------------------- Start of DataSet API Routes -------------------
+  new Lambda(scope, "createDataSetUpload", {
+    entry: "services/app-api/handlers/datasetUpload/create.ts",
+    handler: "createDataSetUpload",
+    path: "/dataset/{state}/{id}",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getUploadsByState", {
+    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    handler: "getUploadsByState",
+    path: "/dataset/{state}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getDataSetUploadsByFileId", {
+    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    handler: "getDataSetUploadsByFileId",
+    path: "/dataset/{state}/{id}/files/{fileId}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "updateDataSetUpload", {
+    entry: "services/app-api/handlers/datasetUpload/update.ts",
+    handler: "updateDataSetUpload",
+    path: "/dataset/{state}/{id}/files/{fileId}",
+    method: "PUT",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteDataSetUpload", {
+    entry: "services/app-api/handlers/datasetUpload/delete.ts",
+    handler: "deleteDataSetUpload",
+    path: "/dataset/{state}/{id}/files/{fileId}",
+    method: "DELETE",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "createDataSet", {
+    entry: "services/app-api/handlers/dataset/create.ts",
+    handler: "createDataSet",
+    path: "datasets",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "updateDataSet", {
+    entry: "services/app-api/handlers/dataset/update.ts",
+    handler: "updateDataSet",
+    path: "datasets/{id}",
+    method: "PUT",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getDataSets", {
+    entry: "services/app-api/handlers/dataset/get.ts",
+    handler: "getDataSets",
+    path: "datasets",
+    method: "GET",
+    ...commonProps,
+  });
+
+  //------------------- End of DataSet API Routes -------------------
+
+  new LambdaDynamoEventSource(scope, "postKafkaData", {
+    entry: "services/app-api/handlers/kafka/postKafkaData.ts",
+    handler: "handler",
+    timeout: Duration.seconds(120),
+    memorySize: 2048,
+    retryAttempts: 2,
+    vpc,
+    vpcSubnets: { subnets: kafkaAuthorizedSubnets },
+    securityGroups: [kafkaSecurityGroup],
+    ...commonProps,
+    environment: {
+      topicNamespace: isDev ? `--${project}--${stage}--` : "",
+      ...commonProps.environment,
+    },
+    tables: tables.filter((table) =>
+      ["Reports", "Comments"].includes(table.node.id)
+    ),
+  });
+
+  if (!isLocalStack) {
+    const waf = new WafConstruct(
+      scope,
+      "ApiWafConstruct",
+      {
+        name: `${project}-${stage}-${service}`,
+        blockRequestBodyOver8KB: false,
+      },
+      "REGIONAL"
+    );
+
+    new wafv2.CfnWebACLAssociation(scope, "WebACLAssociation", {
+      resourceArn: api.deploymentStage.stageArn,
+      webAclArn: waf.webAcl.attrArn,
+    });
+  }
+
+  const apiGatewayRestApiUrl = api.url.slice(0, -1);
+
+  new CfnOutput(scope, "ApiUrl", {
+    value: apiGatewayRestApiUrl,
+  });
+
+  return {
+    restApiId: api.restApiId,
+    apiGatewayRestApiUrl,
+  };
+}
