@@ -150,7 +150,7 @@ export function createUiAuthComponents(props: CreateUiAuthComponentsProps) {
     scope,
     "CognitoIdentityPool",
     {
-      identityPoolName: `${stage}-IdentityPool`,
+      identityPoolName: `${stage}-${project}-IdentityPool`,
       allowUnauthenticatedIdentities: false,
       cognitoIdentityProviders: [
         {

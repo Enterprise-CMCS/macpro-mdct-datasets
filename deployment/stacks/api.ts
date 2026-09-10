@@ -72,7 +72,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     actions: ["ses:SendEmail", "ses:SendRawEmail"],
     resources: ["*"],
   });
-  if (!isDev) {
+  /* if (!isDev) {
     const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
       topic: sns.Topic.fromTopicArn(
@@ -122,7 +122,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
         `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:configuration-set/${configSet.configurationSetName}`,
       ],
     });
-  }
+  } */
 
   const logGroup = new logs.LogGroup(scope, "ApiAccessLogs", {
     removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,

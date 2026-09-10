@@ -81,7 +81,7 @@ export function createUiComponents(props: CreateUiComponentsProps) {
     scope,
     "CloudFrontHeadersPolicy",
     {
-      responseHeadersPolicyName: `Headers-Policy-${stage}`,
+      responseHeadersPolicyName: `Headers-Policy-${stage}-${project}`,
       comment: "Add Security Headers",
       securityHeadersBehavior: {
         contentTypeOptions: {

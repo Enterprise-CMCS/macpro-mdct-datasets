@@ -46,12 +46,12 @@ const getDynamoInfo: GetDynamoInfo = async (record) => {
     // Fetch the pages and assemble the entire report before sending.
     const report = await getReport(ReportType.RHTP, payload.state, payload.id);
     return {
-      topic: `${namespace}aws.mdct.rhtp.rhtp-reports.v0`,
+      topic: `${namespace}aws.mdct.datasets.datasets-reports.v0`,
       payload: report!,
     };
   } else if (source.includes(`/${stage}-comments/`)) {
     return {
-      topic: `${namespace}aws.mdct.rhtp.rhtp-comments.v0`,
+      topic: `${namespace}aws.mdct.datasets.datasets-comments.v0`,
       payload,
     };
   } else {
