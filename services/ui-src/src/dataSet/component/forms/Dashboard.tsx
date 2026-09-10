@@ -10,13 +10,14 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { AlertTypes, StateNames } from "@rhtp/shared";
-import { PageTemplate } from "components";
+import { PageTemplate, Modal } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
 import { UploadDrawer } from "dataSet/component/drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
+  DataSetUploadType,
   getFilesByState,
   updateUploadedFile,
 } from "../api/requestMethods/datasetUploads";
@@ -26,17 +27,10 @@ import { EditDrawer } from "../drawers/EditDrawer";
 import { getDataSets } from "../api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 
-export type DataSetType = {
-  filename: string;
-  fileId: string;
-  datasetId: string;
-  uploadedUsername: string;
-  uploadedDate: string;
-};
-
 export const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [files, setFiles] = useState<DataSetType[]>([]);
+  const [files, setFiles] = useState<DataSetUploadType[]>([]);
+  const [sortedFiles, setSortedFiles] = useState<DataSetUploadType[]>([]);
   const [tableRows, setTableRows] = useState<
     (string | number | JSX.Element | undefined)[][]
   >([]);
@@ -47,24 +41,26 @@ export const Dashboard = () => {
 
   //Filters
   const { state } = useStore().user ?? {};
-  const [filterDataSet, _setFilterDataSet] = useState<string[]>([]);
-  const [displayValue, setDisplayValue] = useState<string>();
+  const [filterDataSet, setFilterDataSet] = useState<string[]>([]);
+  const [displayValue, setDisplayValue] = useState<
+    DataSetUploadType | { datasetId: string; fileId?: string }
+  >();
   const [dataSetOptions, setDataSetOptions] = useState<DropdownOptions[]>([]);
-
-  const [selectedFile, setSelectedFile] = useState<DataSetType>();
-
   const [uploadDrawerOpen, setUploadDrawerOpen] = useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFile, setDeleteFile] = useState<DataSetUploadType | undefined>();
 
-  const setStatesHandler = (_states: string[]) => {};
-
+  const setDataSetHandler = (dataSet: string[]) => {
+    setFilterDataSet(dataSet);
+  };
   const reloadDataSet = async () => {
     setIsLoading(true);
     const dataSets = await getDataSets();
-    setDataSetOptions([
-      { label: "- Select an option -", value: "" },
-      ...dataSets.map((set) => ({ label: set.name, value: set.key! })),
-    ]);
+    setDataSetOptions(
+      dataSets.map((set) => ({ label: set.name, value: set.key! }))
+    );
   };
 
   const reloadFiles = async () => {
@@ -81,25 +77,43 @@ export const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    if (filterDataSet.length > 0) {
+      setSortedFiles(
+        files.filter((file) => filterDataSet.includes(file.datasetId))
+      );
+    } else setSortedFiles(files);
+  }, [files, filterDataSet]);
+
+  useEffect(() => {
     sortRows(lastSorted.sort, lastSorted.type);
-  }, [files]);
+  }, [sortedFiles]);
 
   const clearFilter = () => {
-    setStatesHandler([]);
+    setDataSetHandler([]);
   };
 
-  const onEditHandler = (file: DataSetType) => {
-    setSelectedFile(file);
+  const onEditHandler = (file: DataSetUploadType) => {
+    setDisplayValue(file);
     setEditDrawerOpen(true);
   };
 
-  const onDeleteHandler = (file: DataSetType) => {
-    removeFile(state!, "1234", file.fileId).then(async () => {
+  const onDeleteHandler = async () => {
+    if (deleteFile) {
+      setModalLoading(true);
+      await removeFile(state!, deleteFile.datasetId, deleteFile.fileId);
       await reloadFiles();
-    });
+      setModalLoading(false);
+      setDeleteModal(false);
+    }
   };
 
-  const buildRows = (data: DataSetType[]) => {
+  const onModalClose = () => {
+    setDisplayValue(undefined);
+    setEditDrawerOpen(false);
+    setUploadDrawerOpen(false);
+  };
+
+  const buildRows = (data: DataSetUploadType[]) => {
     return data.map((file) => {
       const columnAction = (
         <HStack>
@@ -119,24 +133,34 @@ export const Dashboard = () => {
           <Button
             variant="link"
             fontWeight="bold"
-            onClick={() => onDeleteHandler(file)}
+            onClick={() => {
+              setDeleteModal(true);
+              setDeleteFile(file);
+            }}
             rightIcon={<Image src={cancelIcon} alt="Remove" />}
           ></Button>
         </HStack>
       );
 
+      const dataObj = new Date(file.uploadedDate);
+      const formattedDate = dataObj.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+
       return [
         file.filename,
         dataSetOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
-        file.uploadedDate,
+        formattedDate,
         columnAction,
       ];
     });
   };
 
   const sortRows = (row: string, type: SORT_TYPE) => {
-    const getValue = (answer: DataSetType, type: string) => {
+    const getValue = (answer: DataSetUploadType, type: string) => {
       switch (type) {
         case "File name":
           return answer.filename;
@@ -151,7 +175,7 @@ export const Dashboard = () => {
       }
     };
 
-    const runSort = (arr: DataSetType[]) => {
+    const runSort = (arr: DataSetUploadType[]) => {
       return type == SORT_TYPE.DEFAULT
         ? arr
         : arr.toSorted((a, b) => {
@@ -165,19 +189,21 @@ export const Dashboard = () => {
           });
     };
     setLastSorted({ sort: row, type: type });
-    setTableRows(buildRows(runSort(files)));
+    setTableRows(buildRows(runSort(sortedFiles)));
   };
 
   const setDataSetDropdown = (
     event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
   ) => {
-    setDisplayValue(event.target.value);
+    setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
-    const set = dataSetOptions.find((opt) => opt.value === displayValue)?.label;
+    const set = dataSetOptions.find(
+      (opt) => opt.value === displayValue?.datasetId
+    )?.label;
     const instruction =
-      !displayValue || displayValue === ""
+      !displayValue || displayValue.fileId === ""
         ? {
             type: AlertTypes.WARNING,
             text: "Select a data set above to unlock file upload.",
@@ -193,11 +219,19 @@ export const Dashboard = () => {
     };
   };
 
-  const saveFiles = () => {
-    if (selectedFile) {
-      updateUploadedFile(state!, selectedFile.datasetId!, selectedFile.fileId!);
-      reloadFiles();
-    }
+  const uploadFileSave = async () => {
+    setIsLoading(true);
+    await reloadFiles();
+    setModalLoading(false);
+  };
+
+  const editFileSave = async () => {
+    setModalLoading(true);
+    await updateUploadedFile(state!, displayValue as DataSetUploadType);
+    setIsLoading(true);
+    await reloadFiles();
+    setEditDrawerOpen(false);
+    setModalLoading(false);
   };
 
   return (
@@ -214,14 +248,16 @@ export const Dashboard = () => {
           Upload File(s)
         </Button>
         <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
-          <MultiSelect
-            label="Filter by Data Set:"
-            placeholder="Search data set"
-            countLabel="Data Set"
-            options={dataSetOptions}
-            values={filterDataSet}
-            onChange={(selected) => setStatesHandler(selected)}
-          />
+          {dataSetOptions.length > 0 && (
+            <MultiSelect
+              label="Filter by Data Set:"
+              placeholder="Search data set"
+              countLabel="Data Set"
+              options={dataSetOptions}
+              values={filterDataSet}
+              onChange={(selected) => setDataSetHandler(selected)}
+            />
+          )}
           <Button
             onClick={clearFilter}
             variant="link"
@@ -254,27 +290,30 @@ export const Dashboard = () => {
       <UploadDrawer
         modalDisclosure={{
           isOpen: uploadDrawerOpen,
-          onClose: () => setUploadDrawerOpen(false),
+          onClose: onModalClose,
         }}
         selections={
           <Dropdown
             label={"Select the associated data set for the file(s)."}
             name="associated-data-set"
             onChange={setDataSetDropdown}
-            options={dataSetOptions}
-            value={displayValue}
+            options={[
+              { label: "- Select an option -", value: "" },
+              ...dataSetOptions,
+            ]}
+            value={displayValue?.datasetId}
           />
         }
         answer={[]}
-        saveToReport={saveFiles}
+        saveToReport={uploadFileSave}
         notification={getNotification()}
-        disabled={!displayValue}
-        dataSetId={displayValue ?? ""}
+        disabled={!displayValue?.datasetId}
+        dataSetId={displayValue?.datasetId ?? ""}
       />
       <EditDrawer
         modalDisclosure={{
           isOpen: editDrawerOpen,
-          onClose: () => setEditDrawerOpen(false),
+          onClose: onModalClose,
         }}
         selections={
           <Dropdown
@@ -283,12 +322,32 @@ export const Dashboard = () => {
             hint="Updating the data set will reassign this file to that data set."
             onChange={setDataSetDropdown}
             options={dataSetOptions}
-            value={displayValue}
+            value={displayValue?.datasetId}
           />
         }
-        onModalSubmit={saveFiles}
-        file={selectedFile!}
+        onModalSubmit={editFileSave}
+        file={displayValue as DataSetUploadType}
+        submitting={modalLoading}
       />
+      <Modal
+        data-testid="delete-modal"
+        modalDisclosure={{
+          isOpen: deleteModal,
+          onClose: () => {
+            setDeleteModal(false);
+          },
+        }}
+        onConfirmHandler={onDeleteHandler}
+        content={{
+          heading: "Delete file?",
+          actionButtonText: "Delete",
+          closeButtonText: "Cancel",
+        }}
+        submitting={modalLoading}
+      >
+        Deleting {deleteFile?.filename} will remove it from the system and
+        revokes CMS access. This action cannot be undone.{" "}
+      </Modal>
     </PageTemplate>
   );
 };

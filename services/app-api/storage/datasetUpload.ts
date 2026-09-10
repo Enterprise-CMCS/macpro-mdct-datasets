@@ -9,7 +9,15 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
-import { UploadData } from "../types/uploads";
+
+export type DataSetUploadType = {
+  filename: string;
+  fileId: string;
+  datasetId: string;
+  uploadedUsername: string;
+  uploadedDate: string;
+  uploadedState: string;
+};
 
 const uploadTableName = process.env.DataSetUploadsTable!;
 const client = createClient();
@@ -40,10 +48,10 @@ export const deleteUpload = async (
 export const updateUpload = async (
   state: string,
   username: string,
-  uploadedFileName: string,
+  filename: string,
   fileId: string,
   datasetId: string,
-  uploadedFileSize: number
+  filesize: number
 ) => {
   const params = {
     TableName: uploadTableName,
@@ -56,8 +64,8 @@ export const updateUpload = async (
     ExpressionAttributeValues: {
       ":uploadedUsername": username,
       ":uploadedDate": new Date().toISOString(),
-      ":filename": uploadedFileName,
-      ":filesize": uploadedFileSize,
+      ":filename": filename,
+      ":filesize": filesize,
       ":datasetId": datasetId,
     },
   };
@@ -65,7 +73,7 @@ export const updateUpload = async (
   await client.send(new UpdateCommand(params));
 };
 
-export const batchPutUploads = async (uploads: UploadData[]) => {
+export const batchPutUploads = async (uploads: DataSetUploadType[]) => {
   const BATCH_SIZE = 25;
   for (let i = 0; i < uploads.length; i += BATCH_SIZE) {
     const batch = uploads.slice(i, i + BATCH_SIZE);
@@ -95,28 +103,26 @@ export const queryUpload = async (fileId: string, state: string) => {
   return await client.send(new QueryCommand(documentParams));
 };
 
-export const queryStateUpload = async () => {
+export const queryViewUploads = async () => {
   const pages = paginateScan({ client }, { TableName: uploadTableName });
   const items: Record<string, any>[] = [];
   for await (const page of pages) {
     items.push(...(page.Items ?? []));
   }
-  return items as UploadData[];
+  return items as DataSetUploadType[];
 };
 
-export const queryViewUploads = async (state: string, fileId: string) => {
+export const queryStateUpload = async (state: string) => {
   const params: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression:
-      "uploadedState = :state and begins_with(fileId, :fileId)",
+    KeyConditionExpression: "uploadedState = :state",
     ExpressionAttributeValues: {
       ":state": state,
-      ":fileId": fileId,
     },
   };
 
   const response = paginateQuery({ client }, params);
   const uploads = await collectPageItems(response);
 
-  return uploads as UploadData[];
+  return uploads as DataSetUploadType[];
 };
