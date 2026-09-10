@@ -1,8 +1,4 @@
-process.env.BannersTable = "local-banners";
-process.env.ReportsTable = "local-reports";
-process.env.CommentsTable = "local-comments";
-process.env.NotificationsTable = "local-notifications";
-process.env.NotificationRecipientsTable = "local-notifications-recipients";
+process.env.BannersTable = "local-datasets-banners";
 process.env.brokerString = "broker1,broker2";
 process.env.STAGE = "local";
 /*

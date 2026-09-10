@@ -29,7 +29,6 @@ interface CreateApiComponentsProps {
   vpc: ec2.IVpc;
   kafkaAuthorizedSubnets: ec2.ISubnet[];
   brokerString: string;
-  attachmentsBucket: s3.IBucket;
   datasetBucket: s3.IBucket;
   launchDarklyServer: string;
   launchDarklyLocalFlags?: string;
@@ -45,7 +44,6 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     kafkaAuthorizedSubnets,
     brokerString,
     tables,
-    attachmentsBucket,
     datasetBucket,
     launchDarklyServer,
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
@@ -182,7 +180,6 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     STAGE: stage,
     launchDarklyServer,
     launchDarklyLocalFlags,
-    attachmentsBucketName: attachmentsBucket.bucketName,
     datasetBucketName: datasetBucket.bucketName,
     ...Object.fromEntries(
       tables.map((table) => [`${table.node.id}Table`, table.table.tableName])
@@ -198,7 +195,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     environment,
     isDev,
     tables,
-    buckets: [attachmentsBucket, datasetBucket],
+    buckets: [datasetBucket],
   };
 
   // Banner handlers
