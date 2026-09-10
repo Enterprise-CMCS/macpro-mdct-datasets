@@ -72,7 +72,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     actions: ["ses:SendEmail", "ses:SendRawEmail"],
     resources: ["*"],
   });
-  if (!isDev) {
+  /* if (!isDev) {
     const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
       topic: sns.Topic.fromTopicArn(
@@ -122,7 +122,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
         `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:configuration-set/${configSet.configurationSetName}`,
       ],
     });
-  }
+  } */
 
   const logGroup = new logs.LogGroup(scope, "ApiAccessLogs", {
     removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
@@ -463,6 +463,14 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     entry: "services/app-api/handlers/datasetUpload/get.ts",
     handler: "getDataSetUploadsByFileId",
     path: "/dataset/{state}/{id}/files/{fileId}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getDataSetUploads", {
+    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    handler: "getDataSetUploads",
+    path: "dataset",
     method: "GET",
     ...commonProps,
   });
