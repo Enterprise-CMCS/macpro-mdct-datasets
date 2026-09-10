@@ -40,7 +40,7 @@ export function createTopicsComponents(props: CreateTopicsComponentsProps) {
 
   const commonProps = {
     brokerString,
-    stackName: `${service}-${stage}`,
+    stackName: `${service}-${project}-${stage}`,
     environment: {
       brokerString,
       project,
@@ -75,7 +75,7 @@ export function createTopicsComponents(props: CreateTopicsComponentsProps) {
     });
   }
 
-  const listTopicsLambda = new Lambda(scope, "DatasetsListTopics", {
+  const listTopicsLambda = new Lambda(scope, "ListTopics", {
     entry: "services/topics/handlers/listTopics.js",
     handler: "handler",
     timeout: Duration.minutes(5),
