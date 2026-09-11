@@ -15,10 +15,9 @@ import { createUiAuthComponents } from "./ui-auth.ts";
 import { createApiComponents } from "./api.ts";
 import { deployFrontend } from "./deployFrontend.ts";
 import { isLocalStack } from "../local/util.ts";
-import { createUploadsComponents } from "./uploads.ts";
 import { getSubnets } from "../utils/vpc.ts";
 import { createTopicsComponents } from "./topics.ts";
-import { createDataSetComponents } from "./mdct-dataset.ts";
+import { createDataSetComponents } from "./dataset-uploads.ts";
 
 export class ParentStack extends Stack {
   constructor(
@@ -59,12 +58,6 @@ export class ParentStack extends Stack {
 
     const { tables } = createDataComponents(commonProps);
 
-    const attachmentsBucket = createUploadsComponents({
-      ...commonProps,
-      loggingBucket,
-      attachmentsBucketName: attachmentsBucketName!,
-    });
-
     const datasetBucket = createDataSetComponents({
       ...commonProps,
       loggingBucket,
@@ -76,7 +69,6 @@ export class ParentStack extends Stack {
       tables,
       vpc,
       kafkaAuthorizedSubnets,
-      attachmentsBucket,
       datasetBucket,
     });
 

@@ -102,7 +102,7 @@ export const App = () => {
           <main id="main-content" tabIndex={-1} style={sx.loginMain}>
             <Container sx={sx.appContainer}>
               <Heading as="h1" fontSize="heading_3xl" variant="login">
-                MDCT Datasets
+                RHTP
               </Heading>
             </Container>
             <Container sx={sx.loginContainer}>
