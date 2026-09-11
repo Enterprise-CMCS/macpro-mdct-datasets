@@ -15,34 +15,11 @@ export function createDataComponents(props: CreateDataComponentsProps) {
     new DynamoDBTable(scope, "Banners", {
       stage,
       isDev,
-      name: "banners",
+      name: "datasets-banners",
       partitionKey: {
         name: "key",
         type: dynamodb.AttributeType.STRING,
       },
-    }),
-    new DynamoDBTable(scope, "Reports", {
-      stage,
-      isDev,
-      name: "reports",
-      partitionKey: {
-        name: "pKey",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "sortKey",
-        type: dynamodb.AttributeType.STRING,
-      },
-    }),
-    new DynamoDBTable(scope, "Uploads", {
-      stage,
-      isDev,
-      name: "uploads",
-      partitionKey: {
-        name: "uploadedState",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: { name: "fileId", type: dynamodb.AttributeType.STRING },
     }),
     //TODO: re-evaluate the partitionKey
     new DynamoDBTable(scope, "DataSetUploads", {
@@ -63,36 +40,6 @@ export function createDataComponents(props: CreateDataComponentsProps) {
         name: "key",
         type: dynamodb.AttributeType.STRING,
       },
-    }),
-    new DynamoDBTable(scope, "Comments", {
-      stage,
-      isDev,
-      name: "comments",
-      partitionKey: {
-        name: "contextId",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: { name: "created", type: dynamodb.AttributeType.NUMBER },
-    }),
-    new DynamoDBTable(scope, "Notifications", {
-      stage,
-      isDev,
-      name: "notifications",
-      partitionKey: {
-        name: "recipient",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: { name: "created", type: dynamodb.AttributeType.NUMBER },
-    }),
-    new DynamoDBTable(scope, "NotificationRecipients", {
-      stage,
-      isDev,
-      name: "notifications-recipients",
-      partitionKey: {
-        name: "state",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
     }),
   ];
 

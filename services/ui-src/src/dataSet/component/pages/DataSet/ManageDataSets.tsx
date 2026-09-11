@@ -29,7 +29,7 @@ type DataSetModalProps = {
 
 const defaultDataSet = {
   name: "",
-  status: true,
+  status: "",
 };
 
 const DataSetModal = ({
@@ -40,10 +40,10 @@ const DataSetModal = ({
 }: DataSetModalProps) => {
   const errorContent = {
     name: "Must enter a valid data set name.",
-    status: "Must select at least one state.",
+    status: "Must select a status.",
   };
   const [displayValue, setDisplayValue] = useState(dataSet ?? defaultDataSet);
-  const [errorMessage, _setErrorMessage] = useState(errorContent);
+  const [errorMessage, setErrorMessage] = useState({ name: "", status: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -53,25 +53,55 @@ const DataSetModal = ({
   const onClose = () => {
     setLoading(false);
     setDisplayValue(defaultDataSet);
-    // setErrorMessage(defaultErrorMessage);
+    setErrorMessage({ name: "", status: "" });
     modalDisclosure.onClose();
   };
 
-  const onEmailBlur = () => {};
+  const onBlur = (key: "name" | "status") => {
+    if (!displayValue[key])
+      setErrorMessage({ ...errorMessage, [key]: errorContent[key] });
+    else setErrorMessage({ ...errorMessage, [key]: "" });
+  };
 
   const onSubmit = async () => {
+    const newErrors = { ...errorMessage };
+    const values = Object.entries(displayValue);
+    values.forEach((item) => {
+      const key = item[0] as keyof typeof errorContent;
+      newErrors[key] = !item[1] ? errorContent[key] : "";
+    });
+    setErrorMessage(newErrors);
+
+    if (values.some((item) => item[1] === "" || item[1] === undefined)) return;
+
     setLoading(true);
     try {
       if (state === "Add") {
-        await createDataSet(displayValue);
+        await createDataSet(displayValue as any);
       } else if (state === "Edit") {
-        await updateDataSet(displayValue);
+        await updateDataSet(displayValue as any);
       }
     } finally {
       setLoading(false);
       parentOnSubmit();
       modalDisclosure.onClose();
     }
+  };
+
+  const buildChoices = () => {
+    const options = [
+      {
+        label: "Active (Visible to states)",
+        value: "active",
+        checked: displayValue.status === "active",
+      },
+      {
+        label: "Inactive (Hidden from states)",
+        value: "inactive",
+        checked: displayValue.status === "inactive",
+      },
+    ];
+    return options;
   };
 
   return (
@@ -100,7 +130,7 @@ const DataSetModal = ({
               name: target.value,
             });
           }}
-          onBlur={onEmailBlur}
+          onBlur={() => onBlur("name")}
           errorMessage={errorMessage.name}
         />
         <ChoiceList
@@ -108,25 +138,14 @@ const DataSetModal = ({
           type={"radio"}
           label={"Status"}
           hint="Inactive data sets are hidden from state submission options but preserved in historic admin exports."
-          choices={[
-            {
-              label: "Active (Visible to states",
-              value: 1,
-              checked: displayValue.status,
-            },
-            {
-              label: "Inactive (Hidden from states)",
-              value: 0,
-              checked: !displayValue.status,
-            },
-          ]}
+          choices={buildChoices()}
           onChange={({ target }) => {
             setDisplayValue({
               ...displayValue,
-              status: Boolean(target.value),
+              status: target.value,
             });
           }}
-          onBlur={onEmailBlur}
+          onBlur={() => onBlur("status")}
           errorMessage={errorMessage.status}
         />
       </Stack>
@@ -164,8 +183,11 @@ export const ManageDataSets = () => {
           Edit
         </Button>
       );
-
-      formattedRows.push([name, status ? "Active" : "Inactive", columnActions]);
+      formattedRows.push([
+        name,
+        status === "active" ? "Active" : "Inactive",
+        columnActions,
+      ]);
     });
     setRows(formattedRows);
     setLoading(false);
@@ -194,7 +216,9 @@ export const ManageDataSets = () => {
           Add Data Set
         </Button>
       </Stack>
-      {ResponsiveTable(headers, rows)}
+      <Stack sx={sx.container}>
+        {ResponsiveTable(headers, rows, undefined, undefined)}
+      </Stack>
       {rows.length === 0 &&
         (loading ? (
           <Box alignSelf={"center"}>
@@ -224,5 +248,11 @@ export const ManageDataSets = () => {
 const sx = {
   subHeaderText: {
     color: "gray_dark",
+  },
+  container: {
+    "td:last-of-type": {
+      display: "flex",
+      justifyContent: "center",
+    },
   },
 };

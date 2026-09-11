@@ -1,19 +1,18 @@
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 import { apiLib } from "../apiLib";
-import { DataSetType } from "dataSet/component/forms/Dashboard";
 
 interface PathURL {
   psurl: string;
   fileId: string;
 }
 
-export const getAllFiles = async () => {
-  const requestHeaders = await getRequestHeaders();
-  const options = {
-    headers: { ...requestHeaders },
-  };
-
-  return await apiLib.get<DataSetType[]>(`/dataset/NY`, options)!;
+export type DataSetUploadType = {
+  filename: string;
+  fileId: string;
+  datasetId: string;
+  uploadedUsername: string;
+  uploadedDate: string;
+  uploadedState: string;
 };
 
 export async function getFilesByState(state: string) {
@@ -22,7 +21,16 @@ export async function getFilesByState(state: string) {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<DataSetType[]>(`/dataset/${state}`, options)!;
+  return await apiLib.get<DataSetUploadType[]>(`/dataset/${state}`, options)!;
+}
+
+export async function getFiles() {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  return await apiLib.get<DataSetUploadType[]>(`/dataset/`, options)!;
 }
 
 export const recordFileInDatabaseAndGetUploadUrl = async (
@@ -79,14 +87,17 @@ export const getFileDownloadUrl = async (
 
 export const updateUploadedFile = async (
   state: string,
-  id: string,
-  fileId: string
+  file: DataSetUploadType
 ) => {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
+    body: { ...file },
   };
-  await apiLib.put(`/dataset/${state}/${id}/files/${fileId}`, options);
+  await apiLib.put(
+    `/dataset/${state}/${file.datasetId}/files/${file.fileId}`,
+    options
+  );
 };
 
 export const deleteUploadedFile = async (
