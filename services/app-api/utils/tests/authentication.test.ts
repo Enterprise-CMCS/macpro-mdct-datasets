@@ -14,7 +14,7 @@ vi.mock("jwt-decode", () => ({
 
 const apiKeyEvent = { ...proxyEvent, headers: { "x-api-key": "test" } };
 const mockToken = {
-  "custom:cms_roles": "other-role,mdctrhtp-state-user,another-role",
+  "custom:cms_roles": "other-role,mdctdatasets-state-user,another-role",
   "custom:cms_state": "CO",
   email_verified: true,
   email: "stateuser@test.com",

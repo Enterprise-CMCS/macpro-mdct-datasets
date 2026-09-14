@@ -92,13 +92,11 @@ export const UserProvider = ({ children }: Props) => {
       } = payload as ExpectedTokenShape;
 
       // "custom:cms_roles" is an string of concat roles so we need to check for the one applicable to RHTP
-      const userRole = cms_role.split(",").find((r) => r.includes("mdctrhtp"));
+      const userRole = cms_role.split(",").find((r) => r.includes("mdctdatasets"));
       const full_name = [given_name, " ", family_name].join("");
       const adminCanEditReport = flags?.adminCanEditReport ?? false;
       const userIsAdmin =
-        userRole === UserRoles.ADMIN ||
-        userRole === UserRoles.APPROVER ||
-        userRole === UserRoles.PROJECT_OFFICER;
+        userRole === UserRoles.ADMIN;
       const userCheck = {
         userIsAdmin,
         userIsReadOnly:
