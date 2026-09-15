@@ -16,12 +16,12 @@ import { useEffect, useState } from "react";
 import {
   dropdownEmptyOption,
   StateDropdownOptions,
-} from "../../../../../../shared/src/utils/constants";
+} from "../../../../../shared/src/utils/constants";
 import { MultiSelect } from "components/forms/Multiselect";
 import { ZipRequestTypes } from "@rhtp/shared";
 import { getZipFile } from "utils/other/fileUtils";
 import { DropdownOptions } from "types";
-import { getDataSets } from "dataSet/component/api/requestMethods/datasets";
+import { getDataSets } from "../../../utils/api/requestMethods/datasets"
 
 const ExportCard = (
   title: string,

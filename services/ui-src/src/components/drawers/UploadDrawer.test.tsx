@@ -41,24 +41,21 @@ const modalComponent = (
       onClose: mockCloseHandler,
     }}
     answer={[]}
-    selections={
-      <>
-        <Dropdown
-          name={"mock label"}
-          label={"mock label"}
-          options={[
-            { label: "option 1", value: "opt1" },
-            { label: "option 2", value: "opt2" },
-          ]}
-          value={""}
-          onChange={mockChangedExpanded}
-        ></Dropdown>
-      </>
-    }
+    selections={<>
+      <Dropdown
+        name={"mock label"}
+        label={"mock label"}
+        options={[
+          { label: "option 1", value: "opt1" },
+          { label: "option 2", value: "opt2" },
+        ]}
+        value={""}
+        onChange={mockChangedExpanded}
+      ></Dropdown>
+    </>}
     saveToReport={mockSaveToReport}
     deleteFromReport={mockDeleteFromReport}
-    modalHeading={"Upload Attachments"}
-  />
+    modalHeading={"Upload Attachments"} dataSetId={""}  />
 );
 
 describe("Test Modal", () => {

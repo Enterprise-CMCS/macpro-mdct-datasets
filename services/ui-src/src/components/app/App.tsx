@@ -20,10 +20,6 @@ import {
   useStore,
 } from "utils";
 import { currentPageSelector } from "utils/state/selectors";
-//TODO: remove data set app routes
-import { AppRoutes as DataSetAppRoutes } from "dataSet/component/app/AppRoutes";
-import { Header as DataSetHeader } from "dataSet/component/layout/Header";
-import { Footer as DataSetFooter } from "dataSet/component/layout/Footer";
 
 export const App = () => {
   const mqClasses = makeMediaQueryClasses();
@@ -54,27 +50,6 @@ export const App = () => {
     document.title = getTabTitle(pathname, currentPage);
   }, [pathname, currentPage]);
 
-  const routeToDataSet = true;
-
-  //TO DO: Remove when data set domain it set up
-  const dataSetAuthenticatedRoutes = () => {
-    return (
-      user && (
-        <Flex sx={sx.appLayout}>
-          <SkipNav />
-          <Timeout />
-          {!isExportPage && <DataSetHeader handleLogout={logout} />}
-          <Container sx={sx.appContainer}>
-            <ErrorBoundary FallbackComponent={Error}>
-              <DataSetAppRoutes />
-            </ErrorBoundary>
-          </Container>
-          <DataSetFooter />
-        </Flex>
-      )
-    );
-  };
-
   const defaultRoutes = () => {
     return (
       user && (
@@ -95,7 +70,7 @@ export const App = () => {
 
   const authenticatedRoutes = (
     <>
-      {routeToDataSet ? dataSetAuthenticatedRoutes() : defaultRoutes()}
+      {defaultRoutes()}
       {!user && showLocalLogins && (
         <>
           <SkipNav />

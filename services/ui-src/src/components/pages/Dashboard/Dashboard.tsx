@@ -14,17 +14,17 @@ import { PageTemplate, Modal } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
-import { UploadDrawer } from "dataSet/component/drawers/UploadDrawer";
+import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
   DataSetUploadType,
   getFilesByState,
   updateUploadedFile,
-} from "../api/requestMethods/datasetUploads";
-import { downloadFile, removeFile } from "../util/other/fileUtils";
+} from "../../../utils/api/requestMethods/datasetUploads"
+import { downloadFile, removeFile } from "../../../utils/other/fileUtils";
 import cancelIcon from "assets/icons/cancel/icon_cancel_primary.svg";
-import { EditDrawer } from "../drawers/EditDrawer";
-import { getDataSets } from "../api/requestMethods/datasets";
+import { EditDrawer } from "../../drawers/EditDrawer";
+import { getDataSets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 
 export const Dashboard = () => {

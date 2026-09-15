@@ -4,12 +4,12 @@ import { acceptedFileTypes, AlertTypes, UploadListProp } from "@rhtp/shared";
 import {
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
-} from "utils/api/requestMethods/fileMethods";
+} from "../../utils/api/requestMethods/datasetUploads";
 import {
   downloadFile,
   getFileWithSafeName,
   uploadListRender,
-} from "utils/other/fileUtils";
+} from "../../utils/other/fileUtils";
 import { useStore } from "utils";
 import { Alert } from "components/alerts/Alert";
 import alert from "assets/icons/status/icon_status_alert.svg";
@@ -18,27 +18,25 @@ interface Props {
   answer: UploadListProp[];
   saveToReport: (uploads: UploadListProp[]) => void;
   deleteFromReport?: (file: UploadListProp) => void;
-  uploadAreaHidden?: boolean;
   multiple?: boolean;
   disabled?: boolean;
   notification?: {
     instruction?: { type: AlertTypes; text: string };
     success?: string;
   };
+  dataSetId: string;
 }
 
 export const UploadArea = ({
   answer,
   saveToReport,
   deleteFromReport,
-  uploadAreaHidden = false,
   multiple = true,
   disabled,
   notification,
+  dataSetId,
 }: Props) => {
   const fileInputRef: any = useRef(null);
-  const { report } = useStore();
-  const { id, state, type: reportType } = report!;
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [uploadSuccess, setUploadSuccess] = useState<
@@ -47,6 +45,8 @@ export const UploadArea = ({
       message: string;
     }[]
   >([]);
+
+  const { state } = useStore().user ?? {};
 
   useEffect(() => {
     if (filesToUpload && filesToUpload.length > 0) {
@@ -151,12 +151,7 @@ export const UploadArea = ({
       const file = getFileWithSafeName(files[i]);
       try {
         const { presignedUploadUrl, fileId } =
-          await recordFileInDatabaseAndGetUploadUrl(
-            reportType,
-            state,
-            id,
-            file
-          );
+          await recordFileInDatabaseAndGetUploadUrl(state!, dataSetId, file);
         savedFiles.push({ name: displayName, fileId: fileId, size: file.size });
         await uploadFileToS3({ presignedUploadUrl }, file);
       } catch (error) {
@@ -184,72 +179,74 @@ export const UploadArea = ({
 
   return (
     <VStack sx={sx.container} gap="1rem" alignItems="flex-start">
-      {!uploadAreaHidden && (
-        <>
-          <div>
-            <Text sx={sx.uploadedLabel} marginBottom="-1rem">
-              Select a {multiple ? "file or files" : "file"} to upload
-            </Text>
-          </div>
-          {uploadErrors.length > 0 && (
-            <Box>
-              {uploadErrors.map((error, index) => (
-                <Text
-                  sx={sx.uploadErrorLabel}
-                  key={`upload-error-${index}`}
-                  display="flex"
-                >
-                  <Image
-                    src={alert}
-                    alt={"error"}
-                    marginRight="0.5rem"
-                    width="16px"
-                  />
-                  {error}
-                </Text>
-              ))}
-            </Box>
-          )}
-          {notification?.instruction && (
-            <Alert
-              status={notification.instruction.type}
-              title={""}
-              showIcon={false}
-            >
-              {notification.instruction.text}
-            </Alert>
-          )}
-          <Box
-            sx={sx.uploadBox}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            width="100%"
-            aria-label="file drop area"
-            className={disableUploadArea() ? "disabled" : ""}
-          >
-            <span>
-              Drag {multiple ? "files" : "file"} here or
-              <label
-                id="drop-zone"
-                tabIndex={disableUploadArea() ? -1 : 0}
-                onKeyDown={suppressKeydownEvent} // prevent spacebar from scrolling page
-                onKeyUp={handleFileKeyboardEvent} // open file input window on enter/spacebar press
+      <>
+        <div>
+          <Text sx={sx.uploadedLabel}>
+            Select a {multiple ? "file or files" : "file"} to upload
+          </Text>
+          <Text sx={sx.hint}>
+            Accepted file types: PDF, JPG/JPEG, PNG, TIFF/TIF, DOC/DOCX,
+            PPT/PPTX, XLS
+          </Text>
+        </div>
+        {uploadErrors.length > 0 && (
+          <Box>
+            {uploadErrors.map((error, index) => (
+              <Text
+                sx={sx.uploadErrorLabel}
+                key={`upload-error-${index}`}
+                display="flex"
               >
-                Choose from folder
-                <input
-                  type="file"
-                  id="file-input"
-                  ref={fileInputRef}
-                  multiple={multiple}
-                  accept={acceptedFileTypes.join(",")}
-                  onChange={onFileChange}
-                  disabled={disableUploadArea()}
+                <Image
+                  src={alert}
+                  alt={"error"}
+                  marginRight="0.5rem"
+                  width="16px"
                 />
-              </label>
-            </span>
+                {error}
+              </Text>
+            ))}
           </Box>
-        </>
-      )}
+        )}
+        {notification?.instruction && (
+          <Alert
+            status={notification.instruction.type}
+            title={""}
+            showIcon={false}
+          >
+            {notification.instruction.text}
+          </Alert>
+        )}
+        <Box
+          sx={sx.uploadBox}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          width="100%"
+          aria-label="file drop area"
+          className={disableUploadArea() ? "disabled" : ""}
+        >
+          <span>
+            Drag {multiple ? "files" : "file"} here or
+            <label
+              id="drop-zone"
+              tabIndex={disableUploadArea() ? -1 : 0}
+              onKeyDown={suppressKeydownEvent} // prevent spacebar from scrolling page
+              onKeyUp={handleFileKeyboardEvent} // open file input window on enter/spacebar press
+            >
+              Choose from folder
+              <input
+                type="file"
+                id="file-input"
+                ref={fileInputRef}
+                multiple={multiple}
+                accept={acceptedFileTypes.join(",")}
+                onChange={onFileChange}
+                disabled={disableUploadArea()}
+              />
+            </label>
+          </span>
+        </Box>
+      </>
       {displayUploadStatus() && (
         <>
           <div>
@@ -259,21 +256,18 @@ export const UploadArea = ({
           </div>
           {filesToUpload.length > 0 &&
             uploadListRender(
-              reportType,
-              state,
-              id,
+              state!,
+              dataSetId,
               filesToUpload ?? [],
               deleteFromReport
             )}
           {answer.length > 0 &&
             uploadListRender(
-              reportType,
-              state,
-              id,
+              state!,
+              dataSetId,
               modifiedAnswer(answer ?? []),
               deleteFromReport,
-              downloadFile,
-              uploadAreaHidden
+              downloadFile
             )}
         </>
       )}
@@ -292,17 +286,18 @@ const sx = {
       width: "100%",
     },
   },
-
   uploadedLabel: {
     fontWeight: "600",
   },
-
   uploadErrorLabel: {
     color: "error",
     fontSize: "14px",
     marginY: "0.25rem",
   },
-
+  hint: {
+    fontSize: "14px",
+    color: "gray_dark",
+  },
   uploadBox: {
     display: "flex",
     flexDir: "column",

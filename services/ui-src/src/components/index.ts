@@ -77,13 +77,9 @@ export { PostLogoutRedirect } from "./PostLogoutRedirect/index";
 export { Table } from "./tables/Table";
 export { TableStatusIcon } from "./tables/TableStatusIcon";
 // dashboard
-export { DashboardPage } from "./pages/Dashboard/DashboardPage";
-export { DashboardTable } from "./pages/Dashboard/DashboardTable";
+export { Dashboard } from "./pages/Dashboard/Dashboard";
 // skipNav
 export { SkipNav } from "./skipNav/SkipNav";
-// component inventory
-export { ComponentInventory } from "./component-inventory/ComponentInventory";
-
 //DataSets
-export { ExportFilesPage } from "../dataSet/component/pages/Export/ExportFilesPage";
-export { ManageDataSets } from "../dataSet/component/pages/DataSet/ManageDataSets";
+export { ExportFilesPage } from "./pages/Export/ExportFilesPage";
+export { ManageDataSets } from "./pages/DataSet/ManageDataSets";
