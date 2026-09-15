@@ -49,8 +49,8 @@ export const startZipWorker = async (body: ZipRequestBody) => {
   const zipId = KSUID.randomSync().string;
   let payload: any = { type, zipId };
   if (type === ZipRequestTypes.REPORT && body.report) {
-    const { reportType, state, id } = body.report;
-    payload = { ...payload, reportType, state, id };
+    const { state, id } = body.report;
+    payload = { ...payload, state, id };
   } else if (type === ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS) {
     const { state, reportSubTypeKeys } = body;
     payload = { ...payload, state, reportSubTypeKeys };
