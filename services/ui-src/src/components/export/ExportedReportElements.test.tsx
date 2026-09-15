@@ -30,23 +30,6 @@ describe("Test ExportedReportElements", () => {
     render(element);
     expect(screen.getByText("mock sub header")).toBeInTheDocument();
   });
-  test("render TableCheckpoint element", () => {
-    const element = renderElements({
-      type: ElementType.TableCheckpoint,
-      id: "mock-table-checkpoint",
-      required: true,
-      initId: "12234",
-      answer: [{ id: "full-implementation-3", checked: true }],
-    } as PageElement & { initId: string });
-    render(element);
-    expect(screen.getByText("Stage 0: Planning")).toBeVisible();
-    expect(
-      screen.getByText("Report updated metric progress to CMS")
-    ).toBeVisible();
-    expect(screen.getAllByText("Not applicable")).toHaveLength(3);
-    expect(screen.getAllByText("No")).toHaveLength(16);
-    expect(screen.getAllByText("Yes")).toHaveLength(1);
-  });
   test("render AttachmentArea element", () => {
     const notAnswered = {
       type: ElementType.AttachmentArea,

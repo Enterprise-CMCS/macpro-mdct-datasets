@@ -210,7 +210,6 @@ export enum ElementType {
   ListInput = "listInput",
   AttachmentArea = "attachmentArea",
   InitiativesTable = "initiativesTable",
-  TableCheckpoint = "tableCheckpoint",
   AccordionGroup = "accordionGroup",
   ObligatedAndSpentFundsAttachment = "obligatedAndSpentFundsAttachment",
   ActionTable = "actionTable",
@@ -237,7 +236,6 @@ export type PageElement =
   | SubmissionParagraphTemplate
   | ListInputTemplate
   | InitiativesTableTemplate
-  | TableCheckpointTemplate
   | AccordionGroupTemplate
   | ObligatedAndSpentFundsAttachmentTemplate
   | AttachmentAreaTemplate
@@ -403,13 +401,6 @@ export interface TextboxTemplate extends InputElementTemplate {
   answer?: string;
   hideCondition?: HideCondition;
   mask?: MaskType;
-}
-
-export interface TableCheckpointTemplate {
-  type: ElementType.TableCheckpoint;
-  id: string;
-  required: boolean;
-  answer?: { id: string; checked: boolean }[];
 }
 
 export interface AttachmentAreaTemplate extends InputElementTemplate {

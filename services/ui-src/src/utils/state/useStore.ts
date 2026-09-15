@@ -5,7 +5,6 @@ import {
   UserState,
   User,
   ReportState,
-  DevToolsState,
   BannerState,
 } from "types";
 import { ReactNode } from "react";
@@ -113,22 +112,14 @@ const reportStore = (set: Set<ReportState>, get: Get<ReportState>) => ({
   },
 });
 
-const devToolStore = (set: Set<DevToolsState>) => ({
-  devDate: undefined,
-  setDevDate: (devDate: string) => {
-    set(() => ({ devDate }), false, { type: "setDevToolDate" });
-  },
-});
-
 export const useStore = create(
   // devtools is being used for debugging state
   persist(
-    devtools<UserState & ReportState & BannerState & DevToolsState>(
+    devtools<UserState & ReportState & BannerState>(
       (set, get) => ({
         ...userStore(set),
         ...bannerStore(set, get),
         ...reportStore(set, get),
-        ...devToolStore(set),
       })
     ),
     {

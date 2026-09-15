@@ -24,7 +24,6 @@ import {
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import addIconPrimary from "assets/icons/add/icon_add_blue.svg";
-import { AddEditInitiativeModal } from "components/modals/AddEditInitiativeModal";
 import { elementSatisfiesRequired } from "utils/state/reportLogic/completeness";
 import { TableStatusIcon } from "components/tables/TableStatusIcon";
 
@@ -169,13 +168,6 @@ export const InitiativesTable = (
           Add initiative
         </Button>
       )}
-      <AddEditInitiativeModal
-        modalDisclosure={{
-          isOpen,
-          onClose: onModalClose,
-        }}
-        selectedInitiative={selectedInitiative}
-      />
     </Stack>
   );
 };

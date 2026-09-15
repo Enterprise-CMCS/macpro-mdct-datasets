@@ -2,14 +2,9 @@ import { Heading } from "@chakra-ui/react";
 import {
   ElementType,
   PageElement,
-  TableCheckpointTemplate,
 } from "@rhtp/shared";
 import { notAnsweredText } from "../../constants";
-import { ObligatedAndSpentFundsAttachmentElementExport } from "components/report/ObligatedAndSpentFundsAttachment";
-import { ActionTableExport } from "components/fields/ActionTable";
-import { TableCheckpointExport } from "components/fields/TableCheckpoint";
 import { parseHtml } from "utils";
-import { AttachmentAreaExport } from "components/fields/AttachmentArea";
 
 const specificIds = ["initiatives-instructions", "initiative-instructions"];
 
@@ -29,7 +24,6 @@ const renderElementList = [
   ...tableElementList,
   ElementType.SubHeader,
   ElementType.Paragraph,
-  ElementType.TableCheckpoint,
   ElementType.ActionTable,
 ];
 
@@ -52,16 +46,6 @@ export const renderElements = (element: PageElement) => {
       if (specificIds.includes(element.id))
         return <div key={element.id}>{parseHtml(element.text)}</div>;
       return;
-    case ElementType.TableCheckpoint:
-      return TableCheckpointExport(
-        element as TableCheckpointTemplate & { initId: string }
-      );
-    case ElementType.ObligatedAndSpentFundsAttachment:
-      return ObligatedAndSpentFundsAttachmentElementExport(element);
-    case ElementType.AttachmentArea:
-      return AttachmentAreaExport(element);
-    case ElementType.ActionTable:
-      return ActionTableExport(element);
     case ElementType.AccordionGroup:
     case ElementType.AttachmentTable:
       return "";

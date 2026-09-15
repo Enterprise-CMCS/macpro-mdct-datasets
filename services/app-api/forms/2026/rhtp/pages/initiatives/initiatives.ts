@@ -7,7 +7,6 @@ import {
   PageType,
   ParagraphTemplate,
   SubHeaderTemplate,
-  TableCheckpointTemplate,
   TextAreaBoxTemplate,
   MaskType,
   AccordionTemplate,
@@ -263,12 +262,6 @@ const divider: DividerTemplate = {
   id: "divider",
 };
 
-const checkpointsTables: TableCheckpointTemplate = {
-  type: ElementType.TableCheckpoint,
-  id: "checkpoint-table",
-  required: false,
-};
-
 // TODO - better array typing and parsing once we have initiatives by state
 export const buildInitiativePages = (
   state: string,
@@ -306,7 +299,6 @@ export const buildInitiativePages = (
         checkpointsHeader,
         checkpointsInstructions,
         initiativeAttachmentStatusInstructions,
-        checkpointsTables,
         divider,
         BackToInitiativesButton,
       ],

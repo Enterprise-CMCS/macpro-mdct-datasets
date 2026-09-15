@@ -221,8 +221,6 @@ const pageElementSchema = lazy((value: PageElement): Schema => {
       return submissionParagraphSchema;
     case ElementType.ListInput:
       return listInputTemplateSchema;
-    case ElementType.TableCheckpoint:
-      return tableCheckpointTemplateSchema;
     case ElementType.ObligatedAndSpentFundsAttachment:
       return ObligatedAndSpentFundsAttachmentSchema;
     case ElementType.InitiativesTable:
@@ -270,20 +268,6 @@ const checkboxTemplateSchema = object().shape({
     })
   ),
   answer: array().of(string()).notRequired(),
-});
-
-const tableCheckpointTemplateSchema = object().shape({
-  type: string().required().matches(new RegExp(ElementType.TableCheckpoint)),
-  id: string().required(),
-  required: boolean().required(),
-  answer: array()
-    .of(
-      object().shape({
-        id: string().required(),
-        checked: boolean().required(),
-      })
-    )
-    .notRequired(),
 });
 
 const accordionGroupTemplateSchema = object().shape({

@@ -11,7 +11,6 @@ import {
 } from "components";
 import { useStore, focusHeading } from "utils";
 import { useEffect, useRef } from "react";
-import { ReportAutosaveProvider } from "components/report/ReportAutosaveProvider";
 
 export const AppRoutes = () => {
   const { userIsAdmin } = useStore().user ?? {};
@@ -32,7 +31,6 @@ export const AppRoutes = () => {
 
   return (
     <main id="main-content" tabIndex={-1}>
-      <ReportAutosaveProvider>
         <Routes>
           {/* General Routes */}
           <Route
@@ -46,7 +44,6 @@ export const AppRoutes = () => {
           <Route path="/403" element={<AccessDeniedPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </ReportAutosaveProvider>
     </main>
   );
 };

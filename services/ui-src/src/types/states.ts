@@ -53,8 +53,3 @@ export interface ReportState {
   setSidebar: (sidebarOpen: boolean) => void;
   saveReport: () => void;
 }
-
-export interface DevToolsState {
-  devDate: string | undefined;
-  setDevDate: (date: string) => void;
-}
