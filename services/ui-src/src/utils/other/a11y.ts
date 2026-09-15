@@ -1,7 +1,4 @@
 import {
-  ElementType,
-  FormPageTemplate,
-  ParentPageTemplate,
   tabTitleMap,
 } from "@rhtp/shared";
 
@@ -21,19 +18,13 @@ export const focusHeading = () => {
 
 export const getTabTitle = (
   pathname: string,
-  currentPage: ParentPageTemplate | FormPageTemplate | null
 ) => {
   //first check to see if we hardcoded a title to a path
   const pathTabTitle = tabTitleMap[pathname as keyof typeof tabTitleMap];
 
-  //when in a report, the tab table should be retrieved from the header element for page consistency
-  const reportTabTitle = currentPage?.elements?.find(
-    (element) => element.type === ElementType.Header
-  )?.text;
-
   //if not a single tab title is found in the map or page element, pull it from the first h1 element on the page else, it is highly likely not a real page
-  if (!pathTabTitle && !reportTabTitle)
+  if (!pathTabTitle)
     return findPageH1()?.textContent ?? "Page not Found";
 
-  return pathTabTitle ?? `${reportTabTitle} - RHTP`;
+  return pathTabTitle;
 };

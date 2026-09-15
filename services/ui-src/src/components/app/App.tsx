@@ -19,30 +19,16 @@ import {
   UserContext,
   useStore,
 } from "utils";
-import { currentPageSelector } from "utils/state/selectors";
-//TODO: remove data set app routes
-import { AppRoutes as DataSetAppRoutes } from "dataSet/component/app/AppRoutes";
-import { Header as DataSetHeader } from "dataSet/component/layout/Header";
-import { Footer as DataSetFooter } from "dataSet/component/layout/Footer";
 
 export const App = () => {
   const mqClasses = makeMediaQueryClasses();
   const context = useContext(UserContext);
   const { logout } = context;
-  const { user, showLocalLogins, setSidebar } = useStore();
+  const { user, showLocalLogins } = useStore();
   const { pathname } = useLocation();
-  const currentPage = useStore(currentPageSelector);
 
   //there are now two export pages due to the addition of the obligated and spent funds export zip
   const isExportPage = pathname !== "/export" && pathname.includes("/export");
-
-  useEffect(() => {
-    if (mqClasses.includes("sidebarwide")) {
-      setSidebar(false);
-    } else if (mqClasses === "desktop") {
-      setSidebar(true);
-    }
-  }, [mqClasses]);
 
   // on app load, check for clicked link pathname
   useEffect(() => {
@@ -51,29 +37,8 @@ export const App = () => {
 
   useEffect(() => {
     //setting tab title for each page
-    document.title = getTabTitle(pathname, currentPage);
-  }, [pathname, currentPage]);
-
-  const routeToDataSet = true;
-
-  //TO DO: Remove when data set domain it set up
-  const dataSetAuthenticatedRoutes = () => {
-    return (
-      user && (
-        <Flex sx={sx.appLayout}>
-          <SkipNav />
-          <Timeout />
-          {!isExportPage && <DataSetHeader handleLogout={logout} />}
-          <Container sx={sx.appContainer}>
-            <ErrorBoundary FallbackComponent={Error}>
-              <DataSetAppRoutes />
-            </ErrorBoundary>
-          </Container>
-          <DataSetFooter />
-        </Flex>
-      )
-    );
-  };
+    document.title = getTabTitle(pathname);
+  }, [pathname]);
 
   const defaultRoutes = () => {
     return (
@@ -95,7 +60,7 @@ export const App = () => {
 
   const authenticatedRoutes = (
     <>
-      {routeToDataSet ? dataSetAuthenticatedRoutes() : defaultRoutes()}
+      {defaultRoutes()}
       {!user && showLocalLogins && (
         <>
           <SkipNav />
