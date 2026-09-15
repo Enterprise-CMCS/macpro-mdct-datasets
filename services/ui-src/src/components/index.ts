@@ -26,8 +26,6 @@ export { HelpPage } from "./pages/HelpPage/HelpPage";
 export { AccessDeniedPage } from "./pages/AccessDenied/AccessDeniedPage";
 export { NotFoundPage } from "./pages/NotFound/NotFoundPage";
 export { ProfilePage } from "./pages/Profile/ProfilePage";
-// report
-export { SubnavBar } from "./report/SubnavBar";
 // menus
 export { AdminMenu } from "./menus/AdminMenu";
 export { Menu } from "./menus/Menu";

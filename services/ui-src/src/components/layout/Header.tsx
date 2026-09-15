@@ -1,7 +1,7 @@
 import { Link as RouterLink, useLocation } from "react-router";
 import { UsaBanner } from "@cmsgov/design-system";
 import { Box, Container, Flex, Image, Link } from "@chakra-ui/react";
-import { Menu, MenuOption, SubnavBar } from "components";
+import { Menu, MenuOption } from "components";
 import { AdminMenu } from "../menus/AdminMenu";
 import { useBreakpoint, useStore } from "utils";
 import appLogo from "assets/dataSet/ToolTypeTreatment_header.svg";
@@ -44,7 +44,6 @@ export const Header = ({ handleLogout }: Props) => {
           </Flex>
         </Container>
       </Flex>
-      {paths.length > 4 && <SubnavBar />}
     </Box>
   );
 };
