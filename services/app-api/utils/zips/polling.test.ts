@@ -5,7 +5,7 @@ import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { StatusCodes } from "../../libs/response-lib";
 import s3Lib from "../../libs/s3-lib";
 import { getPSURL, startZipWorker, zipBuffer } from "./polling";
-import { ReportType, StateAbbr, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, ZipRequestTypes } from "@rhtp/shared";
 
 const lambdaMock = mockClient(LambdaClient);
 const mockInvoke = vi.fn();
@@ -24,7 +24,6 @@ const mockReportZipBody = {
   type: ZipRequestTypes.REPORT,
   report: {
     state: "NJ" as StateAbbr,
-    reportType: ReportType.RHTP,
     id: "mock-report-id",
   },
 };
