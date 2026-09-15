@@ -42,6 +42,7 @@ vi.mock("utils", async (importOriginal) => ({
 const mockDeleteFromReport = vi.fn();
 
 const props = {
+  dataSetId: "mock-id",
   answer: [{ name: "mock-name", size: 100, fileId: "mock-id" }],
   saveToReport: vi.fn(),
   updateElement: vi.fn(),

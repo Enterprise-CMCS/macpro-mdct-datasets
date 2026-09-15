@@ -1,14 +1,9 @@
 import React from "react";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import * as framerMotion from "framer-motion";
-import { UserState, ReportState, DevToolsState, BannerState } from "types";
+import { UserState } from "types";
 import {
-  ReportType,
-  ReportStatus,
-  RhtpSubType,
   UserRoles,
-  PageType,
-  ElementType,
 } from "@rhtp/shared";
 
 /*
@@ -93,17 +88,6 @@ vi.mock("aws-amplify/auth", () => ({
   signInWithRedirect: () => {},
 }));
 
-//  BANNER STATES / STORE
-
-export const mockBannerStore: BannerState = {
-  allBanners: [],
-  _lastFetchTime: 0,
-  fetchBanners: async () => {},
-  createBanner: async () => {},
-  updateBanner: async () => {},
-  deleteBanner: async () => {},
-};
-
 // USER STATES / STORE
 
 export const mockNoUserStore: UserState = {
@@ -173,102 +157,18 @@ export const mockAdminUserStore: UserState = {
   setShowLocalLogins: () => {},
 };
 
-export const mockReportStore: ReportState = {
-  modalOpen: false,
-  sidebarOpen: true,
-  currentPageId: "root",
-  pageMap: new Map([
-    ["root", 0],
-    ["MOCK-1", 1],
-    ["MOCK-2", 2],
-  ]),
-  report: {
-    id: "mock-id",
-    type: ReportType.RHTP,
-    status: ReportStatus.IN_PROGRESS,
-    name: "mock-report-title",
-    state: "PA",
-    submissionCount: 0,
-    created: 1776449695077,
-    subType: RhtpSubType.ANNUAL,
-    subTypeKey: "A1",
-    budgetPeriod: 1,
-    pages: [
-      {
-        id: "root",
-        childPageIds: ["MOCK-1", "MOCK-2"],
-      },
-      {
-        id: "MOCK-1",
-        type: PageType.Standard,
-        title: "mock 1",
-        elements: [
-          {
-            id: "mock-textbox",
-            label: "textbox",
-            type: ElementType.Textbox,
-            required: true,
-            answer: "test",
-          },
-        ],
-      },
-      {
-        id: "MOCK-2",
-        type: PageType.Standard,
-        title: "mock 2",
-        elements: [],
-      },
-      {
-        id: "init-attachment",
-        type: PageType.Standard,
-        title: "initiative attachments",
-        elements: [
-          {
-            id: "init-attach-table",
-            type: ElementType.AttachmentTable,
-            answer: [],
-          },
-        ],
-      },
-    ],
-  },
-  loadReport: () => {},
-  updateReport: () => {},
-  setCurrentPageId: () => {},
-  setModalOpen: () => {},
-  setModalComponent: () => {},
-  setAnswers: () => {},
-  setSidebar: () => {},
-  completePage: () => {},
-  saveReport: async () => {},
-};
-
-export const mockDevToolsStore: DevToolsState = {
-  devDate: undefined,
-  setDevDate: () => {},
-};
-
 // BOUND STORE
 
-export const mockUseStore: UserState &
-  BannerState &
-  ReportState &
-  DevToolsState = {
+export const mockUseStore: UserState = {
   ...mockStateUserStore,
-  ...mockBannerStore,
-  ...mockReportStore,
-  ...mockDevToolsStore,
 };
 
-export const mockUseAdminStore: UserState & BannerState = {
+export const mockUseAdminStore: UserState = {
   ...mockAdminUserStore,
-  ...mockBannerStore,
 };
 
-export const mockUseReadOnlyUserStore: UserState & BannerState = {
+export const mockUseReadOnlyUserStore: UserState = {
   ...mockHelpDeskUserStore,
-  ...mockBannerStore,
-  ...mockReportStore,
 };
 
 // ROUTER
