@@ -1,5 +1,5 @@
 import { focusHeading, getTabTitle } from "./a11y";
-import { ElementType, PageType, tabTitleMap } from "@rhtp/shared";
+import { tabTitleMap } from "@rhtp/shared";
 
 describe("a11y util test", () => {
   describe("test focusHeading", () => {
@@ -50,23 +50,12 @@ describe("a11y util test", () => {
     });
 
     test("returns tab title from map", () => {
-      const title = getTabTitle("/profile", null);
+      const title = getTabTitle("/profile");
       expect(title).toBe(tabTitleMap["/profile"]);
-    });
-    test("returns tab title from page element", () => {
-      const title = getTabTitle("", {
-        id: "mock-page-template",
-        title: "Title",
-        type: PageType.Standard,
-        elements: [
-          { type: ElementType.Header, id: "mock-page", text: "Mock Page" },
-        ],
-      });
-      expect(title).toBe("Mock Page - RHTP");
     });
     test("return tab title using h1 in the DOM", () => {
       document.body.innerHTML = `<div id="main-content"><h1>Heading 1</h1></div>`;
-      const title = getTabTitle("", null);
+      const title = getTabTitle("");
       expect(title).toBe("Heading 1");
     });
   });
