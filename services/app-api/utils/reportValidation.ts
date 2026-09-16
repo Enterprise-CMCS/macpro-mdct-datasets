@@ -1,11 +1,5 @@
 // oxlint-disable unicorn/no-thenable
-import {
-  array,
-  mixed,
-  number,
-  object,
-  string,
-} from "yup";
+import { array, mixed, number, object, string } from "yup";
 import {
   getExtension,
   isAllowedFileExtension,

@@ -21,7 +21,7 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { ZipRequestTypes } from "@rhtp/shared";
 import { getZipFile } from "utils/other/fileUtils";
 import { DropdownOptions } from "types";
-import { getDataSets } from "../../../utils/api/requestMethods/datasets"
+import { getDataSets } from "../../../utils/api/requestMethods/datasets";
 
 const ExportCard = (
   title: string,

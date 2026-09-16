@@ -66,7 +66,8 @@ describe("polling utils", () => {
       );
       expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
         expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=MCDT_ALL_STATES.zip",
+          ResponseContentDisposition:
+            "attachment; filename=MCDT_ALL_STATES.zip",
         })
       );
     });

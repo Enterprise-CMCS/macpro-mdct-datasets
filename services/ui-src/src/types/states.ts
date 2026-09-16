@@ -1,7 +1,4 @@
-import {
-  BannerShape,
-  BannerFormData,
-} from "@rhtp/shared";
+import { BannerShape, BannerFormData } from "@rhtp/shared";
 import { User } from "types";
 
 export interface BannerState {

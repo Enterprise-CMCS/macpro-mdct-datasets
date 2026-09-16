@@ -2,9 +2,7 @@ import React from "react";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import * as framerMotion from "framer-motion";
 import { UserState } from "types";
-import {
-  UserRoles,
-} from "@rhtp/shared";
+import { UserRoles } from "@rhtp/shared";
 
 /*
  * @testing-library defines custom matchers for DOM nodes.

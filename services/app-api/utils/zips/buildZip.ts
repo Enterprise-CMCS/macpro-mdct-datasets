@@ -1,7 +1,4 @@
-import {
-  StateAbbr,
-  UploadListProp,
-} from "@rhtp/shared";
+import { UploadListProp } from "@rhtp/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
 import {

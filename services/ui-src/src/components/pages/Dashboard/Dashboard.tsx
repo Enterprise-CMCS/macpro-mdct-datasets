@@ -20,7 +20,7 @@ import {
   DataSetUploadType,
   getFilesByState,
   updateUploadedFile,
-} from "../../../utils/api/requestMethods/uploads"
+} from "../../../utils/api/requestMethods/uploads";
 import { downloadFile, removeFile } from "../../../utils/other/fileUtils";
 import cancelIcon from "assets/icons/cancel/icon_cancel_primary.svg";
 import { EditDrawer } from "../../drawers/EditDrawer";
@@ -59,7 +59,7 @@ export const Dashboard = () => {
     setIsLoading(true);
     const dataSets = await getDataSets();
 
-    if(dataSets && dataSets.length > 0){
+    if (dataSets && dataSets.length > 0) {
       setDataSetOptions(
         dataSets.map((set) => ({ label: set.name, value: set.key! }))
       );
@@ -68,7 +68,7 @@ export const Dashboard = () => {
 
   const reloadFiles = async () => {
     const result = await getFilesByState(state!);
-    if(result && result.length > 0){
+    if (result && result.length > 0) {
       setFiles(
         result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );

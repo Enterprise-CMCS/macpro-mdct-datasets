@@ -10,8 +10,6 @@ import {
 } from "@chakra-ui/react";
 import {
   getZipPresignedUrl,
-} from "../api/requestMethods/uploads";
-import {
   deleteUploadedFile,
   getFileDownloadUrl,
 } from "../api/requestMethods/uploads";

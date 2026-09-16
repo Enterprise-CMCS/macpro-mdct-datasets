@@ -31,19 +31,19 @@ export const AppRoutes = () => {
 
   return (
     <main id="main-content" tabIndex={-1}>
-        <Routes>
-          {/* General Routes */}
-          <Route
-            path="/"
-            element={!userIsAdmin ? <Dashboard /> : <AdminDashboard />}
-          />
-          <Route path="/export" element={<ExportFilesPage />} />
-          <Route path="/data-sets" element={<ManageDataSets />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/help" element={<HelpPage />} />
-          <Route path="/403" element={<AccessDeniedPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+      <Routes>
+        {/* General Routes */}
+        <Route
+          path="/"
+          element={!userIsAdmin ? <Dashboard /> : <AdminDashboard />}
+        />
+        <Route path="/export" element={<ExportFilesPage />} />
+        <Route path="/data-sets" element={<ManageDataSets />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/help" element={<HelpPage />} />
+        <Route path="/403" element={<AccessDeniedPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </main>
   );
 };

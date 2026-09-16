@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { BannerFormData } from "@rhtp/shared";
-import {
-  UserState,
-  User,
-  BannerState,
-} from "types";
+import { UserState, User, BannerState } from "types";
 import {
   createBanner,
   deleteBanner,
@@ -53,12 +49,10 @@ const bannerStore = (set: Set<BannerState>, get: Get<BannerState>) => ({
 export const useStore = create(
   // devtools is being used for debugging state
   persist(
-    devtools<UserState & BannerState>(
-      (set, get) => ({
-        ...userStore(set),
-        ...bannerStore(set, get),
-      })
-    ),
+    devtools<UserState & BannerState>((set, get) => ({
+      ...userStore(set),
+      ...bannerStore(set, get),
+    })),
     {
       name: "rhtp-store",
     }

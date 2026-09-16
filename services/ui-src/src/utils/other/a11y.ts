@@ -1,6 +1,4 @@
-import {
-  tabTitleMap,
-} from "@rhtp/shared";
+import { tabTitleMap } from "@rhtp/shared";
 
 //used to find the first header element on the page, does have issues if the page is loading
 export const findPageH1 = () => {
@@ -16,15 +14,12 @@ export const focusHeading = () => {
   window.scrollTo(0, 0);
 };
 
-export const getTabTitle = (
-  pathname: string,
-) => {
+export const getTabTitle = (pathname: string) => {
   //first check to see if we hardcoded a title to a path
   const pathTabTitle = tabTitleMap[pathname as keyof typeof tabTitleMap];
 
   //if not a single tab title is found in the map or page element, pull it from the first h1 element on the page else, it is highly likely not a real page
-  if (!pathTabTitle)
-    return findPageH1()?.textContent ?? "Page not Found";
+  if (!pathTabTitle) return findPageH1()?.textContent ?? "Page not Found";
 
   return pathTabTitle;
 };

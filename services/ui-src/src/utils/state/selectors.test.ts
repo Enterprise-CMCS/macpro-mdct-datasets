@@ -1,5 +1,4 @@
-import { mockUseStore } from "utils/testing/setupTest";
-import {activeBannerSelector} from "./selectors";
+import { activeBannerSelector } from "./selectors";
 import { BannerAreas, BannerShape } from "@rhtp/shared";
 import { useStore } from "./useStore";
 

@@ -3,9 +3,7 @@ import { emptyParser, parseZipIdParameters } from "../../libs/param-lib";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
 import { StateAbbr, ZipRequestTypes } from "@rhtp/shared";
 import JSZip from "jszip";
-import {
-  addDataSetFilesToZip,
-} from "../../utils/zips/buildZip";
+import { addDataSetFilesToZip } from "../../utils/zips/buildZip";
 import { getPSURL, zipBuffer, startZipWorker } from "../../utils/zips/polling";
 import { isZipRequestBody } from "../../utils/reportValidation";
 import { canRequestZip } from "../../utils/authorization";
@@ -42,7 +40,7 @@ export const getZipStatus = handler(parseZipIdParameters, async (request) => {
 });
 
 export const zipWorker = async (
-  event: ZipReportWorkerEvent | ZipObligatedAndSpentFundsWorkerEvent,
+  event: ZipReportWorkerEvent | ZipObligatedAndSpentFundsWorkerEvent
 ) => {
   const zip = new JSZip();
   const { type, zipId } = event;

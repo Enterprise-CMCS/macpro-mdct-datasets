@@ -1,6 +1,6 @@
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 import { apiLib } from "../apiLib";
-import { ZipRequestBody } from "@rhtp/shared"
+import { ZipRequestBody } from "@rhtp/shared";
 
 interface PathURL {
   psurl: string;
@@ -59,7 +59,6 @@ export const recordFileInDatabaseAndGetUploadUrl = async (
   return { presignedUploadUrl: psurl, fileId };
 };
 
-
 interface ZipStatusResponse {
   status: "ready" | "pending";
   psurl?: string;
@@ -76,7 +75,7 @@ export const getZipPresignedUrl = async (body: ZipRequestBody) => {
     {
       headers: { ...requestHeaders },
       body,
-    },
+    }
   );
 
   for (let i = 0; i < MAX_POLLS; i++) {

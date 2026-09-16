@@ -8,11 +8,7 @@ import {
   canWriteState,
 } from "../authorization";
 import { User } from "../../types/types";
-import {
-  StateAbbr,
-  UserRoles,
-  ZipRequestTypes,
-} from "@rhtp/shared";
+import { StateAbbr, UserRoles, ZipRequestTypes } from "@rhtp/shared";
 
 const adminUser = {
   role: UserRoles.ADMIN,

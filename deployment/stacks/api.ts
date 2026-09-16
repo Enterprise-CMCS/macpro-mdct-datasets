@@ -5,10 +5,10 @@ import {
   aws_wafv2 as wafv2,
   aws_s3 as s3,
   aws_ec2 as ec2,
-  aws_ses as ses,
-  aws_sns as sns,
-  aws_iam as iam,
-  Aws,
+  // aws_ses as ses,
+  // aws_sns as sns,
+  // aws_iam as iam,
+  // Aws,
   CfnOutput,
   Duration,
   RemovalPolicy,
@@ -39,8 +39,8 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     stage,
     project,
     isDev,
-    vpc,
-    kafkaAuthorizedSubnets,
+    // vpc,
+    // kafkaAuthorizedSubnets,
     brokerString,
     tables,
     datasetBucket,
@@ -48,27 +48,27 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
   } = props;
 
-  const isProduction = stage === "production";
+  // const isProduction = stage === "production";
 
   const service = "app-api";
 
-  const kafkaSecurityGroup = new ec2.SecurityGroup(
-    scope,
-    "KafkaSecurityGroup",
-    {
-      vpc,
-      description:
-        "Security Group for streaming functions. Egress all is set by default.",
-      allowAllOutbound: true,
-    }
-  );
+  // const kafkaSecurityGroup = new ec2.SecurityGroup(
+  //   scope,
+  //   "KafkaSecurityGroup",
+  //   {
+  //     vpc,
+  //     description:
+  //       "Security Group for streaming functions. Egress all is set by default.",
+  //     allowAllOutbound: true,
+  //   }
+  // );
 
-  // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
-  let sesPolicy = new iam.PolicyStatement({
-    effect: iam.Effect.DENY,
-    actions: ["ses:SendEmail", "ses:SendRawEmail"],
-    resources: ["*"],
-  });
+  // // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
+  // let sesPolicy = new iam.PolicyStatement({
+  //   effect: iam.Effect.DENY,
+  //   actions: ["ses:SendEmail", "ses:SendRawEmail"],
+  //   resources: ["*"],
+  // });
   /* if (!isDev) {
     const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {

@@ -7,7 +7,7 @@ import {
   DataSetType,
   createDataSet,
   updateDataSet,
-} from "../../../utils/api/requestMethods/datasets"
+} from "../../../utils/api/requestMethods/datasets";
 import { JSX, useState, useEffect } from "react";
 import { Modal } from "components/modals/Modal";
 
