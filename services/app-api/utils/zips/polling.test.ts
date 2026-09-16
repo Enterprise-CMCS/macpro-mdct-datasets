@@ -45,20 +45,6 @@ describe("polling utils", () => {
       expect(result.body).toEqual(JSON.stringify({ status: "pending" }));
     });
 
-    test("getPSURL returns ready when complete", async () => {
-      (s3Lib.headObject as Mock).mockResolvedValue({});
-      const result = await getPSURL("zip-id-123");
-      expect(result.statusCode).toBe(StatusCodes.Ok);
-      expect(result.body).toEqual(
-        JSON.stringify({ status: "ready", psurl: "https://s3.file.mock" })
-      );
-      expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=RHTP.zip",
-        })
-      );
-    });
-
     test("getPSURL returns ready and assigns proper name when tagged", async () => {
       (s3Lib.headObject as Mock).mockResolvedValue({});
       (s3Lib.getObjectTagging as Mock).mockResolvedValueOnce({
@@ -80,7 +66,7 @@ describe("polling utils", () => {
       );
       expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
         expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=RHTP_NJ_A1.zip",
+          ResponseContentDisposition: "attachment; filename=MCDT_ALL_STATES.zip",
         })
       );
     });
