@@ -8,7 +8,7 @@ const mockChangedExpanded = vi.fn();
 const mockSaveToReport = vi.fn();
 const mockDeleteFromReport = vi.fn();
 
-vi.mock("utils/api/requestMethods/fileMethods", async (importOriginal) => ({
+vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
   ...(await importOriginal()),
   uploadFileToS3: vi.fn(),
   recordFileInDatabaseAndGetUploadUrl: vi

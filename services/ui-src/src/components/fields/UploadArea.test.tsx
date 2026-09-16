@@ -11,10 +11,10 @@ import { UploadArea } from "./UploadArea";
 import {
   getFileDownloadUrl,
   recordFileInDatabaseAndGetUploadUrl,
-} from "utils/api/requestMethods/fileMethods";
+} from "utils/api/requestMethods/uploads";
 import { testA11y } from "utils/testing/commonTests";
 
-vi.mock("utils/api/requestMethods/fileMethods", async (importOriginal) => ({
+vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
   ...(await importOriginal()),
   getFileDownloadUrl: vi.fn(),
   deleteUploadedFile: vi.fn(),

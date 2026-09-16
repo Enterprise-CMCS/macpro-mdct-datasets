@@ -1,4 +1,4 @@
-import { Link as RouterLink, useLocation } from "react-router";
+import { Link as RouterLink } from "react-router";
 import { UsaBanner } from "@cmsgov/design-system";
 import { Box, Container, Flex, Image, Link } from "@chakra-ui/react";
 import { Menu, MenuOption } from "components";
@@ -9,9 +9,7 @@ import getHelpIcon from "assets/icons/help/icon_help_white.svg";
 
 export const Header = ({ handleLogout }: Props) => {
   const { isMobile } = useBreakpoint();
-  const { pathname } = useLocation();
   const { userIsAdmin } = useStore().user ?? {};
-  const paths = pathname.split("/");
   return (
     <Box sx={sx.root} id="header">
       <Flex sx={sx.usaBannerContainer}>

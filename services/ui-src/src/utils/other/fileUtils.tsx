@@ -10,11 +10,11 @@ import {
 } from "@chakra-ui/react";
 import {
   getZipPresignedUrl,
-} from "../api/requestMethods/fileMethods";
+} from "../api/requestMethods/uploads";
 import {
   deleteUploadedFile,
   getFileDownloadUrl,
-} from "../api/requestMethods/datasetUploads";
+} from "../api/requestMethods/uploads";
 import cancelIcon from "assets/icons/cancel/icon_cancel_primary.svg";
 import cancelIconGray from "assets/icons/cancel/icon_cancel_gray.svg";
 import successIcon from "assets/icons/status/icon_status_check.svg";

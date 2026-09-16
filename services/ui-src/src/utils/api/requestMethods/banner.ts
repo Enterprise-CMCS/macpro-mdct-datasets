@@ -1,0 +1,43 @@
+import { apiLib } from "utils";
+import { getRequestHeaders } from "./getRequestHeaders";
+import { BannerFormData, BannerShape } from "@rhtp/shared";
+
+async function getBanners() {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+
+  return await apiLib.get<BannerShape[]>("/banners", options);
+}
+
+async function createBanner(bannerData: BannerFormData) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+    body: { ...bannerData },
+  };
+
+  return await apiLib.post<BannerShape>("/banners", options);
+}
+
+async function updateBanner(bannerData: BannerFormData) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+    body: { ...bannerData },
+  };
+
+  return await apiLib.put(`/banners/${bannerData.key}`, options);
+}
+
+async function deleteBanner(bannerKey: string) {
+  const requestHeaders = await getRequestHeaders();
+  const request = {
+    headers: { ...requestHeaders },
+  };
+
+  return await apiLib.del(`/banners/${bannerKey}`, request);
+}
+
+export { getBanners, createBanner, updateBanner, deleteBanner };

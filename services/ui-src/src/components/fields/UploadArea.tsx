@@ -4,7 +4,7 @@ import { acceptedFileTypes, AlertTypes, UploadListProp } from "@rhtp/shared";
 import {
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
-} from "../../utils/api/requestMethods/datasetUploads";
+} from "../../utils/api/requestMethods/uploads";
 import {
   downloadFile,
   getFileWithSafeName,

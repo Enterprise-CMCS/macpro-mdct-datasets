@@ -8,7 +8,7 @@ import { MultiSelect } from "components/forms/Multiselect";
 import {
   DataSetUploadType,
   getFiles,
-} from "../../utils/api/requestMethods/datasetUploads";
+} from "../../utils/api/requestMethods/uploads";
 import { downloadFile } from "../../utils/other/fileUtils";
 import { getDataSets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";

@@ -1,5 +1,6 @@
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 import { apiLib } from "../apiLib";
+import { ZipRequestBody } from "@rhtp/shared"
 
 interface PathURL {
   psurl: string;
@@ -56,6 +57,42 @@ export const recordFileInDatabaseAndGetUploadUrl = async (
   );
 
   return { presignedUploadUrl: psurl, fileId };
+};
+
+
+interface ZipStatusResponse {
+  status: "ready" | "pending";
+  psurl?: string;
+}
+
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLLS = 300; // 15 minutes at 3-second intervals
+
+export const getZipPresignedUrl = async (body: ZipRequestBody) => {
+  const requestHeaders = await getRequestHeaders();
+
+  const { zipId } = await apiLib.post<{ status: string; zipId: string }>(
+    `/zips`,
+    {
+      headers: { ...requestHeaders },
+      body,
+    },
+  );
+
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await new Promise<void>((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+
+    const freshHeaders = await getRequestHeaders();
+    const result = await apiLib.get<ZipStatusResponse>(`/zips/${zipId}`, {
+      headers: { ...freshHeaders },
+    });
+
+    if (result.status === "ready" && result.psurl) {
+      return result.psurl;
+    }
+  }
+
+  throw new Error("Zip generation timed out");
 };
 
 export const uploadFileToS3 = async (

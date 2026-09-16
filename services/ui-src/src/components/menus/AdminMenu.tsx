@@ -46,6 +46,11 @@ export const AdminMenu = () => {
             </MenuItem>
           </Link>
         )}
+        <Link as={RouterLink} to="/admin" variant="unstyled">
+          <MenuItem sx={sx.menuItem}>
+            <MenuOption role="button" text="Banner Editor" />
+          </MenuItem>
+        </Link>
         <Link as={RouterLink} to="/data-sets" variant="unstyled">
           <MenuItem sx={sx.menuItem}>
             <MenuOption role="button" text="Manage Data Sets" />
