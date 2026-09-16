@@ -24,6 +24,7 @@ export { AdminDashboard } from "./forms/AdminDashboard";
 export { LoginCognito } from "./logins/LoginCognito";
 export { LoginIDM } from "./logins/LoginIDM";
 // pages
+export { AdminPage } from "./pages/Admin/AdminPage";
 export { HelpPage } from "./pages/HelpPage/HelpPage";
 export { AccessDeniedPage } from "./pages/AccessDenied/AccessDeniedPage";
 export { NotFoundPage } from "./pages/NotFound/NotFoundPage";

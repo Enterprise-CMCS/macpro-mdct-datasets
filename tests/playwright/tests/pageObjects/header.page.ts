@@ -12,7 +12,7 @@ export class HeaderPage {
   constructor(page: Page) {
     this.page = page;
     this.nav = page.getByRole("navigation");
-    this.logo = this.nav.getByRole("img", { name: "RHTP logo" });
+    this.logo = this.nav.getByRole("img", { name: "MDCT logo" });
     this.helpLink = this.nav.getByRole("link", { name: "Get Help" });
     this.accountButton = this.nav.getByRole("button", { name: "my account" });
     this.manageAccountMenuItem = page.getByRole("menuitem", {

@@ -1,5 +1,6 @@
-import { Route, Routes, useLocation } from "react-router";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import {
+  AdminPage,
   HelpPage,
   ProfilePage,
   AccessDeniedPage,
@@ -37,6 +38,10 @@ export const AppRoutes = () => {
           path="/"
           element={!userIsAdmin ? <Dashboard /> : <AdminDashboard />}
         />
+        <Route
+            path="/admin"
+            element={!userIsAdmin ? <Navigate to="/profile" /> : <AdminPage />}
+          />
         <Route path="/export" element={<ExportFilesPage />} />
         <Route path="/data-sets" element={<ManageDataSets />} />
         <Route path="/profile" element={<ProfilePage />} />
