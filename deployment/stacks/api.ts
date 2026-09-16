@@ -197,6 +197,39 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     buckets: [datasetBucket],
   };
 
+  // Banner handlers
+  new Lambda(scope, "createBanner", {
+    entry: "services/app-api/handlers/banners/create.ts",
+    handler: "createBanner",
+    path: "banners",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "updateBanner", {
+    entry: "services/app-api/handlers/banners/update.ts",
+    handler: "updateBanner",
+    path: "banners/{bannerId}",
+    method: "PUT",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteBanner", {
+    entry: "services/app-api/handlers/banners/delete.ts",
+    handler: "deleteBanner",
+    path: "banners/{bannerId}",
+    method: "DELETE",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getBanners", {
+    entry: "services/app-api/handlers/banners/fetch.ts",
+    handler: "getBanners",
+    path: "banners",
+    method: "GET",
+    ...commonProps,
+  });
+
   const zipWorkerLambda = new Lambda(scope, "zipWorker", {
     entry: "services/app-api/handlers/uploads/zip.ts",
     handler: "zipWorker",
