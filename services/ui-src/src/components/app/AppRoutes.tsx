@@ -39,9 +39,9 @@ export const AppRoutes = () => {
           element={!userIsAdmin ? <Dashboard /> : <AdminDashboard />}
         />
         <Route
-            path="/admin"
-            element={!userIsAdmin ? <Navigate to="/profile" /> : <AdminPage />}
-          />
+          path="/admin"
+          element={!userIsAdmin ? <Navigate to="/profile" /> : <AdminPage />}
+        />
         <Route path="/export" element={<ExportFilesPage />} />
         <Route path="/data-sets" element={<ManageDataSets />} />
         <Route path="/profile" element={<ProfilePage />} />
