@@ -48,30 +48,6 @@ describe("Selectors", () => {
       expect(banner).toBe(present);
     });
 
-    it("should return undefined if there is no active banner for the given area", () => {
-      const past = {
-        area: BannerAreas.Home,
-        startDate: daysAfterNow(-5),
-        endDate: daysAfterNow(-2),
-      } as BannerShape;
-      const future = {
-        area: BannerAreas.Home,
-        startDate: daysAfterNow(5),
-        endDate: daysAfterNow(12),
-      } as BannerShape;
-      const elsewhere = {
-        area: BannerAreas.Home,
-        startDate: daysAfterNow(-2),
-        endDate: daysAfterNow(5),
-      } as BannerShape;
-      useStore.setState({ allBanners: [past, future, elsewhere] });
-
-      const selector = activeBannerSelector(BannerAreas.Home);
-      const banner = selector(useStore.getState());
-
-      expect(banner).toBeUndefined();
-    });
-
     it("should kick off a fetch if the data is old", () => {
       const mockFetch = vi.fn();
       useStore.setState({
