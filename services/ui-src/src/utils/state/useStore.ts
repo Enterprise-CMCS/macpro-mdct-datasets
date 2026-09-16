@@ -1,9 +1,17 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { BannerFormData } from "@rhtp/shared";
 import {
   UserState,
   User,
+  BannerState,
 } from "types";
+import {
+  createBanner,
+  deleteBanner,
+  updateBanner,
+  getBanners,
+} from "utils/api/requestMethods/banner";
 
 // USER STORE
 const userStore = (set: Set<UserState>) => ({
@@ -19,12 +27,36 @@ const userStore = (set: Set<UserState>) => ({
     set(() => ({ showLocalLogins: true }), false, { type: "showLocalLogins" }),
 });
 
+// BANNER STORE
+const bannerStore = (set: Set<BannerState>, get: Get<BannerState>) => ({
+  // initial state
+  allBanners: [],
+  _lastFetchTime: 0,
+  fetchBanners: async () => {
+    const allBanners = await getBanners();
+    set({ allBanners, _lastFetchTime: Date.now() });
+  },
+  createBanner: async (banner: BannerFormData) => {
+    await createBanner(banner);
+    await get().fetchBanners();
+  },
+  updateBanner: async (banner: BannerFormData) => {
+    await updateBanner(banner);
+    await get().fetchBanners();
+  },
+  deleteBanner: async (bannerKey: string) => {
+    await deleteBanner(bannerKey);
+    await get().fetchBanners();
+  },
+});
+
 export const useStore = create(
   // devtools is being used for debugging state
   persist(
-    devtools<UserState>(
-      (set) => ({
+    devtools<UserState & BannerState>(
+      (set, get) => ({
         ...userStore(set),
+        ...bannerStore(set, get),
       })
     ),
     {

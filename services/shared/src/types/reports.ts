@@ -46,3 +46,9 @@ export enum PageType {
   Modal = "modal",
   ReviewSubmit = "reviewSubmit",
 }
+
+export enum MaskType {
+  CommaSeparated = "CommaSeparated",
+  MagicNumber = "MagicNumber",
+  NumberNA = "NumberNA",
+}

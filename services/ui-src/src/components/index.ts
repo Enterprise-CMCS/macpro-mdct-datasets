@@ -2,6 +2,7 @@
 export { AccordionItem } from "./accordions/AccordionItem";
 // alerts
 export { Alert } from "./alerts/Alert";
+export { Banner } from "./alerts/Banner";
 // app
 export { App } from "./app/App";
 export { Error } from "./app/Error";
@@ -17,6 +18,7 @@ export { HelpCard } from "./cards/HelpCard";
 //drawer
 export { Drawer } from "./drawers/Drawer";
 // forms
+export { AdminBannerDrawer } from "./forms/AdminBannerDrawer";
 export { AdminDashboard } from "./forms/AdminDashboard";
 // logins
 export { LoginCognito } from "./logins/LoginCognito";
