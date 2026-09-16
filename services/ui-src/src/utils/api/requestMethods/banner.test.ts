@@ -4,7 +4,7 @@ import { initAuthManager } from "utils/auth/authLifecycle";
 
 const mockBanner: BannerFormData = {
   title: "RHTP Alert",
-  area: BannerAreas.RHTP,
+  area: BannerAreas.Home,
   description: "mock description",
   link: "https://example.com/rhtp-alert",
   startDate: "2026-01-01",
