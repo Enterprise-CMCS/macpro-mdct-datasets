@@ -1,7 +1,7 @@
 import { Stack } from "@chakra-ui/react";
 import { UploadArea } from "../fields/UploadArea";
 import { JSX } from "react";
-import { AlertTypes, UploadListProp } from "@rhtp/shared";
+import { AlertTypes, UploadListProp } from "@datasets/shared";
 import { Drawer } from "components";
 
 export const UploadDrawer = ({

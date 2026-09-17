@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { BannerFormData } from "@rhtp/shared";
+import { BannerFormData } from "@datasets/shared";
 import { UserState, User, BannerState } from "types";
 import {
   createBanner,
@@ -54,7 +54,7 @@ export const useStore = create(
       ...bannerStore(set, get),
     })),
     {
-      name: "rhtp-store",
+      name: "datasets-store",
     }
   )
 );

@@ -1,7 +1,7 @@
 import { handler } from "../../libs/handler-lib";
 import { emptyParser, parseZipIdParameters } from "../../libs/param-lib";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
-import { StateAbbr, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, ZipRequestTypes } from "@datasets/shared";
 import JSZip from "jszip";
 import { addDataSetFilesToZip } from "../../utils/zips/buildZip";
 import { getPSURL, zipBuffer, startZipWorker } from "../../utils/zips/polling";

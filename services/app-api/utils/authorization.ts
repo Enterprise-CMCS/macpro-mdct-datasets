@@ -4,7 +4,7 @@ import {
   UserRoles,
   ZipRequestBody,
   ZipRequestTypes,
-} from "@rhtp/shared";
+} from "@datasets/shared";
 
 /** These roles are allowed to read data for any state */
 const statelessRoles = [
@@ -12,14 +12,9 @@ const statelessRoles = [
   UserRoles.APPROVER,
   UserRoles.HELP_DESK,
   UserRoles.INTERNAL,
-  UserRoles.PROJECT_OFFICER,
 ];
 
-const adminRoles = [
-  UserRoles.ADMIN,
-  UserRoles.APPROVER,
-  UserRoles.PROJECT_OFFICER,
-];
+const adminRoles = [UserRoles.ADMIN, UserRoles.APPROVER];
 
 export const isAdminUser = (user: User) => {
   return adminRoles.includes(user.role);

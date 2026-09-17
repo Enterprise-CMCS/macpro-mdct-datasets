@@ -13,7 +13,7 @@ import { MenuOption } from "components";
 import { useBreakpoint, useStore } from "utils";
 import chevronDownIcon from "assets/icons/arrows/icon_arrow_down.svg";
 import gearIcon from "assets/icons/icon_gear.svg";
-import { UserRoles } from "@rhtp/shared";
+import { UserRoles } from "@datasets/shared";
 
 export const AdminMenu = () => {
   const { userRole } = useStore().user ?? {};

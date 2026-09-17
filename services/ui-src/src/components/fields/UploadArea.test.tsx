@@ -28,16 +28,6 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
       { filename: "mock-name", fileSize: 100, fileId: "mock-id" },
     ]),
 }));
-vi.mock("utils", async (importOriginal) => ({
-  ...(await importOriginal()),
-  useStore: vi.fn().mockReturnValue({
-    report: {
-      id: "mock-report-id",
-      type: "RHTP",
-      state: "PA",
-    },
-  }),
-}));
 
 const mockDeleteFromReport = vi.fn();
 
