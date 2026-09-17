@@ -1,11 +1,5 @@
-import { ReactNode } from "react";
-import {
-  ParentPageTemplate,
-  Report,
-  BannerShape,
-  BannerFormData,
-} from "@rhtp/shared";
-import { PageData, User } from "types";
+import { BannerShape, BannerFormData } from "@rhtp/shared";
+import { User } from "types";
 
 export interface BannerState {
   /** All banners, active and inactive, for every area of the site */
@@ -26,35 +20,4 @@ export interface UserState {
   // ACTIONS
   setUser: (newUser?: User) => void;
   setShowLocalLogins: (showLocalLogins: boolean) => void;
-}
-
-export interface ReportState {
-  // INITIAL STATE
-  report?: Report;
-  pageMap?: Map<string, number>;
-  rootPage?: ParentPageTemplate;
-  parentPage?: PageData; // used for looking up curr & next page
-  currentPageId?: string;
-  modalOpen: boolean;
-  modalHeader?: string;
-  modalComponent?: ReactNode;
-  lastSavedTime?: string;
-  errorMessage?: string;
-  sidebarOpen: boolean;
-
-  // ACTIONS
-  loadReport: (report?: Report) => void;
-  updateReport: (report?: Report) => void;
-  setCurrentPageId: (currentPageId: string) => void;
-  setModalOpen: (modalOpen: boolean) => void;
-  setModalComponent: (modalComponent: ReactNode, modalHeader: string) => void;
-  setAnswers: (answers: any, pageId?: string) => void;
-  completePage: (pageId: string) => void;
-  setSidebar: (sidebarOpen: boolean) => void;
-  saveReport: () => void;
-}
-
-export interface DevToolsState {
-  devDate: string | undefined;
-  setDevDate: (date: string) => void;
 }

@@ -8,8 +8,8 @@ export const reportType = process.env.TEST_REPORT_TYPE || "RHTP";
 export const adminAuthPath: string = "playwright/.auth/admin.json";
 export const stateUserAuthPath: string = "playwright/.auth/user.json";
 
-export const expectedAdminHeading = "Admin Dashboard";
-export const expectedStateUserHeading = "Rural Health Transformation Program";
+export const expectedAdminHeading = "File Upload Admin Dashboard";
+export const expectedStateUserHeading = "South Carolina File Upload";
 
 export const cognitoIdentityRoute = "https://cognito-identity.*.amazonaws.com/";
 

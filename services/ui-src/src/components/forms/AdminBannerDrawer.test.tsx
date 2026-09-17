@@ -28,7 +28,7 @@ describe("<AdminBannerDrawer />", () => {
 
   test("AdminBannerDrawer can be filled and submitted without error", async () => {
     const siteAreaDropdown = screen.getAllByLabelText("Site area")[0];
-    await userEvent.selectOptions(siteAreaDropdown, "RHTP");
+    await userEvent.selectOptions(siteAreaDropdown, "Home page");
 
     const titleInput = screen.getByLabelText("Title");
     await userEvent.click(titleInput);
@@ -54,7 +54,7 @@ describe("<AdminBannerDrawer />", () => {
     await userEvent.click(submitButton);
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "RHTP",
+      area: "home",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",
@@ -129,13 +129,6 @@ describe("AdminBannerDrawer validation", () => {
     expect(screen.queryByText(startDateConflict)).not.toBeInTheDocument();
     expect(screen.queryByText(endDateConflict)).not.toBeInTheDocument();
     expect(screen.getByText(rangeConflict)).toBeVisible();
-
-    // Move the banner to a different area, so no conflict
-    await userEvent.click(screen.getByRole("button", { name: /Site area/ }));
-    await userEvent.click(screen.getByRole("option", { name: /RHTP report/ }));
-    expect(screen.queryByText(startDateConflict)).not.toBeInTheDocument();
-    expect(screen.queryByText(endDateConflict)).not.toBeInTheDocument();
-    expect(screen.queryByText(rangeConflict)).not.toBeInTheDocument();
   });
 
   test("User has form errors but then fills out the form and errors go away", async () => {

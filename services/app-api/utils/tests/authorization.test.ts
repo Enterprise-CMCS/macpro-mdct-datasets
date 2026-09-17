@@ -8,12 +8,7 @@ import {
   canWriteState,
 } from "../authorization";
 import { User } from "../../types/types";
-import {
-  ReportType,
-  StateAbbr,
-  UserRoles,
-  ZipRequestTypes,
-} from "@rhtp/shared";
+import { StateAbbr, UserRoles, ZipRequestTypes } from "@rhtp/shared";
 
 const adminUser = {
   role: UserRoles.ADMIN,
@@ -135,7 +130,6 @@ describe("Authorization functions", () => {
       type: ZipRequestTypes.REPORT,
       report: {
         state: "CO" as StateAbbr,
-        reportType: ReportType.RHTP,
         id: "report-123",
       },
     };

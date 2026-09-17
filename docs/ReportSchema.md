@@ -146,7 +146,6 @@ Here is the complete list of element types, roughly categorized:
     - Answer is a string array.
 - Presentational-input elements:
   - `initiativesTable`: Table for displaying all initiatives with links to their individual pages.
-  - `tableCheckpoint`: Table for displaying initiative checkpoints.
   - `accordionGroup`: Accordions containing input elements.
   - `ObligatedAndSpentFundsAttachment`: Upload area for uploading a obligated and spent funds file.
   - `attachmentTable`: Table for displaying uploaded files.

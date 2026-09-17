@@ -5,7 +5,7 @@ import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { StatusCodes } from "../../libs/response-lib";
 import s3Lib from "../../libs/s3-lib";
 import { getPSURL, startZipWorker, zipBuffer } from "./polling";
-import { ReportType, StateAbbr, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, ZipRequestTypes } from "@rhtp/shared";
 
 const lambdaMock = mockClient(LambdaClient);
 const mockInvoke = vi.fn();
@@ -24,7 +24,6 @@ const mockReportZipBody = {
   type: ZipRequestTypes.REPORT,
   report: {
     state: "NJ" as StateAbbr,
-    reportType: ReportType.RHTP,
     id: "mock-report-id",
   },
 };
@@ -44,20 +43,6 @@ describe("polling utils", () => {
       const result = await getPSURL("zip-id-123");
       expect(result.statusCode).toBe(StatusCodes.Ok);
       expect(result.body).toEqual(JSON.stringify({ status: "pending" }));
-    });
-
-    test("getPSURL returns ready when complete", async () => {
-      (s3Lib.headObject as Mock).mockResolvedValue({});
-      const result = await getPSURL("zip-id-123");
-      expect(result.statusCode).toBe(StatusCodes.Ok);
-      expect(result.body).toEqual(
-        JSON.stringify({ status: "ready", psurl: "https://s3.file.mock" })
-      );
-      expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=RHTP.zip",
-        })
-      );
     });
 
     test("getPSURL returns ready and assigns proper name when tagged", async () => {
@@ -81,7 +66,8 @@ describe("polling utils", () => {
       );
       expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
         expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=RHTP_NJ_A1.zip",
+          ResponseContentDisposition:
+            "attachment; filename=MCDT_ALL_STATES.zip",
         })
       );
     });

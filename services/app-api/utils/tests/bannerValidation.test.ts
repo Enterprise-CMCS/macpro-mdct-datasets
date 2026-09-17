@@ -12,7 +12,7 @@ const warn = logger.warn as Mock;
 
 const validPayload: BannerFormData = {
   title: "mock title",
-  area: BannerAreas.RHTP,
+  area: BannerAreas.Home,
   description: "mock description",
   link: "https://example.com",
   startDate: new Date().toISOString().slice(0, 10),
