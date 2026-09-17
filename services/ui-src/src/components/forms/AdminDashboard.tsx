@@ -1,6 +1,6 @@
 import { JSX, useEffect, useState } from "react";
 import { Button, Heading, Flex, Spinner, Stack, Text } from "@chakra-ui/react";
-import { StateDropdownOptions, StateNames } from "@rhtp/shared";
+import { StateDropdownOptions, StateNames } from "@datasets/shared";
 import { PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";

@@ -1,6 +1,6 @@
 import { apiLib } from "utils";
 import { getRequestHeaders } from "./getRequestHeaders";
-import { BannerFormData, BannerShape } from "@rhtp/shared";
+import { BannerFormData, BannerShape } from "@datasets/shared";
 
 async function getBanners() {
   const requestHeaders = await getRequestHeaders();

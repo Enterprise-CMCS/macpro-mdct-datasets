@@ -18,7 +18,7 @@ import {
   StateDropdownOptions,
 } from "../../../../../shared/src/utils/constants";
 import { MultiSelect } from "components/forms/Multiselect";
-import { ZipRequestTypes } from "@rhtp/shared";
+import { ZipRequestTypes } from "@datasets/shared";
 import { getZipFile } from "utils/other/fileUtils";
 import { DropdownOptions } from "types";
 import { getDataSets } from "../../../utils/api/requestMethods/datasets";

@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, User } from "../types/types";
 import jwtDecode from "jwt-decode";
-import { isStateAbbr, isUserRole } from "@rhtp/shared";
+import { isStateAbbr, isUserRole } from "@datasets/shared";
 import { logger } from "../libs/debug-lib";
 
 export interface DecodedToken {
@@ -51,7 +51,7 @@ const parseRoleFromToken = (token: DecodedToken) => {
   const rolesString = token["custom:cms_roles"] as string;
   const role = rolesString.split(",").find(isUserRole);
   if (!role) {
-    throw new Error(`No RHTP role defined: ${rolesString}`);
+    throw new Error(`No Datasets role defined: ${rolesString}`);
   }
   return role;
 };

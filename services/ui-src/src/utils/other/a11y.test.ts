@@ -1,5 +1,5 @@
 import { focusHeading, getTabTitle } from "./a11y";
-import { tabTitleMap } from "@rhtp/shared";
+import { tabTitleMap } from "@datasets/shared";
 
 describe("a11y util test", () => {
   describe("test focusHeading", () => {

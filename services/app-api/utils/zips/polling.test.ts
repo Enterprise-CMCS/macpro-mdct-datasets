@@ -5,7 +5,7 @@ import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { StatusCodes } from "../../libs/response-lib";
 import s3Lib from "../../libs/s3-lib";
 import { getPSURL, startZipWorker, zipBuffer } from "./polling";
-import { StateAbbr, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, ZipRequestTypes } from "@datasets/shared";
 
 const lambdaMock = mockClient(LambdaClient);
 const mockInvoke = vi.fn();

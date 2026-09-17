@@ -2,7 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import { AdminBannerDrawer } from "components";
 import userEvent from "@testing-library/user-event";
 import { testA11yAct } from "utils/testing/commonTests";
-import { BannerShape } from "@rhtp/shared";
+import { BannerShape } from "@datasets/shared";
 import { useStore } from "utils";
 
 const mockCreateBanner = vi.fn();

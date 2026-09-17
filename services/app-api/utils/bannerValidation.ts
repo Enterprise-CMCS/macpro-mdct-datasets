@@ -1,5 +1,5 @@
 import { logger } from "../libs/debug-lib";
-import { BannerAreas, BannerFormData, isBannerArea } from "@rhtp/shared";
+import { BannerAreas, BannerFormData, isBannerArea } from "@datasets/shared";
 import { isIsoDateString, isValidUrl } from "../types/types";
 
 export const isValidBanner = (banner: unknown): banner is BannerFormData => {

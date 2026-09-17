@@ -7,7 +7,7 @@ const mockClose = vi.fn();
 const mockSubmit = vi.fn();
 
 describe("Test ZipModal", () => {
-  test("Test ZipModal for RHTP Render", async () => {
+  test("Test ZipModal render", async () => {
     const modal = ZipModal(mockClose, mockSubmit);
     render(
       <Modal isOpen={true} onClose={mockClose}>

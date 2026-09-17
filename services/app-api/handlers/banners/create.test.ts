@@ -1,7 +1,7 @@
 import { Mock } from "vitest";
 import { StatusCodes } from "../../libs/response-lib";
 import { APIGatewayProxyEvent } from "../../types/types";
-import { BannerAreas, BannerFormData, UserRoles } from "@rhtp/shared";
+import { BannerAreas, BannerFormData, UserRoles } from "@datasets/shared";
 import { canWriteBanner } from "../../utils/authorization";
 import { createBanner } from "./create";
 import { error } from "../../utils/constants";

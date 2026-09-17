@@ -4,7 +4,7 @@ import { fixLocalstackUrl } from "../../libs/localstack";
 import JSZip from "jszip";
 import { Readable } from "node:stream";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
-import { ZipRequestBody, ZipRequestTypes } from "@rhtp/shared";
+import { ZipRequestBody, ZipRequestTypes } from "@datasets/shared";
 import KSUID from "ksuid";
 import { formatS3ZipKey } from "./buildZip";
 

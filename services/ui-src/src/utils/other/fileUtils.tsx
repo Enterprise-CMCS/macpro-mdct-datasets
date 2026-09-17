@@ -18,7 +18,7 @@ import cancelIconGray from "assets/icons/cancel/icon_cancel_gray.svg";
 import successIcon from "assets/icons/status/icon_status_check.svg";
 import DOMPurify from "dompurify";
 import { bytesToKiloBytes, parseHtml } from "./parsing";
-import { UploadListProp, ZipRequestBody } from "@rhtp/shared";
+import { UploadListProp, ZipRequestBody } from "@datasets/shared";
 
 const negatedAllowedCharacters = /[^0-9a-zA-Z._-]+/g;
 

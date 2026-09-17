@@ -2872,6 +2872,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@datasets/shared@workspace:*, @datasets/shared@workspace:services/shared":
+  version: 0.0.0-use.local
+  resolution: "@datasets/shared@workspace:services/shared"
+  dependencies:
+    typescript: "npm:^5.9.3"
+  languageName: unknown
+  linkType: soft
+
 "@emnapi/core@npm:1.10.0":
   version: 1.10.0
   resolution: "@emnapi/core@npm:1.10.0"
@@ -4469,14 +4477,6 @@ __metadata:
   checksum: 10c0/0bc3c8748aeba03257d3bbfe6ef0f7b24a10c25f1193f58403cdf2f0e988eef0cd3318c17dd09e26451a934dbbf2158c21dc7be2ca4f9c0012814d3ef8c78cda
   languageName: node
   linkType: hard
-
-"@rhtp/shared@workspace:*, @rhtp/shared@workspace:services/shared":
-  version: 0.0.0-use.local
-  resolution: "@rhtp/shared@workspace:services/shared"
-  dependencies:
-    typescript: "npm:^5.9.3"
-  languageName: unknown
-  linkType: soft
 
 "@rolldown/binding-android-arm64@npm:1.0.0-rc.17":
   version: 1.0.0-rc.17
@@ -6296,8 +6296,8 @@ __metadata:
     "@aws-sdk/client-ses": "npm:~3.1032.0"
     "@aws-sdk/lib-dynamodb": "npm:~3.1032.0"
     "@aws-sdk/s3-request-presigner": "npm:~3.1032.0"
+    "@datasets/shared": "workspace:*"
     "@launchdarkly/node-server-sdk": "npm:^9.10.4"
-    "@rhtp/shared": "workspace:*"
     "@types/jsdom": "npm:^27.0.0"
     "@types/node": "npm:^24.10.1"
     "@types/papaparse": "npm:^5"
@@ -11012,9 +11012,9 @@ __metadata:
     "@chakra-ui/styled-system": "npm:2.6.0"
     "@chakra-ui/toast": "npm:2.1.0"
     "@cmsgov/design-system": "npm:^13.0.0"
+    "@datasets/shared": "workspace:*"
     "@emotion/react": "npm:^11.11.4"
     "@emotion/styled": "npm:^11.11.5"
-    "@rhtp/shared": "workspace:*"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.0.1"

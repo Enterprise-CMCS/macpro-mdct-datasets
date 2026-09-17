@@ -17,7 +17,7 @@ const mockOptions = {
   },
 };
 const requestObj = {
-  apiName: "rhtp",
+  apiName: "datasets",
   path,
   options: mockOptions,
 };

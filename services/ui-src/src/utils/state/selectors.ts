@@ -1,4 +1,4 @@
-import { BannerArea } from "@rhtp/shared";
+import { BannerArea } from "@datasets/shared";
 import { BannerState } from "types";
 import { compareDates, parseAsLocalDate } from "utils/other/time";
 
