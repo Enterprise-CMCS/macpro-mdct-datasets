@@ -1,7 +1,7 @@
 import { get, put, post, del } from "aws-amplify/api";
 import { updateTimeout } from "utils";
 
-const apiName = "rhtp";
+const apiName = "rhtp"; //TODO: change this
 
 type ResponsePayload = Awaited<ReturnType<typeof get>["response"]>["body"];
 

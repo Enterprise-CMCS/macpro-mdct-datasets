@@ -1,7 +1,4 @@
-import { ReportType } from "./reports";
-
 export const BannerAreas = {
-  ...ReportType,
   Home: "home",
 } as const;
 
@@ -30,7 +27,6 @@ export interface BannerShape extends BannerFormData {
 /** Determines the display names _and order_ on the Banner Editor page. */
 export const bannerAreaLabels: Record<BannerArea, string> = {
   [BannerAreas.Home]: "Home page",
-  [BannerAreas.RHTP]: "RHTP report dashboard",
 };
 export const bannerAreaOptions = Object.entries(bannerAreaLabels).map(
   ([key, value]) => ({

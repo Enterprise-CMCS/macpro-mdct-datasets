@@ -9,16 +9,16 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import {
+  getZipPresignedUrl,
   deleteUploadedFile,
   getFileDownloadUrl,
-  getZipPresignedUrl,
-} from "../api/requestMethods/fileMethods";
+} from "../api/requestMethods/uploads";
 import cancelIcon from "assets/icons/cancel/icon_cancel_primary.svg";
 import cancelIconGray from "assets/icons/cancel/icon_cancel_gray.svg";
 import successIcon from "assets/icons/status/icon_status_check.svg";
 import DOMPurify from "dompurify";
 import { bytesToKiloBytes, parseHtml } from "./parsing";
-import { ReportType, UploadListProp, ZipRequestBody } from "@rhtp/shared";
+import { UploadListProp, ZipRequestBody } from "@rhtp/shared";
 
 const negatedAllowedCharacters = /[^0-9a-zA-Z._-]+/g;
 
@@ -31,12 +31,12 @@ export const getFileWithSafeName = (file: File) => {
 };
 
 export const downloadFile = async (
-  reportType: ReportType,
+  datasetId: string,
   state: string,
-  id: string,
-  file: UploadListProp
+  fileId: string
 ) => {
-  const fileLink = await getFileDownloadUrl(reportType, state, id, file.fileId);
+  const fileLink = await getFileDownloadUrl(datasetId, state, fileId);
+  console.log("fileLink", fileLink);
   const sanitizeLink = DOMPurify.sanitize(fileLink);
   window.open(sanitizeLink);
 };
@@ -50,18 +50,11 @@ export const getZipFile = async (body: ZipRequestBody) => {
   link.click();
 };
 
-export const removeFile = async (
-  reportType: ReportType,
-  state: string,
-  id: string,
-  file: File | UploadListProp
-) => {
-  if (!("fileId" in file)) return;
-  return deleteUploadedFile(reportType, state, id, file.fileId);
+export const removeFile = async (state: string, id: string, fileId: string) => {
+  return deleteUploadedFile(state, id, fileId);
 };
 
 export const uploadListRender = (
-  reportType: ReportType,
   state: string,
   id: string,
   files: File[] | UploadListProp[] | (UploadListProp & { message?: string })[],
@@ -82,7 +75,7 @@ export const uploadListRender = (
                 ) : (
                   <Button
                     variant="link"
-                    onClick={() => onClick(reportType, state, id, file)}
+                    onClick={() => onClick(state, id, file)}
                     textAlign="left"
                   >
                     {file.name}

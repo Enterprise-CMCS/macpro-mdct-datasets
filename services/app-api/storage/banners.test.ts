@@ -12,7 +12,7 @@ const mockDynamo = mockClient(DynamoDBDocumentClient);
 
 const mockBanner: BannerShape = {
   title: "mock title",
-  area: BannerAreas.RHTP,
+  area: BannerAreas.Home,
   description: "mock description",
   link: "https://example.com",
   startDate: new Date().toISOString().slice(0, 10),
@@ -35,7 +35,7 @@ describe("Banner storage methods", () => {
 
     expect(mockPut).toHaveBeenCalledWith(
       {
-        TableName: "local-banners",
+        TableName: "local-datasets-banners",
         Item: mockBanner,
       },
       expect.any(Function)
@@ -55,7 +55,7 @@ describe("Banner storage methods", () => {
     expect(banner).toEqual([mockBanner, mockBanner]);
     expect(mockScan).toHaveBeenCalledWith(
       expect.objectContaining({
-        TableName: "local-banners",
+        TableName: "local-datasets-banners",
       }),
       expect.any(Function)
     );
@@ -69,7 +69,7 @@ describe("Banner storage methods", () => {
 
     expect(mockDelete).toHaveBeenCalledWith(
       {
-        TableName: "local-banners",
+        TableName: "local-datasets-banners",
         Key: { key: "mock-key" },
       },
       expect.any(Function)

@@ -1,10 +1,5 @@
-import { mockUseStore } from "utils/testing/setupTest";
-import {
-  activeBannerSelector,
-  currentPageSelector,
-  submittableMetricsSelector,
-} from "./selectors";
-import { BannerAreas, BannerShape, PageStatus } from "@rhtp/shared";
+import { activeBannerSelector } from "./selectors";
+import { BannerAreas, BannerShape } from "@rhtp/shared";
 import { useStore } from "./useStore";
 
 vi.mock("utils/auth/authLifecycle", () => ({
@@ -14,19 +9,6 @@ vi.mock("utils/auth/authLifecycle", () => ({
 describe("Selectors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  test("getCurrentPage should return the current page object", async () => {
-    const page = currentPageSelector(mockUseStore);
-
-    expect(page?.id).toEqual(mockUseStore.currentPageId);
-  });
-
-  test("submittableMetricsSelector should return the readiness of the report", async () => {
-    const result = submittableMetricsSelector(mockUseStore);
-    expect(result?.sections[0]?.submittable).toEqual(true);
-    expect(result?.sections[0]?.displayStatus).toEqual(PageStatus.COMPLETE);
-    expect(result?.submittable).toEqual(true);
   });
 
   describe("activeBannerSelector", () => {
@@ -53,7 +35,7 @@ describe("Selectors", () => {
         endDate: daysAfterNow(12),
       } as BannerShape;
       const elsewhere = {
-        area: BannerAreas.RHTP,
+        area: BannerAreas.Home,
         startDate: daysAfterNow(-2),
         endDate: daysAfterNow(5),
       } as BannerShape;
@@ -63,30 +45,6 @@ describe("Selectors", () => {
       const banner = selector(useStore.getState());
 
       expect(banner).toBe(present);
-    });
-
-    it("should return undefined if there is no active banner for the given area", () => {
-      const past = {
-        area: BannerAreas.Home,
-        startDate: daysAfterNow(-5),
-        endDate: daysAfterNow(-2),
-      } as BannerShape;
-      const future = {
-        area: BannerAreas.Home,
-        startDate: daysAfterNow(5),
-        endDate: daysAfterNow(12),
-      } as BannerShape;
-      const elsewhere = {
-        area: BannerAreas.RHTP,
-        startDate: daysAfterNow(-2),
-        endDate: daysAfterNow(5),
-      } as BannerShape;
-      useStore.setState({ allBanners: [past, future, elsewhere] });
-
-      const selector = activeBannerSelector(BannerAreas.Home);
-      const banner = selector(useStore.getState());
-
-      expect(banner).toBeUndefined();
     });
 
     it("should kick off a fetch if the data is old", () => {

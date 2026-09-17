@@ -5,10 +5,10 @@ import {
   aws_wafv2 as wafv2,
   aws_s3 as s3,
   aws_ec2 as ec2,
-  aws_ses as ses,
-  aws_sns as sns,
-  aws_iam as iam,
-  Aws,
+  // aws_ses as ses,
+  // aws_sns as sns,
+  // aws_iam as iam,
+  // Aws,
   CfnOutput,
   Duration,
   RemovalPolicy,
@@ -18,7 +18,6 @@ import { WafConstruct } from "../constructs/waf.ts";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { DynamoDBTable } from "../constructs/dynamodb-table.ts";
 import { isLocalStack } from "../local/util.ts";
-import { LambdaDynamoEventSource } from "../constructs/lambda-dynamo-event.ts";
 
 interface CreateApiComponentsProps {
   scope: Construct;
@@ -29,7 +28,6 @@ interface CreateApiComponentsProps {
   vpc: ec2.IVpc;
   kafkaAuthorizedSubnets: ec2.ISubnet[];
   brokerString: string;
-  attachmentsBucket: s3.IBucket;
   datasetBucket: s3.IBucket;
   launchDarklyServer: string;
   launchDarklyLocalFlags?: string;
@@ -41,38 +39,37 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     stage,
     project,
     isDev,
-    vpc,
-    kafkaAuthorizedSubnets,
+    // vpc,
+    // kafkaAuthorizedSubnets,
     brokerString,
     tables,
-    attachmentsBucket,
     datasetBucket,
     launchDarklyServer,
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
   } = props;
 
-  const isProduction = stage === "production";
+  // const isProduction = stage === "production";
 
   const service = "app-api";
 
-  const kafkaSecurityGroup = new ec2.SecurityGroup(
-    scope,
-    "KafkaSecurityGroup",
-    {
-      vpc,
-      description:
-        "Security Group for streaming functions. Egress all is set by default.",
-      allowAllOutbound: true,
-    }
-  );
+  // const kafkaSecurityGroup = new ec2.SecurityGroup(
+  //   scope,
+  //   "KafkaSecurityGroup",
+  //   {
+  //     vpc,
+  //     description:
+  //       "Security Group for streaming functions. Egress all is set by default.",
+  //     allowAllOutbound: true,
+  //   }
+  // );
 
-  // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
-  let sesPolicy = new iam.PolicyStatement({
-    effect: iam.Effect.DENY,
-    actions: ["ses:SendEmail", "ses:SendRawEmail"],
-    resources: ["*"],
-  });
-  if (!isDev) {
+  // // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
+  // let sesPolicy = new iam.PolicyStatement({
+  //   effect: iam.Effect.DENY,
+  //   actions: ["ses:SendEmail", "ses:SendRawEmail"],
+  //   resources: ["*"],
+  // });
+  /* if (!isDev) {
     const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
       topic: sns.Topic.fromTopicArn(
@@ -122,7 +119,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
         `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:configuration-set/${configSet.configurationSetName}`,
       ],
     });
-  }
+  } */
 
   const logGroup = new logs.LogGroup(scope, "ApiAccessLogs", {
     removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
@@ -182,7 +179,6 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     STAGE: stage,
     launchDarklyServer,
     launchDarklyLocalFlags,
-    attachmentsBucketName: attachmentsBucket.bucketName,
     datasetBucketName: datasetBucket.bucketName,
     ...Object.fromEntries(
       tables.map((table) => [`${table.node.id}Table`, table.table.tableName])
@@ -198,7 +194,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     environment,
     isDev,
     tables,
-    buckets: [attachmentsBucket, datasetBucket],
+    buckets: [datasetBucket],
   };
 
   // Banner handlers
@@ -230,107 +226,6 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     entry: "services/app-api/handlers/banners/fetch.ts",
     handler: "getBanners",
     path: "banners",
-    method: "GET",
-    ...commonProps,
-  });
-
-  // Report handlers
-  new Lambda(scope, "createReport", {
-    entry: "services/app-api/handlers/reports/create.ts",
-    handler: "createReport",
-    path: "reports/{reportType}/{state}",
-    method: "POST",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getReportsByType", {
-    entry: "services/app-api/handlers/reports/get.ts",
-    handler: "getReportsByType",
-    path: "reports/{reportType}",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getReport", {
-    entry: "services/app-api/handlers/reports/get.ts",
-    handler: "getReport",
-    path: "reports/{reportType}/{state}/{id}",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getReportsForState", {
-    entry: "services/app-api/handlers/reports/get.ts",
-    handler: "getReportsForState",
-    path: "reports/{reportType}/{state}",
-    method: "GET",
-    ...commonProps,
-  });
-  //paths made only for dev tool, not to be used on real data
-  if (!isProduction) {
-    new Lambda(scope, "deleteReport", {
-      entry: "services/app-api/handlers/reports/delete.ts",
-      handler: "deleteReport",
-      path: "reports/{reportType}/{state}/{id}",
-      method: "DELETE",
-      ...commonProps,
-    });
-
-    new Lambda(scope, "deleteReportsForState", {
-      entry: "services/app-api/handlers/reports/delete.ts",
-      handler: "deleteReportsForState",
-      path: "reports/{reportType}/{state}",
-      method: "DELETE",
-      ...commonProps,
-    });
-  }
-  new Lambda(scope, "submitReport", {
-    entry: "services/app-api/handlers/reports/submit.ts",
-    handler: "submitReport",
-    path: "reports/submit/{reportType}/{state}/{id}",
-    method: "PUT",
-    additionalPolicies: [sesPolicy],
-    ...commonProps,
-  });
-
-  new Lambda(scope, "updateReport", {
-    entry: "services/app-api/handlers/reports/update.ts",
-    handler: "updateReport",
-    path: "reports/{reportType}/{state}/{id}",
-    method: "PUT",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "releaseReport", {
-    entry: "services/app-api/handlers/reports/release.ts",
-    handler: "releaseReport",
-    path: "reports/release/{reportType}/{state}/{id}",
-    method: "PUT",
-    additionalPolicies: [sesPolicy],
-    ...commonProps,
-  });
-
-  new Lambda(scope, "acceptReport", {
-    entry: "services/app-api/handlers/reports/accept.ts",
-    handler: "acceptReport",
-    path: "reports/accept/{reportType}/{state}/{id}",
-    method: "PUT",
-    additionalPolicies: [sesPolicy],
-    ...commonProps,
-  });
-
-  new Lambda(scope, "createUpload", {
-    entry: "services/app-api/handlers/uploads/create.ts",
-    handler: "createUpload",
-    path: "/reports/{reportType}/{state}/{id}/files",
-    method: "POST",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getUploadsByFileId", {
-    entry: "services/app-api/handlers/uploads/get.ts",
-    handler: "getUploadsByFileId",
-    path: "/reports/{reportType}/{state}/{id}/files/{fileId}",
     method: "GET",
     ...commonProps,
   });
@@ -369,80 +264,6 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "deleteUpload", {
-    entry: "services/app-api/handlers/uploads/delete.ts",
-    handler: "deleteUploadedFile",
-    path: "/reports/{reportType}/{state}/{id}/files/{fileId}",
-    method: "DELETE",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "createInitiative", {
-    entry: "services/app-api/handlers/reports/initiatives/create.ts",
-    handler: "createInitiative",
-    path: "reports/{reportType}/{state}/{id}/initiatives",
-    method: "POST",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "updateInitiative", {
-    entry: "services/app-api/handlers/reports/initiatives/update.ts",
-    handler: "updateInitiative",
-    path: "reports/{reportType}/{state}/{id}/initiatives/{initiativeId}",
-    method: "PUT",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "createComment", {
-    entry: "services/app-api/handlers/comments/create.ts",
-    handler: "createComment",
-    path: "comments/{state}/{contextId}",
-    method: "POST",
-    additionalPolicies: [sesPolicy],
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getComments", {
-    entry: "services/app-api/handlers/comments/fetch.ts",
-    handler: "getComments",
-    path: "comments/{state}/{contextId}",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "createNotificationRecipient", {
-    entry: "services/app-api/handlers/notifications/recipients/create.ts",
-    handler: "createNotificationRecipient",
-    path: "notifications/recipients/{state}",
-    method: "POST",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getNotificationRecipients", {
-    entry: "services/app-api/handlers/notifications/recipients/get.ts",
-    handler: "getNotificationRecipients",
-    path: "notifications/recipients",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getAssignedStatesByEmail", {
-    entry: "services/app-api/handlers/notifications/recipients/get.ts",
-    handler: "getAssignedStatesByEmail",
-    path: "notifications/recipientByEmail/{email}",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "deleteNotificationRecipient", {
-    entry: "services/app-api/handlers/notifications/recipients/delete.ts",
-    handler: "deleteNotificationRecipient",
-    path: "notifications/recipients/{state}/{id}",
-    method: "DELETE",
-    ...commonProps,
-  });
-
-  //------------------- Start of DataSet API Routes -------------------
   new Lambda(scope, "createDataSetUpload", {
     entry: "services/app-api/handlers/datasetUpload/create.ts",
     handler: "createDataSetUpload",
@@ -463,6 +284,14 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     entry: "services/app-api/handlers/datasetUpload/get.ts",
     handler: "getDataSetUploadsByFileId",
     path: "/dataset/{state}/{id}/files/{fileId}",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getDataSetUploads", {
+    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    handler: "getDataSetUploads",
+    path: "dataset",
     method: "GET",
     ...commonProps,
   });
@@ -507,8 +336,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  //------------------- End of DataSet API Routes -------------------
-
+  /** TODO: enable kafka sync, update tables included
   new LambdaDynamoEventSource(scope, "postKafkaData", {
     entry: "services/app-api/handlers/kafka/postKafkaData.ts",
     handler: "handler",
@@ -527,6 +355,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
       ["Reports", "Comments"].includes(table.node.id)
     ),
   });
+  */
 
   if (!isLocalStack) {
     const waf = new WafConstruct(
