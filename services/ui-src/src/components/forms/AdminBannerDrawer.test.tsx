@@ -84,7 +84,7 @@ describe("AdminBannerDrawer validation", () => {
   test("Display errors when date range conflicts with existing banners", async () => {
     const existingBanner = {
       title: "alpha",
-      area: "home",
+      area: "dashboard",
       startDate: "2026-01-10",
       endDate: "2026-01-20",
       key: "123456",
