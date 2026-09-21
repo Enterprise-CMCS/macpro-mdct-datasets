@@ -4,6 +4,43 @@ import { logger } from "./debug-lib";
 
 export const emptyParser = (_event: APIGatewayProxyEvent) => ({});
 
+export const parseEmail = (event: APIGatewayProxyEvent) => {
+  const { email } = event.pathParameters ?? {};
+
+  if (!email) {
+    logger.warn("Missing email in path");
+    return undefined;
+  }
+
+  return { email };
+};
+
+export const parseState = (event: APIGatewayProxyEvent) => {
+  const { state } = event.pathParameters ?? {};
+
+  if (!isStateAbbr(state)) {
+    logger.warn("Invalid state abbreviation in path");
+    return undefined;
+  }
+
+  return { state };
+};
+
+export const parseStateAndId = (event: APIGatewayProxyEvent) => {
+  const { id, state } = event.pathParameters ?? {};
+
+  if (!isStateAbbr(state)) {
+    logger.warn("Invalid state abbreviation in path");
+    return undefined;
+  }
+  if (!id) {
+    logger.warn("Missing ID in path");
+    return undefined;
+  }
+
+  return { id, state };
+};
+
 export const parseBannerId = (event: APIGatewayProxyEvent) => {
   const { bannerId } = event.pathParameters ?? {};
   if (!bannerId) {
@@ -12,6 +49,37 @@ export const parseBannerId = (event: APIGatewayProxyEvent) => {
   }
 
   return { bannerId };
+};
+
+export const parseUploadParameters = (event: APIGatewayProxyEvent) => {
+  const { state, reportType, id, fileId } = event.pathParameters ?? {};
+  if (!isStateAbbr(state)) {
+    logger.warn("Invalid state abbreviation in path");
+    return undefined;
+  }
+  if (!id || !fileId) {
+    logger.warn("Missing report ID or file ID in path");
+    return undefined;
+  }
+
+  return { state, reportType, id, fileId };
+};
+
+export const parseFileUploadDownloadParameters = (
+  event: APIGatewayProxyEvent
+) => {
+  const { state, reportType, id } = event.pathParameters ?? {};
+
+  if (!isStateAbbr(state)) {
+    logger.warn("Invalid state abbreviation in path");
+    return undefined;
+  }
+  if (!id) {
+    logger.warn("Missing report ID in path");
+    return undefined;
+  }
+
+  return { state, reportType, id };
 };
 
 export const parseZipIdParameters = (event: APIGatewayProxyEvent) => {
@@ -25,61 +93,16 @@ export const parseZipIdParameters = (event: APIGatewayProxyEvent) => {
   return { id };
 };
 
-export const parseDataSetId = (event: APIGatewayProxyEvent) => {
-  const { id } = event.pathParameters ?? {};
-  if (!id) {
-    logger.warn("Invalid banner id in path");
+export const parseCommentPathParams = (event: APIGatewayProxyEvent) => {
+  const { contextId, state } = event.pathParameters ?? {};
+  if (!contextId) {
+    logger.warn("Missing contextId in path");
     return undefined;
   }
-
-  return { id };
-};
-
-export const parseDataSetFileUploadDownloadParameters = (
-  event: APIGatewayProxyEvent
-) => {
-  const { state, id, fileId } = event.pathParameters ?? {};
-
   if (!isStateAbbr(state)) {
     logger.warn("Invalid state abbreviation in path");
     return undefined;
   }
 
-  if (!id || !fileId) {
-    logger.warn("Missing file ID in path");
-    return undefined;
-  }
-
-  return { state, id, fileId };
-};
-
-export const parseDataSetFileCreateParameters = (
-  event: APIGatewayProxyEvent
-) => {
-  const { state, id } = event.pathParameters ?? {};
-
-  if (!isStateAbbr(state)) {
-    logger.warn("Invalid state abbreviation in path");
-    return undefined;
-  }
-
-  if (!id) {
-    logger.warn("Missing file ID in path");
-    return undefined;
-  }
-
-  return { state, id };
-};
-
-export const parseDataSetFileUploadParameters = (
-  event: APIGatewayProxyEvent
-) => {
-  const { state } = event.pathParameters ?? {};
-
-  if (!isStateAbbr(state)) {
-    logger.warn("Invalid state abbreviation in path");
-    return undefined;
-  }
-
-  return { state };
+  return { contextId, state };
 };

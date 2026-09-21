@@ -3,7 +3,7 @@ import { putDataSet } from "../../storage/dataset";
 import { error } from "../../utils/constants";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
 import { canWriteBanner } from "../../utils/authorization";
-import { parseDataSetId } from "../../libs/param-lib";
+import { parseDataSetId } from "../../dataSets/libs/param-lib";
 import { isValidDataSet } from "../../utils/dataSetValidation";
 
 export const updateDataSet = handler(parseDataSetId, async (request) => {

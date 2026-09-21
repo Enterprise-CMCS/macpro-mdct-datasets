@@ -4,7 +4,7 @@ import {
   parseDataSetFileUploadParameters,
   parseDataSetFileUploadDownloadParameters,
   emptyParser,
-} from "../../libs/param-lib";
+} from "../../dataSets/libs/param-lib";
 import {
   queryUpload,
   queryStateUpload,
