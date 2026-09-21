@@ -5,12 +5,16 @@ import { Box, Button, Heading, Input, Stack, Text } from "@chakra-ui/react";
 import { Alert } from "components";
 import { AlertTypes } from "@datasets/shared";
 import { getReturnUrl } from "utils";
+import { useFlags } from "launchdarkly-react-client-sdk";
 
 export const LoginCognito = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const flags = useFlags();
+
+  const displayLdTest = flags?.flagTest ?? false;
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();

@@ -19,6 +19,7 @@ import {
   UserContext,
   useStore,
 } from "utils";
+import { useFlags } from "launchdarkly-react-client-sdk";
 
 export const App = () => {
   const mqClasses = makeMediaQueryClasses();
@@ -27,6 +28,9 @@ export const App = () => {
   const { user, showLocalLogins } = useStore();
   const { pathname } = useLocation();
 
+  // Temp flag, remove after proving connectivity
+  const flags = useFlags();
+  const displayLdTest = flags?.flagTest ?? false;
   //there are now two export pages due to the addition of the obligated and spent funds export zip
   const isExportPage = pathname !== "/export" && pathname.includes("/export");
 
@@ -77,6 +81,11 @@ export const App = () => {
                 <LoginCognito />
               </Stack>
             </Container>
+            {!!displayLdTest && 
+              <div style={{textAlign:"center"}}>
+                <p>Feature flags connected</p> 
+              </div>
+            }
           </main>
         </>
       )}
