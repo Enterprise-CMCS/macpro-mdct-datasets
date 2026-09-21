@@ -15,7 +15,7 @@ import config from "config";
 import { initAuthManager, updateTimeout, getExpiration, useStore } from "utils";
 import { PRODUCTION_HOST_DOMAIN } from "../../constants";
 import { User, UserContextShape } from "types/users";
-import { UserRoles } from "@rhtp/shared";
+import { UserRoles } from "@datasets/shared";
 import { useFlags } from "launchdarkly-react-client-sdk";
 
 type ExpectedTokenShape = {
@@ -69,7 +69,6 @@ export const UserProvider = ({ children }: Props) => {
     }
   };
 
-  // TODO: Update for non-rhtp users
   const checkAuthState = useCallback(async () => {
     // Allow Post Logout flow alongside user login flow
     if (location?.pathname.toLowerCase() === "/postlogout") {
@@ -91,7 +90,7 @@ export const UserProvider = ({ children }: Props) => {
         "custom:cms_state": state,
       } = payload as ExpectedTokenShape;
 
-      // "custom:cms_roles" is an string of concat roles so we need to check for the one applicable to RHTP
+      // "custom:cms_roles" is an string of concat roles so we need to check for the one applicable to MDCT Datasets
       const userRole = cms_role
         .split(",")
         .find((r) => r.includes("mdctdatasets"));

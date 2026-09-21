@@ -1,4 +1,4 @@
-import { MaskType } from "@rhtp/shared";
+import { MaskType } from "@datasets/shared";
 import { ErrorMessages } from "../../constants";
 import { parseMMDDYYYY } from "utils";
 

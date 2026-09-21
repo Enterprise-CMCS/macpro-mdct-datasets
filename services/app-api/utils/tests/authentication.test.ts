@@ -4,7 +4,7 @@ import {
   DecodedToken,
 } from "../authentication";
 import { proxyEvent } from "../../testing/proxyEvent";
-import { UserRoles } from "@rhtp/shared";
+import { UserRoles } from "@datasets/shared";
 
 const mockDecode = vi.fn();
 

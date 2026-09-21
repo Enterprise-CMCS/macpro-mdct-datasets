@@ -13,7 +13,7 @@ import {
 import { forbidden, ok } from "../../libs/response-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { error } from "../../utils/constants";
-import { getExtension, isAllowedFileExtension } from "@rhtp/shared";
+import { getExtension, isAllowedFileExtension } from "@datasets/shared";
 import { validateFileContentMatchesExtension } from "../../utils/fileContentValidation";
 import { canReadState } from "../../utils/authorization";
 

@@ -9,7 +9,7 @@ import {
   Image,
   Text,
 } from "@chakra-ui/react";
-import { AlertTypes, StateNames } from "@rhtp/shared";
+import { AlertTypes, StateNames } from "@datasets/shared";
 import { PageTemplate, Modal } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";

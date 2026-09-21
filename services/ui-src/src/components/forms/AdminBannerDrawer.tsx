@@ -14,7 +14,7 @@ import {
   BannerAreas,
   BannerFormData,
   BannerShape,
-} from "@rhtp/shared";
+} from "@datasets/shared";
 import { isUrl } from "utils/validation/inputValidation";
 
 const initialFormValues: BannerFormData = {

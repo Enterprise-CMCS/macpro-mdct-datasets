@@ -8,7 +8,7 @@ import {
   canWriteState,
 } from "../authorization";
 import { User } from "../../types/types";
-import { StateAbbr, UserRoles, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, UserRoles, ZipRequestTypes } from "@datasets/shared";
 
 const adminUser = {
   role: UserRoles.ADMIN,
@@ -29,10 +29,6 @@ const helpDeskUser = {
 const stateUser = {
   role: UserRoles.STATE_USER,
   state: "CO",
-} as User;
-
-const projectOfficerUser = {
-  role: UserRoles.PROJECT_OFFICER,
 } as User;
 
 describe("Authorization functions", () => {
@@ -121,7 +117,6 @@ describe("Authorization functions", () => {
       expect(canReleaseReport(helpDeskUser)).toBe(false);
       expect(canReleaseReport(internalUser)).toBe(false);
       expect(canModifyNotificationRecipients(adminUser)).toBe(false);
-      expect(canModifyNotificationRecipients(projectOfficerUser)).toBe(false);
     });
   });
 
@@ -152,7 +147,6 @@ describe("Authorization functions", () => {
       expect(canRequestZip(reportZipBody, helpDeskUser)).toBe(true);
       expect(canRequestZip(reportZipBody, approverUser)).toBe(true);
       expect(canRequestZip(reportZipBody, internalUser)).toBe(true);
-      expect(canRequestZip(reportZipBody, projectOfficerUser)).toBe(true);
     });
 
     test("admin user can get zip for an obligated and spent funds request", () => {
@@ -164,7 +158,6 @@ describe("Authorization functions", () => {
       expect(canRequestZip(oasfZipBody, helpDeskUser)).toBe(false);
       expect(canRequestZip(oasfZipBody, approverUser)).toBe(false);
       expect(canRequestZip(oasfZipBody, internalUser)).toBe(false);
-      expect(canRequestZip(oasfZipBody, projectOfficerUser)).toBe(false);
     });
   });
 });

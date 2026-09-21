@@ -13,7 +13,7 @@ export const Footer = () => {
         <Container sx={sx.footerTopContainer}>
           <Flex sx={sx.footerTopFlex}>
             <Box sx={sx.footerTopLeftContainer}>
-              <Image src={appLogo} alt="RHTP logo" sx={sx.appLogo} />
+              <Image src={appLogo} alt="MDCT logo" sx={sx.appLogo} />
             </Box>
             <Box sx={sx.footerTopRightContainer}>
               <Flex sx={sx.footerTopRightTopFlex}>

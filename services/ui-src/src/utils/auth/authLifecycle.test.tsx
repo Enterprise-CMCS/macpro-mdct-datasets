@@ -10,10 +10,10 @@ describe("utils/auth", () => {
       const expired = sub(Date.now(), {
         days: 5,
       }).toDateString();
-      localStorage.setItem("mdctrhtp_session_exp", expired);
+      localStorage.setItem("mdctdatasets_session_exp", expired);
 
       initAuthManager();
-      const clearedTime = localStorage.getItem("mdctrhtp_session_exp");
+      const clearedTime = localStorage.getItem("mdctdatasets_session_exp");
       expect(clearedTime).toEqual(null);
     });
   });
@@ -31,7 +31,7 @@ describe("utils/auth", () => {
       updateTimeout();
       vi.runAllTimers(); // Dodge 2 second debounce, get the updated timestamp
 
-      const savedTime = localStorage.getItem("mdctrhtp_session_exp");
+      const savedTime = localStorage.getItem("mdctdatasets_session_exp");
       expect(new Date(savedTime!).valueOf()).toBeGreaterThanOrEqual(
         new Date(currentTime).valueOf()
       );
@@ -40,7 +40,7 @@ describe("utils/auth", () => {
     test("getExpiration and refreshCredentials", async () => {
       // Set an initial time, because vi runs too fast to have different timestamps
       const initialExpiration = sub(Date.now(), { seconds: 5 }).toString();
-      localStorage.setItem("mdctrhtp_session_exp", initialExpiration);
+      localStorage.setItem("mdctdatasets_session_exp", initialExpiration);
       await refreshCredentials();
       vi.runAllTimers(); // Dodge 2 second debounce, get the updated timestamp
 
@@ -52,7 +52,7 @@ describe("utils/auth", () => {
       );
     });
     test("getExpiration returns an empty string if nothing is set", async () => {
-      localStorage.removeItem("mdctrhtp_session_exp");
+      localStorage.removeItem("mdctdatasets_session_exp");
 
       const storedExpiration = getExpiration();
       expect(storedExpiration).toEqual("");
@@ -83,7 +83,7 @@ describe("utils/auth", () => {
           callback({ payload: { event: "nonExistantEvent" } });
         });
       initAuthManager();
-      const savedTime = localStorage.getItem("mdctrhtp_session_exp");
+      const savedTime = localStorage.getItem("mdctdatasets_session_exp");
       expect(new Date(savedTime!).valueOf()).toBeGreaterThanOrEqual(
         new Date(currentTime).valueOf()
       );

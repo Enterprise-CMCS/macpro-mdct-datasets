@@ -1,6 +1,6 @@
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 import { apiLib } from "../apiLib";
-import { ZipRequestBody } from "@rhtp/shared";
+import { ZipRequestBody } from "@datasets/shared";
 
 interface PathURL {
   psurl: string;

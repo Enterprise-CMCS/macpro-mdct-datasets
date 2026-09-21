@@ -1,7 +1,7 @@
 import { Mock } from "vitest";
 import { isValidBanner } from "../bannerValidation";
 import { logger } from "../../libs/debug-lib";
-import { BannerAreas, BannerFormData } from "@rhtp/shared";
+import { BannerAreas, BannerFormData } from "@datasets/shared";
 
 vi.mock("../../libs/debug-lib", () => ({
   logger: {
