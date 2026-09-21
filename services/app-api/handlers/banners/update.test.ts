@@ -25,7 +25,7 @@ vi.mock("../../utils/authorization", () => ({
 
 const mockBanner: BannerShape = {
   key: "889c059a-54fe-4331-8d31-3d8e91665806", // #gitleaks:allow
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   title: "mock title",
   description: "mock description",
   link: "https://example.com",

@@ -12,7 +12,7 @@ const mockDynamo = mockClient(DynamoDBDocumentClient);
 
 const mockBanner: BannerShape = {
   title: "mock title",
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   description: "mock description",
   link: "https://example.com",
   startDate: new Date().toISOString().slice(0, 10),

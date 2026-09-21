@@ -27,9 +27,6 @@ describe("<AdminBannerDrawer />", () => {
   });
 
   test("AdminBannerDrawer can be filled and submitted without error", async () => {
-    const siteAreaDropdown = screen.getAllByLabelText("Site area")[0];
-    await userEvent.selectOptions(siteAreaDropdown, "Home page");
-
     const titleInput = screen.getByLabelText("Title");
     await userEvent.click(titleInput);
     await userEvent.paste("mock title");

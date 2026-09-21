@@ -1,7 +1,16 @@
 import { JSX, useEffect, useState } from "react";
-import { Button, Heading, Flex, Spinner, Stack, Text, Link } from "@chakra-ui/react";
-import { StateDropdownOptions, StateNames } from "@datasets/shared";
-import { PageTemplate } from "components";
+import {
+  Button,
+  Heading,
+  Flex,
+  Spinner,
+  Stack,
+  Text,
+  Link,
+  Box,
+} from "@chakra-ui/react";
+import { StateDropdownOptions, StateNames, BannerAreas } from "@datasets/shared";
+import { Banner, PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
@@ -13,9 +22,12 @@ import { downloadFile } from "../../utils/other/fileUtils";
 import { getDataSets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { useNavigate } from "react-router";
+import { activeBannerSelector } from "utils/state/selectors";
 
 export const AdminDashboard = () => {
+  const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
   const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<DataSetUploadType[]>([]);
   const [sortedFiles, setSortedFiles] = useState<DataSetUploadType[]>([]);
@@ -44,14 +56,14 @@ export const AdminDashboard = () => {
     setIsLoading(true);
     const dataSets = await getDataSets();
     setDataSetOptions(
-      dataSets.map((set) => ({ label: set.name, value: set.key! }))
+      dataSets.map((set) => ({ label: set.name, value: set.key! })),
     );
   };
 
   const reloadFiles = async () => {
     const result = await getFiles();
     setFiles(
-      result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
+      result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
     );
     setIsLoading(false);
   };
@@ -70,7 +82,7 @@ export const AdminDashboard = () => {
       const filteredStates =
         selectedStates.length > 0
           ? filteredDataSet.filter((file) =>
-              selectedStates.includes(file.uploadedState)
+              selectedStates.includes(file.uploadedState),
             )
           : filteredDataSet;
       setSortedFiles(filteredStates);
@@ -151,68 +163,81 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <PageTemplate type="report" sxOverride={sx.layout}>
-      <Stack sx={sx.box} gap="2rem">
-        <Heading as="h1" variant="h1">
-          File Upload Admin Dashboard
-        </Heading>
-        <Text>
-          Use this page to upload documents and data requested by CMS. Select
-          the relevant data set for each file before uploading.
-        </Text>
-        <Button as={Link} href="#" onClick={() => navigate("/export")} maxWidth="156px"  >
-          Bulk Export Files
-        </Button>
-        <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
-          <MultiSelect
-            label="Filter by State(s)"
-            placeholder="Search states"
-            countLabel="States"
-            options={StateDropdownOptions}
-            values={selectedStates}
-            onChange={(selected) => setStatesHandler(selected)}
-          />
-          {dataSetOptions.length > 0 && (
-            <MultiSelect
-              label="Filter by Data Set:"
-              placeholder="Search data set"
-              countLabel="Data Set"
-              options={dataSetOptions}
-              values={selectedDataSets}
-              onChange={(selected) => setDataSetHandler(selected)}
-            />
-          )}
+    <>
+      {banner ? (
+        <Box marginX={{ base: "spacer2", md: "spacer3" }} marginTop="spacer3">
+          {" "}
+          <Banner {...banner} key={banner.key} />
+        </Box>
+      ) : null}
+      <PageTemplate type="report" sxOverride={sx.layout}>
+        <Stack sx={sx.box} gap="2rem">
+          <Heading as="h1" variant="h1">
+            File Upload Admin Dashboard
+          </Heading>
+          <Text>
+            Use this page to upload documents and data requested by CMS. Select
+            the relevant data set for each file before uploading.
+          </Text>
           <Button
-            onClick={clearFilter}
-            variant="link"
-            height="40px"
-            fontWeight="bold"
-            aria-label="Clear All Filters"
+            as={Link}
+            href="#"
+            onClick={() => navigate("/export")}
+            maxWidth="156px"
           >
-            Clear Filters
+            Bulk Export Files
           </Button>
-        </Flex>
-        {isLoading ? (
-          <Flex justify="center">
-            <Spinner size="md" />
+          <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
+            <MultiSelect
+              label="Filter by State(s)"
+              placeholder="Search states"
+              countLabel="States"
+              options={StateDropdownOptions}
+              values={selectedStates}
+              onChange={(selected) => setStatesHandler(selected)}
+            />
+            {dataSetOptions.length > 0 && (
+              <MultiSelect
+                label="Filter by Data Set:"
+                placeholder="Search data set"
+                countLabel="Data Set"
+                options={dataSetOptions}
+                values={selectedDataSets}
+                onChange={(selected) => setDataSetHandler(selected)}
+              />
+            )}
+            <Button
+              onClick={clearFilter}
+              variant="link"
+              height="40px"
+              fontWeight="bold"
+              aria-label="Clear All Filters"
+            >
+              Clear Filters
+            </Button>
           </Flex>
-        ) : (
-          ResponsiveTable(
-            [
-              { label: "State/Territory", sortable: true },
-              { label: "File name", sortable: true },
-              { label: "Data Set", sortable: true },
-              { label: "Uploaded By", sortable: true },
-              { label: "Upload Date", sortable: true },
-              { label: "Actions" },
-            ],
-            tableRows,
-            "",
-            sortRows
-          )
-        )}
-      </Stack>
-    </PageTemplate>
+          {isLoading ? (
+            <Flex justify="center">
+              <Spinner size="md" />
+            </Flex>
+          ) : (
+            ResponsiveTable(
+              [
+                { label: "State/Territory", sortable: true },
+                { label: "File name", sortable: true },
+                { label: "Data Set", sortable: true },
+                { label: "Uploaded By", sortable: true },
+                { label: "Upload Date", sortable: true },
+                { label: "Actions" },
+              ],
+              tableRows,
+              "",
+              sortRows,
+            )
+          )}
+        </Stack>
+      </PageTemplate>
+    </>
   );
 };
 

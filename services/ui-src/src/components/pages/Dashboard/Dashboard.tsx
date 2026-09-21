@@ -8,9 +8,10 @@ import {
   HStack,
   Image,
   Text,
+  Box,
 } from "@chakra-ui/react";
-import { AlertTypes, StateNames } from "@datasets/shared";
-import { PageTemplate, Modal } from "components";
+import { AlertTypes, BannerAreas, StateNames } from "@datasets/shared";
+import { PageTemplate, Modal, Banner } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
@@ -26,8 +27,10 @@ import cancelIcon from "assets/icons/cancel/icon_cancel_primary.svg";
 import { EditDrawer } from "../../drawers/EditDrawer";
 import { getDataSets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
+import { activeBannerSelector } from "utils/state/selectors";
 
 export const Dashboard = () => {
+  const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<DataSetUploadType[]>([]);
   const [sortedFiles, setSortedFiles] = useState<DataSetUploadType[]>([]);
@@ -61,7 +64,7 @@ export const Dashboard = () => {
 
     if (dataSets && dataSets.length > 0) {
       setDataSetOptions(
-        dataSets.map((set) => ({ label: set.name, value: set.key! }))
+        dataSets.map((set) => ({ label: set.name, value: set.key! })),
       );
     }
   };
@@ -70,7 +73,7 @@ export const Dashboard = () => {
     const result = await getFilesByState(state!);
     if (result && result.length > 0) {
       setFiles(
-        result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
+        result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
       );
     }
     setIsLoading(false);
@@ -84,7 +87,7 @@ export const Dashboard = () => {
   useEffect(() => {
     if (filterDataSet.length > 0) {
       setSortedFiles(
-        files.filter((file) => filterDataSet.includes(file.datasetId))
+        files.filter((file) => filterDataSet.includes(file.datasetId)),
       );
     } else setSortedFiles(files);
   }, [files, filterDataSet]);
@@ -198,14 +201,14 @@ export const Dashboard = () => {
   };
 
   const setDataSetDropdown = (
-    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
+    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject,
   ) => {
     setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
     const set = dataSetOptions.find(
-      (opt) => opt.value === displayValue?.datasetId
+      (opt) => opt.value === displayValue?.datasetId,
     )?.label;
     const instruction =
       !displayValue || displayValue.fileId === ""
@@ -240,120 +243,128 @@ export const Dashboard = () => {
   };
 
   return (
-    <PageTemplate type="report" sxOverride={sx.layout}>
-      <Stack sx={sx.box} gap="2rem">
-        <Heading as="h1" variant="h1">
-          {StateNames[state as keyof typeof StateNames]} File Upload
-        </Heading>
-        <Text>
-          Use this page to upload documents and data requested by CMS. Select
-          the relevant data set for each file before uploading.
-        </Text>
-        <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
-          Upload File(s)
-        </Button>
-        <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
-          {dataSetOptions.length > 0 && (
-            <MultiSelect
-              label="Filter by Data Set:"
-              placeholder="Search data set"
-              countLabel="Data Set"
-              options={dataSetOptions}
-              values={filterDataSet}
-              onChange={(selected) => setDataSetHandler(selected)}
-            />
-          )}
-          <Button
-            onClick={clearFilter}
-            variant="link"
-            height="40px"
-            fontWeight="bold"
-            aria-label="Clear All Filters"
-          >
-            Clear Filters
+    <>
+      {banner ? (
+        <Box marginX={{ base: "spacer2", md: "spacer3" }} marginTop="spacer3">
+          {" "}
+          <Banner {...banner} key={banner.key} />
+        </Box>
+      ) : null}
+      <PageTemplate type="report" sxOverride={sx.layout}>
+        <Stack sx={sx.box} gap="2rem">
+          <Heading as="h1" variant="h1">
+            {StateNames[state as keyof typeof StateNames]} File Upload
+          </Heading>
+          <Text>
+            Use this page to upload documents and data requested by CMS. Select
+            the relevant data set for each file before uploading.
+          </Text>
+          <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
+            Upload File(s)
           </Button>
-        </Flex>
-        {isLoading ? (
-          <Flex justify="center">
-            <Spinner size="md" />
+          <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
+            {dataSetOptions.length > 0 && (
+              <MultiSelect
+                label="Filter by Data Set:"
+                placeholder="Search data set"
+                countLabel="Data Set"
+                options={dataSetOptions}
+                values={filterDataSet}
+                onChange={(selected) => setDataSetHandler(selected)}
+              />
+            )}
+            <Button
+              onClick={clearFilter}
+              variant="link"
+              height="40px"
+              fontWeight="bold"
+              aria-label="Clear All Filters"
+            >
+              Clear Filters
+            </Button>
           </Flex>
-        ) : (
-          ResponsiveTable(
-            [
-              { label: "File name", sortable: true },
-              { label: "Data Set", sortable: true },
-              { label: "Uploaded By", sortable: true },
-              { label: "Upload Date", sortable: true },
-              { label: "Actions" },
-            ],
-            tableRows,
-            "",
-            sortRows
-          )
-        )}
-      </Stack>
-      <UploadDrawer
-        modalDisclosure={{
-          isOpen: uploadDrawerOpen,
-          onClose: onModalClose,
-        }}
-        selections={
-          <Dropdown
-            label={"Select the associated data set for the file(s)."}
-            name="associated-data-set"
-            onChange={setDataSetDropdown}
-            options={[
-              { label: "- Select an option -", value: "" },
-              ...dataSetOptions,
-            ]}
-            value={displayValue?.datasetId}
-          />
-        }
-        answer={[]}
-        saveToReport={uploadFileSave}
-        notification={getNotification()}
-        disabled={!displayValue?.datasetId}
-        dataSetId={displayValue?.datasetId ?? ""}
-      />
-      <EditDrawer
-        modalDisclosure={{
-          isOpen: editDrawerOpen,
-          onClose: onModalClose,
-        }}
-        selections={
-          <Dropdown
-            label={"Associated data set"}
-            name="associated-data-set"
-            hint="Updating the data set will reassign this file to that data set."
-            onChange={setDataSetDropdown}
-            options={dataSetOptions}
-            value={displayValue?.datasetId}
-          />
-        }
-        onModalSubmit={editFileSave}
-        file={displayValue as DataSetUploadType}
-        submitting={modalLoading}
-      />
-      <Modal
-        data-testid="delete-modal"
-        modalDisclosure={{
-          isOpen: deleteModal,
-          onClose: () => {
-            setDeleteModal(false);
-          },
-        }}
-        onConfirmHandler={onDeleteHandler}
-        content={{
-          heading: "Delete file?",
-          actionButtonText: "Delete",
-          closeButtonText: "Cancel",
-        }}
-        submitting={modalLoading}
-      >
-        Deleting {deleteFile?.filename} will remove it from the system and
-        revokes CMS access. This action cannot be undone.{" "}
-      </Modal>
-    </PageTemplate>
+          {isLoading ? (
+            <Flex justify="center">
+              <Spinner size="md" />
+            </Flex>
+          ) : (
+            ResponsiveTable(
+              [
+                { label: "File name", sortable: true },
+                { label: "Data Set", sortable: true },
+                { label: "Uploaded By", sortable: true },
+                { label: "Upload Date", sortable: true },
+                { label: "Actions" },
+              ],
+              tableRows,
+              "",
+              sortRows,
+            )
+          )}
+        </Stack>
+        <UploadDrawer
+          modalDisclosure={{
+            isOpen: uploadDrawerOpen,
+            onClose: onModalClose,
+          }}
+          selections={
+            <Dropdown
+              label={"Select the associated data set for the file(s)."}
+              name="associated-data-set"
+              onChange={setDataSetDropdown}
+              options={[
+                { label: "- Select an option -", value: "" },
+                ...dataSetOptions,
+              ]}
+              value={displayValue?.datasetId}
+            />
+          }
+          answer={[]}
+          saveToReport={uploadFileSave}
+          notification={getNotification()}
+          disabled={!displayValue?.datasetId}
+          dataSetId={displayValue?.datasetId ?? ""}
+        />
+        <EditDrawer
+          modalDisclosure={{
+            isOpen: editDrawerOpen,
+            onClose: onModalClose,
+          }}
+          selections={
+            <Dropdown
+              label={"Associated data set"}
+              name="associated-data-set"
+              hint="Updating the data set will reassign this file to that data set."
+              onChange={setDataSetDropdown}
+              options={dataSetOptions}
+              value={displayValue?.datasetId}
+            />
+          }
+          onModalSubmit={editFileSave}
+          file={displayValue as DataSetUploadType}
+          submitting={modalLoading}
+        />
+        <Modal
+          data-testid="delete-modal"
+          modalDisclosure={{
+            isOpen: deleteModal,
+            onClose: () => {
+              setDeleteModal(false);
+            },
+          }}
+          onConfirmHandler={onDeleteHandler}
+          content={{
+            heading: "Delete file?",
+            actionButtonText: "Delete",
+            closeButtonText: "Cancel",
+          }}
+          submitting={modalLoading}
+        >
+          Deleting {deleteFile?.filename} will remove it from the system and
+          revokes CMS access. This action cannot be undone.{" "}
+        </Modal>
+      </PageTemplate>
+    </>
   );
 };
 
