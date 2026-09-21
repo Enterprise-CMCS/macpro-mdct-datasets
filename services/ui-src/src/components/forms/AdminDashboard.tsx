@@ -184,6 +184,7 @@ export const AdminDashboard = () => {
             href="#"
             onClick={() => navigate("/export")}
             maxWidth="156px"
+            textDecoration="none"
           >
             Bulk Export Files
           </Button>
