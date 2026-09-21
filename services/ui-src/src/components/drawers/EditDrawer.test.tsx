@@ -20,7 +20,7 @@ describe("<EditDrawer />", () => {
         }}
         file={mockFile}
         onModalSubmit={() => mockOnSubmit()}
-      />,
+      />
     );
   });
   test("EditDrawer render", () => {
