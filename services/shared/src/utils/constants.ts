@@ -5,7 +5,7 @@
 // NOTE: this is the thing we would need to remove to allow a ZZ IDM user to exist if it is requested
 const isProdEnv =
   (typeof window !== "undefined" &&
-    window.location.hostname === "mdctrhtp.cms.gov") ||
+    window.location.hostname === "mdct.cms.gov") ||
   (typeof process !== "undefined" && process.env.STAGE === "production");
 
 export const StateNames = {
@@ -120,10 +120,10 @@ export const acceptedFileTypes = [
 
 export const tabTitleMap = {
   "/": "Medicaid Data Collection Tool", //TO DO: TEMPORARY
-  "/help": "How can we help you? - RHTP",
-  "/profile": "My Account - RHTP",
+  "/help": "How can we help you? - Datasets",
+  "/profile": "My Account - Datasets",
   "/export": "Export Files - MDCT", //TO DO: TEMPORARY
-  "/admin": "Banner Admin - RHTP",
+  "/admin": "Banner Admin - Datasets",
   "/403": "Access Denied",
   "/data-sets": "Manage Data Sets - MDCT", //TO DO: TEMPORARY
 };

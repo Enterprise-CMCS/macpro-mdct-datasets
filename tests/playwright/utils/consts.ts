@@ -3,7 +3,6 @@ export const adminPassword = process.env.TEST_ADMIN_USER_PASSWORD!; // pragma: a
 export const stateUser = process.env.TEST_STATE_USER_EMAIL!;
 export const statePassword = process.env.TEST_STATE_USER_PASSWORD!; // pragma: allowlist secret
 export const stateAbbreviation = process.env.TEST_STATE || "SC";
-export const reportType = process.env.TEST_REPORT_TYPE || "RHTP";
 
 export const adminAuthPath: string = "playwright/.auth/admin.json";
 export const stateUserAuthPath: string = "playwright/.auth/user.json";

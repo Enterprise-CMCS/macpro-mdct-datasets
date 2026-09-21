@@ -1,4 +1,4 @@
-import { isStateAbbr } from "@rhtp/shared";
+import { isStateAbbr } from "@datasets/shared";
 import { APIGatewayProxyEvent } from "../types/types";
 import { logger } from "./debug-lib";
 

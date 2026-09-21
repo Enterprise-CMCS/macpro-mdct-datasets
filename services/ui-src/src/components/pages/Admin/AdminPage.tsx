@@ -24,7 +24,7 @@ import {
   bannerAreaOptions,
   BannerFormData,
   BannerShape,
-} from "@rhtp/shared";
+} from "@datasets/shared";
 import iconActive from "assets/icons/status/icon_status_check.svg";
 import iconScheduled from "assets/icons/status/icon_status_inprogress.svg";
 import iconExpired from "assets/icons/alert/icon_warning.svg";

@@ -1,4 +1,4 @@
-import { UploadListProp } from "@rhtp/shared";
+import { UploadListProp } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
 import {

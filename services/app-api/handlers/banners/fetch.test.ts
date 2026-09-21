@@ -4,7 +4,7 @@ import { proxyEvent } from "../../testing/proxyEvent";
 import { APIGatewayProxyEvent, User } from "../../types/types";
 import { getBanners } from "./fetch";
 import { authenticatedUser } from "../../utils/authentication";
-import { BannerAreas, BannerShape, UserRoles } from "@rhtp/shared";
+import { BannerAreas, BannerShape, UserRoles } from "@datasets/shared";
 import { scanAllBanners } from "../../storage/banners";
 
 vi.mock("../../utils/authentication");

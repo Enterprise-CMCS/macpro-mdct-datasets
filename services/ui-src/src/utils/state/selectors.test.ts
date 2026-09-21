@@ -1,5 +1,5 @@
 import { activeBannerSelector } from "./selectors";
-import { BannerAreas, BannerShape } from "@rhtp/shared";
+import { BannerAreas, BannerShape } from "@datasets/shared";
 import { useStore } from "./useStore";
 
 vi.mock("utils/auth/authLifecycle", () => ({

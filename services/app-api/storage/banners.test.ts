@@ -6,7 +6,7 @@ import {
   PutCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { BannerAreas, BannerShape } from "@rhtp/shared";
+import { BannerAreas, BannerShape } from "@datasets/shared";
 
 const mockDynamo = mockClient(DynamoDBDocumentClient);
 

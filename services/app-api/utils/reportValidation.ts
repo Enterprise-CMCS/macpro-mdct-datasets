@@ -5,7 +5,7 @@ import {
   isAllowedFileExtension,
   ZipRequestTypes,
   ZipRequestBody,
-} from "@rhtp/shared";
+} from "@datasets/shared";
 
 const hasAllowedFileExtension = (value?: string) => {
   const ext = getExtension(value ?? "");

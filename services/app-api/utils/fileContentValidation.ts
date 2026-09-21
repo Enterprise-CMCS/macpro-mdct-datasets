@@ -1,5 +1,5 @@
 import { fileTypeFromBuffer } from "file-type";
-import { isAllowedFileExtension } from "@rhtp/shared";
+import { isAllowedFileExtension } from "@datasets/shared";
 
 const ZIP_CONTAINER = "application/zip";
 const CFB = "application/x-cfb";

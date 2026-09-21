@@ -20,7 +20,7 @@
       },
       {
         "Name": "custom:cms_roles",
-        "Value": "mdctdatasets-bor"
+        "Value": "mdctdatasets-admin"
       }
     ]
   },
@@ -71,6 +71,31 @@
       {
         "Name": "custom:cms_roles",
         "Value": "mdctdatasets-internal-user"
+      }
+    ]
+  },
+  {
+    "username": "stateapprover@test.com",
+    "attributes": [
+      {
+        "Name": "email",
+        "Value": "stateapprover@test.com"
+      },
+      {
+        "Name": "given_name",
+        "Value": "Zara"
+      },
+      {
+        "Name": "family_name",
+        "Value": "Zustimmer"
+      },
+      {
+        "Name": "email_verified",
+        "Value": "true"
+      },
+      {
+        "Name": "custom:cms_roles",
+        "Value": "mdctdatasets-approver"
       }
     ]
   },
@@ -269,7 +294,7 @@
       },
       {
         "Name": "custom:cms_roles",
-        "Value": "mdctdatasets-bor"
+        "Value": "mdctdatasets-admin"
       }
     ]
   },

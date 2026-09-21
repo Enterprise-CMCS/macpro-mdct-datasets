@@ -1,4 +1,4 @@
-import { tabTitleMap } from "@rhtp/shared";
+import { tabTitleMap } from "@datasets/shared";
 
 //used to find the first header element on the page, does have issues if the page is loading
 export const findPageH1 = () => {

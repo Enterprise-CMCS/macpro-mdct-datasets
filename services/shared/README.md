@@ -1,6 +1,6 @@
-# @rhtp/shared
+# @datasets/shared
 
-Shared types and utilities for MDCT-RHTP frontend and backend.
+Shared types and utilities for MDCT-Datasets frontend and backend.
 
 ## Purpose
 
@@ -16,7 +16,7 @@ By centralizing shared code here, we ensure consistency across the application a
 ### In app-api (backend) and ui-src (frontend):
 
 ```typescript
-import { Report, ReportType, ReportStatus } from "@rhtp/shared";
+import { BannerShape } from "@datasets/shared";
 ```
 
 or import from the previous locations of the types files, as we are exporting the shared types there.
