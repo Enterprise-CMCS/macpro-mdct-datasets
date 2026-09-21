@@ -9,7 +9,11 @@ import {
   Link,
   Box,
 } from "@chakra-ui/react";
-import { StateDropdownOptions, StateNames, BannerAreas } from "@datasets/shared";
+import {
+  StateDropdownOptions,
+  StateNames,
+  BannerAreas,
+} from "@datasets/shared";
 import { Banner, PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
@@ -56,14 +60,14 @@ export const AdminDashboard = () => {
     setIsLoading(true);
     const dataSets = await getDataSets();
     setDataSetOptions(
-      dataSets.map((set) => ({ label: set.name, value: set.key! })),
+      dataSets.map((set) => ({ label: set.name, value: set.key! }))
     );
   };
 
   const reloadFiles = async () => {
     const result = await getFiles();
     setFiles(
-      result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
+      result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
     );
     setIsLoading(false);
   };
@@ -82,7 +86,7 @@ export const AdminDashboard = () => {
       const filteredStates =
         selectedStates.length > 0
           ? filteredDataSet.filter((file) =>
-              selectedStates.includes(file.uploadedState),
+              selectedStates.includes(file.uploadedState)
             )
           : filteredDataSet;
       setSortedFiles(filteredStates);
@@ -233,7 +237,7 @@ export const AdminDashboard = () => {
               ],
               tableRows,
               "",
-              sortRows,
+              sortRows
             )
           )}
         </Stack>

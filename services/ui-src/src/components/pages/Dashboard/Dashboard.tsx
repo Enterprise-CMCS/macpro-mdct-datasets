@@ -64,7 +64,7 @@ export const Dashboard = () => {
 
     if (dataSets && dataSets.length > 0) {
       setDataSetOptions(
-        dataSets.map((set) => ({ label: set.name, value: set.key! })),
+        dataSets.map((set) => ({ label: set.name, value: set.key! }))
       );
     }
   };
@@ -73,7 +73,7 @@ export const Dashboard = () => {
     const result = await getFilesByState(state!);
     if (result && result.length > 0) {
       setFiles(
-        result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
+        result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );
     }
     setIsLoading(false);
@@ -87,7 +87,7 @@ export const Dashboard = () => {
   useEffect(() => {
     if (filterDataSet.length > 0) {
       setSortedFiles(
-        files.filter((file) => filterDataSet.includes(file.datasetId)),
+        files.filter((file) => filterDataSet.includes(file.datasetId))
       );
     } else setSortedFiles(files);
   }, [files, filterDataSet]);
@@ -201,14 +201,14 @@ export const Dashboard = () => {
   };
 
   const setDataSetDropdown = (
-    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject,
+    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
   ) => {
     setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
     const set = dataSetOptions.find(
-      (opt) => opt.value === displayValue?.datasetId,
+      (opt) => opt.value === displayValue?.datasetId
     )?.label;
     const instruction =
       !displayValue || displayValue.fileId === ""
@@ -298,7 +298,7 @@ export const Dashboard = () => {
               ],
               tableRows,
               "",
-              sortRows,
+              sortRows
             )
           )}
         </Stack>

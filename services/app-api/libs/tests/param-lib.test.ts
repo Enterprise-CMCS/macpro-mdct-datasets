@@ -1,7 +1,5 @@
 import { proxyEvent } from "../../testing/proxyEvent";
-import {
-  parseZipIdParameters,
-} from "../param-lib";
+import { parseZipIdParameters } from "../param-lib";
 
 describe("Path parameter parsing", () => {
   describe("parseZipIdParameters", () => {
