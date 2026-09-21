@@ -1,5 +1,5 @@
 import { JSX, useEffect, useState } from "react";
-import { Button, Heading, Flex, Spinner, Stack, Text } from "@chakra-ui/react";
+import { Button, Heading, Flex, Spinner, Stack, Text, Link } from "@chakra-ui/react";
 import { StateDropdownOptions, StateNames } from "@datasets/shared";
 import { PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
@@ -12,8 +12,10 @@ import {
 import { downloadFile } from "../../utils/other/fileUtils";
 import { getDataSets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
+import { useNavigate } from "react-router";
 
 export const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<DataSetUploadType[]>([]);
   const [sortedFiles, setSortedFiles] = useState<DataSetUploadType[]>([]);
@@ -158,6 +160,9 @@ export const AdminDashboard = () => {
           Use this page to upload documents and data requested by CMS. Select
           the relevant data set for each file before uploading.
         </Text>
+        <Button as={Link} href="#" onClick={() => navigate("/export")} maxWidth="156px"  >
+          Bulk Export Files
+        </Button>
         <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
           <MultiSelect
             label="Filter by State(s)"
