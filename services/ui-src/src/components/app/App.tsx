@@ -27,9 +27,6 @@ export const App = () => {
   const { user, showLocalLogins } = useStore();
   const { pathname } = useLocation();
 
-  //there are now two export pages due to the addition of the obligated and spent funds export zip
-  const isExportPage = pathname !== "/export" && pathname.includes("/export");
-
   // on app load, check for clicked link pathname
   useEffect(() => {
     localStorage.setItem("ReturnURL", pathname);
@@ -46,7 +43,7 @@ export const App = () => {
         <Flex sx={sx.appLayout}>
           <SkipNav />
           <Timeout />
-          {!isExportPage && <Header handleLogout={logout} />}
+          <Header handleLogout={logout} />
           <Container sx={sx.appContainer}>
             <ErrorBoundary FallbackComponent={Error}>
               <AppRoutes />

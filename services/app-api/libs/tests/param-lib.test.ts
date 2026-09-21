@@ -1,82 +1,162 @@
 import { proxyEvent } from "../../testing/proxyEvent";
 import {
-  parseState,
-  parseStateAndId,
-  parseEmail,
+  emptyParser,
+  parseBannerId,
+  parseDataSetId,
+  parseDataSetFileUploadDownloadParameters,
+  parseDataSetFileCreateParameters,
+  parseDataSetFileUploadParameters,
   parseZipIdParameters,
 } from "../param-lib";
 
 describe("Path parameter parsing", () => {
-  describe("parseEmail", () => {
-    test("should check for email", () => {
-      const event = {
-        ...proxyEvent,
-        pathParameters: { email: "test@email.com" },
-      };
-      const result = parseEmail(event)!;
+  describe("emptyParser", () => {
+    test("should return empty object", () => {
+      const result = emptyParser(proxyEvent);
       expect(result).toBeDefined();
-      expect(result.email).toBe("test@email.com");
-    });
-
-    test("should return false for missing email", () => {
-      const event = {
-        ...proxyEvent,
-        pathParameters: {},
-      };
-      const result = parseEmail(event);
-      expect(result).toBeUndefined();
+      expect(result).toEqual({});
     });
   });
 
-  describe("parseState", () => {
-    test("should validate state", () => {
-      const event = {
-        ...proxyEvent,
-        pathParameters: { state: "CO" },
-      };
-      const result = parseState(event)!;
-      expect(result).toBeDefined();
-      expect(result.state).toBe("CO");
+  describe("parseBannerId", () => {
+    test("should return undefined if no id provided", () => {
+      const result = parseBannerId(proxyEvent);
+      expect(result).toBeUndefined();
     });
 
-    test("should return false for invalid state", () => {
+    test("should return banner id", () => {
       const event = {
         ...proxyEvent,
-        pathParameters: { state: "XX" },
+        pathParameters: { bannerId: "foo" },
       };
-      const result = parseState(event);
-      expect(result).toBeUndefined();
+      const result = parseBannerId(event)!;
+      expect(result).toBeDefined();
+      expect(result.bannerId).toBe("foo");
     });
   });
 
-  describe("parseStateAndId", () => {
-    test("should validate state and id", () => {
+  describe("parseDataSetId", () => {
+    test("should return undefined if no id provided", () => {
+      const result = parseDataSetId(proxyEvent);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return id", () => {
       const event = {
         ...proxyEvent,
-        pathParameters: { state: "CO", id: "123" },
+        pathParameters: { id: "foo" },
       };
-      const result = parseStateAndId(event)!;
+      const result = parseDataSetId(event)!;
       expect(result).toBeDefined();
-      expect(result.id).toBe("123");
-      expect(result.state).toBe("CO");
+      expect(result.id).toBe("foo");
     });
+  });
 
-    test("should return false for missing id", () => {
-      const event = {
-        ...proxyEvent,
-        pathParameters: { state: "CO" },
-      };
-      const result = parseStateAndId(event);
+  describe("parseDataSetFileUploadDownloadParameters", () => {
+    test("should return undefined if no state provided", () => {
+      const result = parseDataSetFileUploadDownloadParameters(proxyEvent);
       expect(result).toBeUndefined();
     });
 
-    test("should return false for invalid state", () => {
+    test("should return undefined if state invalid", () => {
       const event = {
         ...proxyEvent,
-        pathParameters: { state: "XX", id: "123" },
+        pathParameters: { state: "foo" },
       };
-      const result = parseStateAndId(event);
+      const result = parseDataSetFileUploadDownloadParameters(event);
       expect(result).toBeUndefined();
+    });
+
+    test("should return undefined if id missing", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "AL" },
+      };
+      const result = parseDataSetFileUploadDownloadParameters(event);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return undefined if fileId missing", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "AL", id: "foo" },
+      };
+      const result = parseDataSetFileUploadDownloadParameters(event);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return state, id, and fileId", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "AL", id: "foo", fileId: "bar" },
+      };
+      const result = parseDataSetFileUploadDownloadParameters(event)!;
+      expect(result).toBeDefined();
+      expect(result.id).toBe("foo");
+      expect(result.state).toBe("AL");
+      expect(result.fileId).toBe("bar");
+    });
+  });
+
+  describe("parseDataSetFileCreateParameters", () => {
+    test("should return undefined if no state provided", () => {
+      const result = parseDataSetFileCreateParameters(proxyEvent);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return undefined if state invalid", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "foo" },
+      };
+      const result = parseDataSetFileCreateParameters(event);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return undefined if id missing", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "AL" },
+      };
+      const result = parseDataSetFileCreateParameters(event);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return state and id", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "AL", id: "foo" },
+      };
+      const result = parseDataSetFileCreateParameters(event)!;
+      expect(result).toBeDefined();
+      expect(result.id).toBe("foo");
+      expect(result.state).toBe("AL");
+    });
+  });
+
+  describe("parseDataSetFileUploadParameters", () => {
+    test("should return undefined if no state provided", () => {
+      const result = parseDataSetFileUploadParameters(proxyEvent);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return undefined if state invalid", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "foo" },
+      };
+      const result = parseDataSetFileUploadParameters(event);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return state", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { state: "AL" },
+      };
+      const result = parseDataSetFileUploadParameters(event)!;
+      expect(result).toBeDefined();
+      expect(result.state).toBe("AL");
     });
   });
 

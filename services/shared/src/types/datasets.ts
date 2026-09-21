@@ -9,20 +9,12 @@ export const isStateAbbr = (abbr: string | undefined): abbr is StateAbbr => {
 
 export interface ZipRequestBody {
   type: ZipRequestTypes;
-  report?: ZipRequestReportDetails; // REPORT type
-  state?: string; // OBLIGATED_AND_SPENT_FUNDS type
-  reportSubTypeKeys?: string[]; // OBLIGATED_AND_SPENT_FUNDS type
+  state?: string;
+  dataSets?: string[];
 }
 
 export enum ZipRequestTypes {
-  REPORT = "REPORT",
-  OBLIGATED_AND_SPENT_FUNDS = "OBLIGATED_AND_SPENT_FUNDS",
   DATA_SET = "DATA_SET",
-}
-
-export interface ZipRequestReportDetails {
-  state: StateAbbr;
-  id: string;
 }
 
 export enum AlertTypes {
@@ -32,8 +24,6 @@ export enum AlertTypes {
   WARNING = "warning",
 }
 
-export type LiteReport = Omit<Report, "pages">;
-
 export type UploadListProp = {
   label?: string;
   name: string;
@@ -41,14 +31,10 @@ export type UploadListProp = {
   fileId: string;
 };
 
-export enum PageType {
-  Standard = "standard",
-  Modal = "modal",
-  ReviewSubmit = "reviewSubmit",
-}
-
-export enum MaskType {
-  CommaSeparated = "CommaSeparated",
-  MagicNumber = "MagicNumber",
-  NumberNA = "NumberNA",
-}
+export type DataSetType = {
+  key?: string;
+  name: string;
+  status: string;
+  createdAt?: string;
+  createdBy?: string;
+};

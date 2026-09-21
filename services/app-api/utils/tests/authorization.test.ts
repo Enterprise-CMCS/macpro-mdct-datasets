@@ -1,14 +1,11 @@
 import {
-  canModifyNotificationRecipients,
   canReadState,
-  canReleaseReport,
   canRequestZip,
   canWriteBanner,
-  canWriteInitiatives,
   canWriteState,
 } from "../authorization";
 import { User } from "../../types/types";
-import { StateAbbr, UserRoles, ZipRequestTypes } from "@datasets/shared";
+import { UserRoles } from "@datasets/shared";
 
 const adminUser = {
   role: UserRoles.ADMIN,
@@ -50,10 +47,6 @@ describe("Authorization functions", () => {
   });
 
   describe("canWriteState", () => {
-    test("should temporarily allow admin roles", () => {
-      expect(canWriteState(adminUser, "CO")).toBe(true);
-    });
-
     test("should allow state users to write their own state", () => {
       expect(canWriteState(stateUser, "CO")).toBe(true);
     });
@@ -65,19 +58,6 @@ describe("Authorization functions", () => {
     test("should reject other roles", () => {
       expect(canWriteState(internalUser, "CO")).toBe(false);
       expect(canWriteState(helpDeskUser, "CO")).toBe(false);
-    });
-  });
-
-  describe("canWriteInitiatives", () => {
-    test("should allow admins and approvers", () => {
-      expect(canWriteInitiatives(adminUser)).toBe(true);
-      expect(canWriteInitiatives(approverUser)).toBe(true);
-    });
-
-    test("should not allow state users, help desk, and internal users", () => {
-      expect(canWriteInitiatives(stateUser)).toBe(false);
-      expect(canWriteInitiatives(helpDeskUser)).toBe(false);
-      expect(canWriteInitiatives(internalUser)).toBe(false);
     });
   });
 
@@ -94,70 +74,15 @@ describe("Authorization functions", () => {
     });
   });
 
-  describe("canReleaseReport", () => {
-    test("should allow admins and approvers", () => {
-      expect(canReleaseReport(adminUser)).toBe(true);
-      expect(canReleaseReport(approverUser)).toBe(true);
-    });
-
-    test("should not allow state users, help desk, and internal users", () => {
-      expect(canReleaseReport(stateUser)).toBe(false);
-      expect(canReleaseReport(helpDeskUser)).toBe(false);
-      expect(canReleaseReport(internalUser)).toBe(false);
-    });
-  });
-
-  describe("canModifyNotificationRecipients", () => {
-    test("should allow approvers", () => {
-      expect(canModifyNotificationRecipients(approverUser)).toBe(true);
-    });
-
-    test("should not allow state users, help desk, internal users, project officers, and admins", () => {
-      expect(canReleaseReport(stateUser)).toBe(false);
-      expect(canReleaseReport(helpDeskUser)).toBe(false);
-      expect(canReleaseReport(internalUser)).toBe(false);
-      expect(canModifyNotificationRecipients(adminUser)).toBe(false);
-    });
-  });
-
   describe("canRequestZip", () => {
-    const reportZipBody = {
-      type: ZipRequestTypes.REPORT,
-      report: {
-        state: "CO" as StateAbbr,
-        id: "report-123",
-      },
-    };
-
-    const oasfZipBody = {
-      type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
-      state: "CO",
-      reportSubTypeKeys: ["A1"],
-    };
-    test("state user is allowed to get zip for their state report", () => {
-      expect(canRequestZip(reportZipBody, stateUser)).toBe(true);
+    test("admin user can get zip", () => {
+      expect(canRequestZip(adminUser)).toBe(true);
     });
-    test("state user is not allowed to get zip for other state report", () => {
-      const reportZipBodyStateMismatch = structuredClone(reportZipBody);
-      reportZipBodyStateMismatch.report.state = "AK";
-      expect(canRequestZip(reportZipBodyStateMismatch, stateUser)).toBe(false);
-    });
-    test("any other user is allowed to get the zip for a state report", () => {
-      expect(canRequestZip(reportZipBody, adminUser)).toBe(true);
-      expect(canRequestZip(reportZipBody, helpDeskUser)).toBe(true);
-      expect(canRequestZip(reportZipBody, approverUser)).toBe(true);
-      expect(canRequestZip(reportZipBody, internalUser)).toBe(true);
-    });
-
-    test("admin user can get zip for an obligated and spent funds request", () => {
-      expect(canRequestZip(oasfZipBody, adminUser)).toBe(true);
-    });
-
-    test("all other users cannot get zip for an obligated and spent funds request", () => {
-      expect(canRequestZip(oasfZipBody, stateUser)).toBe(false);
-      expect(canRequestZip(oasfZipBody, helpDeskUser)).toBe(false);
-      expect(canRequestZip(oasfZipBody, approverUser)).toBe(false);
-      expect(canRequestZip(oasfZipBody, internalUser)).toBe(false);
+    test("all other users cannot get zip", () => {
+      expect(canRequestZip(stateUser)).toBe(false);
+      expect(canRequestZip(helpDeskUser)).toBe(false);
+      expect(canRequestZip(approverUser)).toBe(false);
+      expect(canRequestZip(internalUser)).toBe(false);
     });
   });
 });

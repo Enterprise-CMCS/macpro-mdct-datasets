@@ -71,27 +71,6 @@ export const StateDropdownOptions = Object.entries(StateNames).map(
   })
 );
 
-//for fields that are required but only when it's an annual report and it needs to mutate to not required in optional.
-//This also clears the answer when copied, assuming it's a string, see reports/copyReport.ts
-export const optionalInQuarterly = [
-  "initiative-narrative",
-  "success-stories",
-  "metrics-table",
-];
-
-export const cmsStatusThatLocksSPAC = [
-  "Commitment abandoned",
-  "Implemented",
-  "Commitment fulfilled",
-];
-
-export const SPACItemsThatLock = [
-  "commitment-status",
-  "commitment-support-paragraph",
-  "commitment-links",
-  "commitment-attachments",
-];
-
 export const acceptedFileTypes = [
   ".bmp",
   ".txt",

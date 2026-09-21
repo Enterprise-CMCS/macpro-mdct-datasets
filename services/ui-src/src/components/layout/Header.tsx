@@ -4,7 +4,7 @@ import { Box, Container, Flex, Image, Link } from "@chakra-ui/react";
 import { Menu, MenuOption } from "components";
 import { AdminMenu } from "../menus/AdminMenu";
 import { useBreakpoint, useStore } from "utils";
-import appLogo from "assets/dataSet/ToolTypeTreatment_header.svg";
+import appLogo from "assets/logos/ToolTypeTreatment_header.svg";
 import getHelpIcon from "assets/icons/help/icon_help_white.svg";
 
 export const Header = ({ handleLogout }: Props) => {
