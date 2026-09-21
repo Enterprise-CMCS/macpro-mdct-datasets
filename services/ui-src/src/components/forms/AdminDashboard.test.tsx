@@ -55,21 +55,21 @@ describe("<AdminDashboard />", () => {
     render(<AdminDashboard />);
     await waitFor(() => {
       expect(
-        screen.getByRole("cell", { name: "New York" }),
+        screen.getByRole("cell", { name: "New York" })
       ).toBeInTheDocument();
     });
   });
   test("AdminDashboard renders", () => {
     expect(screen.getByText("File Upload Admin Dashboard")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Bulk Export Files" }),
+      screen.getByRole("link", { name: "Bulk Export Files" })
     ).toBeInTheDocument();
   });
   test("Test table sorts", async () => {
     const sortResult = async (
       sort: string,
       columns: number[],
-      results: string[],
+      results: string[]
     ) => {
       const content = screen.getAllByRole("cell");
       const sortBtn = screen.getByRole("button", { name: sort });
@@ -89,7 +89,7 @@ describe("<AdminDashboard />", () => {
     await sortResult(
       "File name",
       [1, 7],
-      ["mock filename 1", "mock filename 2"],
+      ["mock filename 1", "mock filename 2"]
     );
     await sortResult("Data Set", [2, 8], ["Flowers", "Fruits"]);
     await sortResult("Uploaded By", [3, 9], ["username 1", "username 2"]);
@@ -106,15 +106,13 @@ describe("<AdminDashboard />", () => {
     const checkbox1 = screen.getByRole("checkbox", { name: "Flowers" });
     await userEvent.click(checkbox1);
     expect(
-      screen.queryByRole("cell", { name: "Fruits" }),
+      screen.queryByRole("cell", { name: "Fruits" })
     ).not.toBeInTheDocument();
     const clearFilterBtn = screen.getByRole("button", {
       name: "Clear All Filters",
     });
     await userEvent.click(clearFilterBtn);
-     expect(
-      screen.queryByRole("cell", { name: "Fruits" }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("cell", { name: "Fruits" })).toBeInTheDocument();
   });
   test("Set State(s) filter", async () => {
     const stateFilter = screen.getByRole("button", { name: "States select" });
@@ -127,7 +125,7 @@ describe("<AdminDashboard />", () => {
     const checkbox1 = screen.getByRole("checkbox", { name: "New York" });
     await userEvent.click(checkbox1);
     expect(
-      screen.queryByRole("cell", { name: "Pennsylvania" }),
+      screen.queryByRole("cell", { name: "Pennsylvania" })
     ).not.toBeInTheDocument();
   });
 });

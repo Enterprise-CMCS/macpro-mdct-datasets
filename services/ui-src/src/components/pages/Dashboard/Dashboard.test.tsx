@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import {
   recordFileInDatabaseAndGetUploadUrl,
   updateUploadedFile,
-  deleteUploadedFile
+  deleteUploadedFile,
 } from "utils/api/requestMethods/uploads";
 
 vi.mock("utils/state/useStore", () => ({
@@ -50,7 +50,7 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
   uploadFileToS3: vi.fn(),
   recordFileInDatabaseAndGetUploadUrl: vi.fn(),
   updateUploadedFile: vi.fn(),
-  deleteUploadedFile: vi.fn()
+  deleteUploadedFile: vi.fn(),
 }));
 
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
@@ -65,7 +65,7 @@ describe("<Dashboard />", () => {
   test("Dashboard renders", () => {
     expect(screen.getByRole("columnheader", { name: "File name" }));
     expect(
-      screen.getByRole("button", { name: "Upload File(s)" }),
+      screen.getByRole("button", { name: "Upload File(s)" })
     ).toBeInTheDocument();
   });
   test("Upload a file", async () => {
@@ -75,12 +75,12 @@ describe("<Dashboard />", () => {
     userEvent.click(uploadFileBtn);
     await waitFor(() => {
       expect(
-        screen.getByText("Select a file or files to upload"),
+        screen.getByText("Select a file or files to upload")
       ).toBeInTheDocument();
     });
 
     const dropdown = screen.getAllByLabelText(
-      "Select the associated data set for the file(s).",
+      "Select the associated data set for the file(s)."
     )[0];
     await userEvent.selectOptions(dropdown, "Flowers");
     const dropArea = screen.getByLabelText("file drop area");
@@ -110,14 +110,14 @@ describe("<Dashboard />", () => {
     await waitFor(() => {
       expect(screen.getByText("Delete file?")).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole("button", {name: "Delete"}));
+    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
     expect(deleteUploadedFile).toHaveBeenCalled();
   });
   test("Test table sorts", async () => {
     const sortResult = async (
       sort: string,
       columns: number[],
-      results: string[],
+      results: string[]
     ) => {
       const content = screen.getAllByRole("cell");
       const sortBtn = screen.getByRole("button", { name: sort });
@@ -136,7 +136,7 @@ describe("<Dashboard />", () => {
     await sortResult(
       "File name",
       [0, 5],
-      ["mock filename 1", "mock filename 2"],
+      ["mock filename 1", "mock filename 2"]
     );
     await sortResult("Data Set", [1, 6], ["Flowers", "Fruits"]);
     await sortResult("Uploaded By", [2, 7], ["username 1", "username 2"]);
@@ -153,14 +153,12 @@ describe("<Dashboard />", () => {
     const checkbox1 = screen.getByRole("checkbox", { name: "Flowers" });
     await userEvent.click(checkbox1);
     expect(
-      screen.queryByRole("cell", { name: "Fruits" }),
+      screen.queryByRole("cell", { name: "Fruits" })
     ).not.toBeInTheDocument();
     const clearFilterBtn = screen.getByRole("button", {
       name: "Clear All Filters",
     });
     await userEvent.click(clearFilterBtn);
-     expect(
-      screen.queryByRole("cell", { name: "Fruits" }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("cell", { name: "Fruits" })).toBeInTheDocument();
   });
 });
