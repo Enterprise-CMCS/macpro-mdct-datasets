@@ -51,7 +51,7 @@ describe("<AdminBannerDrawer />", () => {
     await userEvent.click(submitButton);
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "home",
+      area: "dashboard",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",
@@ -165,7 +165,7 @@ describe("AdminBannerDrawer validation", () => {
     ).not.toBeInTheDocument();
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "home",
+      area: "dashboard",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",
