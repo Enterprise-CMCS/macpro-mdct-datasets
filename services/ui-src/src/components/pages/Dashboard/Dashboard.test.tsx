@@ -59,14 +59,14 @@ describe("<Dashboard />", () => {
   beforeEach(async () => {
     render(<Dashboard />);
     await waitFor(() => {
-      expect(screen.getByRole("cell", { name: "Flowers" })).toBeInTheDocument();
+      expect(screen.getByRole("cell", { name: "Flowers" })).toBeVisible();
     });
   });
   test("Dashboard renders", () => {
     expect(screen.getByRole("columnheader", { name: "File name" }));
     expect(
       screen.getByRole("button", { name: "Upload File(s)" })
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
   test("Upload a file", async () => {
     const uploadFileBtn = screen.getByRole("button", {
@@ -76,7 +76,7 @@ describe("<Dashboard />", () => {
     await waitFor(() => {
       expect(
         screen.getByText("Select a file or files to upload")
-      ).toBeInTheDocument();
+      ).toBeVisible();
     });
 
     const dropdown = screen.getAllByLabelText(

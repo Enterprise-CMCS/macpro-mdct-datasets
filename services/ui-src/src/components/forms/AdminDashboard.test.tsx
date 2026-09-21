@@ -54,16 +54,14 @@ describe("<AdminDashboard />", () => {
   beforeEach(async () => {
     render(<AdminDashboard />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("cell", { name: "New York" })
-      ).toBeInTheDocument();
+      expect(screen.getByRole("cell", { name: "New York" })).toBeVisible();
     });
   });
   test("AdminDashboard renders", () => {
-    expect(screen.getByText("File Upload Admin Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("File Upload Admin Dashboard")).toBeVisible();
     expect(
       screen.getByRole("link", { name: "Bulk Export Files" })
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
   test("Test table sorts", async () => {
     const sortResult = async (
