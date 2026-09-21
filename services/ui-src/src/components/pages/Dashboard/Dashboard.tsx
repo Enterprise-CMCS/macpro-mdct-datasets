@@ -145,6 +145,7 @@ export const Dashboard = () => {
               setDeleteModal(true);
               setDeleteFile(file);
             }}
+            aria-label={`Delete ${file.filename}`}
             rightIcon={<Image src={cancelIcon} alt="Remove" />}
           ></Button>
         </HStack>
