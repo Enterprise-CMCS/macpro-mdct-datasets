@@ -9,7 +9,7 @@ import {
 } from "../../../utils/api/requestMethods/datasets";
 import { JSX, useState, useEffect } from "react";
 import { Modal } from "components/modals/Modal";
-import { DataSetType } from "@datasets/shared";
+import { DataSetStatusType, DataSetType } from "@datasets/shared";
 
 const headers = [
   { label: "Data Set Name" },
@@ -93,12 +93,12 @@ const DataSetModal = ({
       {
         label: "Active (Visible to states)",
         value: "active",
-        checked: displayValue.status === "active",
+        checked: displayValue.status === DataSetStatusType.ACTIVE,
       },
       {
         label: "Inactive (Hidden from states)",
         value: "inactive",
-        checked: displayValue.status === "inactive",
+        checked: displayValue.status === DataSetStatusType.INACTIVE,
       },
     ];
     return options;
@@ -185,7 +185,7 @@ export const ManageDataSets = () => {
       );
       formattedRows.push([
         name,
-        status === "active" ? "Active" : "Inactive",
+        status === DataSetStatusType.ACTIVE ? "Active" : "Inactive",
         columnActions,
       ]);
     });
