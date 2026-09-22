@@ -1,14 +1,9 @@
 import { Flex, Image } from "@chakra-ui/react";
 import { Card } from "components";
-import spreadsheetIcon from "assets/icons/spreadsheet/icon_spreadsheet_gray.svg";
 import settingsIcon from "assets/icons/icon_wrench_gear.svg";
 import { ReactNode } from "react";
 
 const iconMap = {
-  spreadsheet: {
-    image: spreadsheetIcon,
-    alt: "spreadsheet",
-  },
   settings: {
     image: settingsIcon,
     alt: "settings",

@@ -1,13 +1,6 @@
 import { paginateScan, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { createClient } from "./dynamo/dynamodb-lib";
-
-export type DataSetType = {
-  key: string;
-  name: string;
-  status: string;
-  createdAt: string;
-  createdBy: string;
-};
+import { DataSetType } from "@datasets/shared";
 
 const bannerTableName = process.env.DataSetsTable;
 const client = createClient();

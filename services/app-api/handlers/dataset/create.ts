@@ -1,6 +1,6 @@
 import { handler } from "../../libs/handler-lib";
 import { randomUUID } from "node:crypto";
-import { emptyParser } from "../../dataSets/libs/param-lib";
+import { emptyParser } from "../../libs/param-lib";
 import { canWriteBanner } from "../../utils/authorization";
 import { created, forbidden } from "../../libs/response-lib";
 import { error } from "../../utils/constants";

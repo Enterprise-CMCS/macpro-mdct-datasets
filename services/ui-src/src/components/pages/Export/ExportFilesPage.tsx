@@ -150,11 +150,11 @@ export const ExportFilesPage = () => {
     }
     setModalOpen(false);
 
-    const reports = selectedDataSets.filter((report) => report !== "all");
+    const datasets = selectedDataSets.filter((dataset) => dataset !== "all");
     const body = {
-      type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
+      type: ZipRequestTypes.DATA_SET,
       state: selectedState,
-      reportSubTypeKeys: reports,
+      dataSets: datasets,
     };
     await getZipFile(body);
 
