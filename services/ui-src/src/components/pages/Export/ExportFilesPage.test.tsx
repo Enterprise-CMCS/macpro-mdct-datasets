@@ -57,9 +57,9 @@ describe("<ExportFilesPage />", () => {
 
     //TODO: This needs to be updated with the zip apis gets fixed
     expect(mockGetZipFile).toHaveBeenCalledWith({
-      type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
+      type: ZipRequestTypes.DATA_SET,
       state: "",
-      reportSubTypeKeys: ["abcd"],
+      dataSets: ["abcd"],
     });
   });
 });
