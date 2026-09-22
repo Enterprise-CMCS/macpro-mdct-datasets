@@ -20,28 +20,28 @@ describe("Selectors", () => {
 
     it("should return the active banner for the given area", () => {
       const past = {
-        area: BannerAreas.Home,
+        area: BannerAreas.Dashboard,
         startDate: daysAfterNow(-5),
         endDate: daysAfterNow(-2),
       } as BannerShape;
       const present = {
-        area: BannerAreas.Home,
+        area: BannerAreas.Dashboard,
         startDate: daysAfterNow(-2),
         endDate: daysAfterNow(5),
       } as BannerShape;
       const future = {
-        area: BannerAreas.Home,
+        area: BannerAreas.Dashboard,
         startDate: daysAfterNow(5),
         endDate: daysAfterNow(12),
       } as BannerShape;
       const elsewhere = {
-        area: BannerAreas.Home,
+        area: BannerAreas.Dashboard,
         startDate: daysAfterNow(-2),
         endDate: daysAfterNow(5),
       } as BannerShape;
       useStore.setState({ allBanners: [past, present, future, elsewhere] });
 
-      const selector = activeBannerSelector(BannerAreas.Home);
+      const selector = activeBannerSelector(BannerAreas.Dashboard);
       const banner = selector(useStore.getState());
 
       expect(banner).toBe(present);
@@ -55,7 +55,7 @@ describe("Selectors", () => {
         fetchBanners: mockFetch,
       });
 
-      const selector = activeBannerSelector(BannerAreas.Home);
+      const selector = activeBannerSelector(BannerAreas.Dashboard);
       const _banners = selector(useStore.getState());
 
       expect(mockFetch).toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe("Selectors", () => {
         fetchBanners: mockFetch,
       });
 
-      const selector = activeBannerSelector(BannerAreas.Home);
+      const selector = activeBannerSelector(BannerAreas.Dashboard);
       const _banners = selector(useStore.getState());
 
       expect(mockFetch).not.toHaveBeenCalled();

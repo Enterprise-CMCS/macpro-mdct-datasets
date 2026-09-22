@@ -18,7 +18,7 @@ import {
 import { isUrl } from "utils/validation/inputValidation";
 
 const initialFormValues: BannerFormData = {
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   title: "",
   description: "",
   link: "",

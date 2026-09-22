@@ -27,9 +27,6 @@ describe("<AdminBannerDrawer />", () => {
   });
 
   test("AdminBannerDrawer can be filled and submitted without error", async () => {
-    const siteAreaDropdown = screen.getAllByLabelText("Site area")[0];
-    await userEvent.selectOptions(siteAreaDropdown, "Home page");
-
     const titleInput = screen.getByLabelText("Title");
     await userEvent.click(titleInput);
     await userEvent.paste("mock title");
@@ -54,7 +51,7 @@ describe("<AdminBannerDrawer />", () => {
     await userEvent.click(submitButton);
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "home",
+      area: "dashboard",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",
@@ -87,7 +84,7 @@ describe("AdminBannerDrawer validation", () => {
   test("Display errors when date range conflicts with existing banners", async () => {
     const existingBanner = {
       title: "alpha",
-      area: "home",
+      area: "dashboard",
       startDate: "2026-01-10",
       endDate: "2026-01-20",
       key: "123456",
@@ -168,7 +165,7 @@ describe("AdminBannerDrawer validation", () => {
     ).not.toBeInTheDocument();
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "home",
+      area: "dashboard",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",

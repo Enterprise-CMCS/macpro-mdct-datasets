@@ -4,7 +4,7 @@ import { initAuthManager } from "utils/auth/authLifecycle";
 
 const mockBanner: BannerFormData = {
   title: "Datasets Alert",
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   description: "mock description",
   link: "https://example.com/datasets-alert",
   startDate: "2026-01-01",

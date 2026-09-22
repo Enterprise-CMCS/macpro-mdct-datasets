@@ -36,7 +36,6 @@ export const downloadFile = async (
   fileId: string
 ) => {
   const fileLink = await getFileDownloadUrl(datasetId, state, fileId);
-  console.log("fileLink", fileLink);
   const sanitizeLink = DOMPurify.sanitize(fileLink);
   window.open(sanitizeLink);
 };

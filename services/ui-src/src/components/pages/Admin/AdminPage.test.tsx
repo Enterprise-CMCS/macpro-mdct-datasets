@@ -1,0 +1,208 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { AdminPage } from "components";
+import { useStore } from "utils";
+import { testA11yAct } from "utils/testing/commonTests";
+import { BannerShape, BannerAreas } from "@datasets/shared";
+
+const daysFromToday = (offset: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts = formatter.formatToParts(date);
+  const f = (type: string) => parts.find((p) => p.type === type)!.value;
+  return `${f("year")}-${f("month")}-${f("day")}`;
+};
+
+const reformatDate = (isoString: string) => {
+  const [_, year, month, day] = /^(\d\d\d\d)-(\d\d)-(\d\d)/.exec(isoString)!;
+  return `${month}/${day}/${year}`;
+};
+
+const mockBannerHome1 = {
+  title: "Dashboard Alert - past",
+  area: BannerAreas.Dashboard,
+  description: "mock description",
+  startDate: daysFromToday(-5),
+  endDate: daysFromToday(-2),
+  key: "e50841b7-b438-4b47-ab42-fd7a7511ecb0", // #gitleaks:allow
+} as BannerShape;
+
+const mockBannerHome2 = {
+  title: "Dashboard Alert - present",
+  area: BannerAreas.Dashboard,
+  description: "mock description",
+  startDate: daysFromToday(-5),
+  endDate: daysFromToday(1),
+  key: "1a085df1-8946-4e04-8fd9-77cdbc85e992", // #gitleaks:allow
+} as BannerShape;
+
+const mockBannerHome3 = {
+  title: "Dashboard Alert - future",
+  area: BannerAreas.Dashboard,
+  description: "mock description",
+  startDate: daysFromToday(3),
+  endDate: daysFromToday(4),
+  key: "b479358a-22a1-4d27-8b3a-91d11b556b75", // #gitleaks:allow
+} as BannerShape;
+
+const fetchBanners = vi.fn();
+const createBanner = vi.fn();
+const updateBanner = vi.fn();
+const deleteBanner = vi.fn();
+const bannerMethods = {
+  fetchBanners,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+};
+
+describe("<AdminPage />", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should render the current banners under subheaders", async () => {
+    useStore.setState({
+      allBanners: [mockBannerHome3, mockBannerHome1, mockBannerHome2],
+      ...bannerMethods,
+    });
+
+    render(<AdminPage />);
+    await waitFor(() => {
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "Current Banners", level: 2 })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "Dashboard page", level: 3 })
+    ).toBeVisible();
+
+    const bannerPreviews = screen.getAllByRole("alert");
+    expect(bannerPreviews[0]).toHaveTextContent("Dashboard Alert - past");
+    expect(bannerPreviews[1]).toHaveTextContent("Dashboard Alert - present");
+    expect(bannerPreviews[2]).toHaveTextContent("Dashboard Alert - future");
+  });
+
+  it("should delete banners on button click", async () => {
+    useStore.setState({
+      allBanners: [mockBannerHome1, mockBannerHome2],
+      ...bannerMethods,
+    });
+
+    render(<AdminPage />);
+    await waitFor(() => {
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    });
+
+    const deleteButton = screen.getByRole("button", {
+      name: "Delete banner titled Dashboard Alert - present",
+    });
+    await userEvent.click(deleteButton);
+
+    expect(deleteBanner).toHaveBeenCalledWith(mockBannerHome2.key);
+  });
+
+  it("should display an empty state when there are no banners", async () => {
+    useStore.setState({ allBanners: [], ...bannerMethods });
+
+    render(<AdminPage />);
+    await waitFor(() => {
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByText("There are no existing banners.")).toBeVisible();
+  });
+
+  it("should display expired banner status", async () => {
+    useStore.setState({ allBanners: [mockBannerHome1], ...bannerMethods });
+    const dates = `${reformatDate(mockBannerHome1.startDate)}–${reformatDate(mockBannerHome1.endDate)}`;
+
+    render(<AdminPage />);
+    await screen.findByText("Expired");
+
+    expect(screen.getByText(dates, { exact: false })).toBeVisible();
+  });
+
+  it("should display active banner status", async () => {
+    useStore.setState({ allBanners: [mockBannerHome2], ...bannerMethods });
+    const dates = `${reformatDate(mockBannerHome2.startDate)}–${reformatDate(mockBannerHome2.endDate)}`;
+
+    render(<AdminPage />);
+    await screen.findByText("Active");
+
+    expect(screen.getByText(dates, { exact: false })).toBeVisible();
+  });
+
+  it("should display scheduled banner status", async () => {
+    useStore.setState({ allBanners: [mockBannerHome3], ...bannerMethods });
+    const dates = `${reformatDate(mockBannerHome3.startDate)}–${reformatDate(mockBannerHome3.endDate)}`;
+
+    render(<AdminPage />);
+    await screen.findByText("Scheduled");
+
+    expect(screen.getByText(dates, { exact: false })).toBeVisible();
+  });
+
+  it("Open Banner Drawer and create a new banner", async () => {
+    render(<AdminPage />);
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Create a new banner",
+      })
+    );
+    const siteAreaDropdown = screen.getAllByLabelText("Site area")[0];
+    await userEvent.selectOptions(siteAreaDropdown, "dashboard");
+
+    const titleInput = screen.getByLabelText("Title");
+    await userEvent.click(titleInput);
+    await userEvent.paste("mock title");
+
+    const descriptionInput = screen.getByLabelText("Description");
+    await userEvent.click(descriptionInput);
+    await userEvent.paste("mock description");
+
+    const linkInput = screen.getByLabelText("Link", { exact: false });
+    await userEvent.click(linkInput);
+    await userEvent.paste("http://example.com");
+
+    const startDateInput = screen.getByLabelText("Start date");
+    await userEvent.click(startDateInput);
+    await userEvent.paste("01/01/1970");
+
+    const endDateInput = screen.getByLabelText("End date");
+    await userEvent.click(endDateInput);
+    await userEvent.paste("01/02/1970");
+
+    const submitButton = screen.getByText("Create banner");
+    await userEvent.click(submitButton);
+
+    expect(screen.getByText("Edit")).toBeInTheDocument();
+  });
+
+  it("Edit banner opens and fills the drawer", async () => {
+    useStore.setState({ allBanners: [mockBannerHome1], ...bannerMethods });
+    render(<AdminPage />);
+    await screen.findByText("Expired");
+    await userEvent.click(screen.getByText("Edit"));
+    expect(screen.getByDisplayValue("Dashboard Alert - past")).toBeVisible();
+    expect(screen.getByDisplayValue("mock description")).toBeVisible();
+    await userEvent.click(screen.getByText("Edit banner"));
+  });
+
+  testA11yAct(<AdminPage />, () => {
+    useStore.setState({
+      allBanners: [mockBannerHome1, mockBannerHome2, mockBannerHome3],
+    });
+  });
+
+  testA11yAct(<AdminPage />, () => {
+    useStore.setState({ allBanners: [] });
+  });
+});
