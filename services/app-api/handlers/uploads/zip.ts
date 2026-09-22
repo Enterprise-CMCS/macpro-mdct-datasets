@@ -3,16 +3,16 @@ import { emptyParser, parseZipIdParameters } from "../../libs/param-lib";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
 import { StateAbbr, ZipRequestTypes } from "@datasets/shared";
 import JSZip from "jszip";
-import { addDataSetFilesToZip } from "../../utils/zips/buildZip";
+import { addDatasetFilesToZip } from "../../utils/zips/buildZip";
 import { getPSURL, zipBuffer, startZipWorker } from "../../utils/zips/polling";
 import { isZipRequestBody } from "../../utils/reportValidation";
 import { canRequestZip } from "../../utils/authorization";
 
-export interface ZipDataSetWorkerEvent {
+export interface ZipDatasetWorkerEvent {
   type: ZipRequestTypes.DATA_SET;
   zipId: string;
   state?: StateAbbr;
-  dataSets: string[];
+  datasets: string[];
 }
 
 export const triggerZipGeneration = handler(emptyParser, async (request) => {
@@ -32,15 +32,15 @@ export const getZipStatus = handler(parseZipIdParameters, async (request) => {
   return await getPSURL(id);
 });
 
-export const zipWorker = async (event: ZipDataSetWorkerEvent) => {
+export const zipWorker = async (event: ZipDatasetWorkerEvent) => {
   const zip = new JSZip();
   const { type, zipId } = event;
   let tags = `type=${type}`;
 
   if (type === ZipRequestTypes.DATA_SET) {
-    const { dataSets: dataSetKeys, state } = event;
-    await addDataSetFilesToZip(dataSetKeys, zip);
-    tags = `${tags}&subTypeKeys=${dataSetKeys.join("-")}${state ? `&state=${state}` : ""}`;
+    const { datasets: datasetKeys, state } = event;
+    await addDatasetFilesToZip(datasetKeys, zip);
+    tags = `${tags}&subTypeKeys=${datasetKeys.join("-")}${state ? `&state=${state}` : ""}`;
   } else {
     return badRequest(`Unidentified type. Cannot proceed. Event: ${event}`);
   }

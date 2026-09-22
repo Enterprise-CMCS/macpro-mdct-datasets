@@ -17,7 +17,7 @@ import { deployFrontend } from "./deployFrontend.ts";
 import { isLocalStack } from "../local/util.ts";
 import { getSubnets } from "../utils/vpc.ts";
 import { createTopicsComponents } from "./topics.ts";
-import { createDataSetComponents } from "./dataset-uploads.ts";
+import { createDatasetComponents } from "./dataset-uploads.ts";
 
 export class ParentStack extends Stack {
   constructor(
@@ -58,7 +58,7 @@ export class ParentStack extends Stack {
 
     const { tables } = createDataComponents(commonProps);
 
-    const datasetBucket = createDataSetComponents({
+    const datasetBucket = createDatasetComponents({
       ...commonProps,
       loggingBucket,
       datasetBucketName: datasetBucketName!,

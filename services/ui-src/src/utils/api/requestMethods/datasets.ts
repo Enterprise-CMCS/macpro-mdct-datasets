@@ -1,15 +1,15 @@
-import { DataSetType } from "@datasets/shared";
+import { DatasetType } from "@datasets/shared";
 import { apiLib } from "utils";
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 
-export async function createDataSet(dataSetData: {
+export async function createDataset(datasetData: {
   name: string;
   status: Boolean;
 }) {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
-    body: { ...dataSetData },
+    body: { ...datasetData },
   };
 
   return await apiLib.post<{ name: string; status: string }>(
@@ -18,21 +18,21 @@ export async function createDataSet(dataSetData: {
   );
 }
 
-export async function getDataSets() {
+export async function getDatasets() {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<DataSetType[]>("/datasets", options);
+  return await apiLib.get<DatasetType[]>("/datasets", options);
 }
 
-export async function updateDataSet(dataSetData: DataSetType) {
+export async function updateDataset(datasetData: DatasetType) {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
-    body: { ...dataSetData },
+    body: { ...datasetData },
   };
 
-  return await apiLib.put(`/datasets/${dataSetData.key}`, options);
+  return await apiLib.put(`/datasets/${datasetData.key}`, options);
 }

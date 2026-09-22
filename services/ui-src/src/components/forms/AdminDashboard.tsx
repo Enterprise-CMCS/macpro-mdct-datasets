@@ -19,11 +19,11 @@ import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
 import {
-  DataSetUploadType,
+  DatasetUploadType,
   getFiles,
 } from "../../utils/api/requestMethods/uploads";
 import { downloadFile } from "../../utils/other/fileUtils";
-import { getDataSets } from "../../utils/api/requestMethods/datasets";
+import { getDatasets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { useNavigate } from "react-router";
 import { activeBannerSelector } from "utils/state/selectors";
@@ -33,33 +33,33 @@ export const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [files, setFiles] = useState<DataSetUploadType[]>([]);
-  const [sortedFiles, setSortedFiles] = useState<DataSetUploadType[]>([]);
+  const [files, setFiles] = useState<DatasetUploadType[]>([]);
+  const [sortedFiles, setSortedFiles] = useState<DatasetUploadType[]>([]);
   const [tableRows, setTableRows] = useState<
     (string | number | JSX.Element | undefined)[][]
   >([]);
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
-  const [selectedDataSets, setSelectedDataSets] = useState<string[]>([]);
+  const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
   const [lastSorted, setLastSorted] = useState<{
     sort: string;
     type: SORT_TYPE;
   }>({ sort: "", type: SORT_TYPE.DEFAULT });
 
-  const [dataSetOptions, setDataSetOptions] = useState<DropdownOptions[]>([]);
+  const [datasetOptions, setDatasetOptions] = useState<DropdownOptions[]>([]);
 
   const setStatesHandler = (states: string[]) => {
     setSelectedStates(states);
   };
 
-  const setDataSetHandler = (dataSet: string[]) => {
-    setSelectedDataSets(dataSet);
+  const setDatasetHandler = (dataset: string[]) => {
+    setSelectedDatasets(dataset);
   };
 
-  const reloadDataSet = async () => {
+  const reloadDataset = async () => {
     setIsLoading(true);
-    const dataSets = await getDataSets();
-    setDataSetOptions(
-      dataSets.map((set) => ({ label: set.name, value: set.key! }))
+    const datasets = await getDatasets();
+    setDatasetOptions(
+      datasets.map((set) => ({ label: set.name, value: set.key! }))
     );
   };
 
@@ -72,25 +72,25 @@ export const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    reloadDataSet();
+    reloadDataset();
     reloadFiles();
   }, []);
 
   useEffect(() => {
-    if (selectedDataSets.length > 0 || selectedStates.length > 0) {
-      const filteredDataSet =
-        selectedDataSets.length > 0
-          ? files.filter((file) => selectedDataSets.includes(file.datasetId))
+    if (selectedDatasets.length > 0 || selectedStates.length > 0) {
+      const filteredDataset =
+        selectedDatasets.length > 0
+          ? files.filter((file) => selectedDatasets.includes(file.datasetId))
           : files;
       const filteredStates =
         selectedStates.length > 0
-          ? filteredDataSet.filter((file) =>
+          ? filteredDataset.filter((file) =>
               selectedStates.includes(file.uploadedState)
             )
-          : filteredDataSet;
+          : filteredDataset;
       setSortedFiles(filteredStates);
     } else setSortedFiles(files);
-  }, [files, selectedStates, selectedDataSets]);
+  }, [files, selectedStates, selectedDatasets]);
 
   useEffect(() => {
     sortRows(lastSorted.sort, lastSorted.type);
@@ -98,10 +98,10 @@ export const AdminDashboard = () => {
 
   const clearFilter = () => {
     setStatesHandler([]);
-    setDataSetHandler([]);
+    setDatasetHandler([]);
   };
 
-  const buildRows = (data: DataSetUploadType[]) => {
+  const buildRows = (data: DatasetUploadType[]) => {
     return data.map((file) => {
       const columnAction = (
         <Button
@@ -124,7 +124,7 @@ export const AdminDashboard = () => {
       return [
         StateNames[file.uploadedState as keyof typeof StateNames],
         file.filename,
-        dataSetOptions.find((opt) => opt.value === file.datasetId)?.label,
+        datasetOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
         columnAction,
@@ -133,7 +133,7 @@ export const AdminDashboard = () => {
   };
 
   const sortRows = (row: string, type: SORT_TYPE) => {
-    const getValue = (answer: DataSetUploadType, type: string) => {
+    const getValue = (answer: DatasetUploadType, type: string) => {
       switch (type) {
         case "State/Territory":
           return answer.uploadedState;
@@ -150,7 +150,7 @@ export const AdminDashboard = () => {
       }
     };
 
-    const runSort = (arr: DataSetUploadType[]) => {
+    const runSort = (arr: DatasetUploadType[]) => {
       return type == SORT_TYPE.DEFAULT
         ? arr
         : arr.toSorted((a, b) => {
@@ -202,14 +202,14 @@ export const AdminDashboard = () => {
               values={selectedStates}
               onChange={(selected) => setStatesHandler(selected)}
             />
-            {dataSetOptions.length > 0 && (
+            {datasetOptions.length > 0 && (
               <MultiSelect
                 label="Filter by Data Set:"
                 placeholder="Search data set"
                 countLabel="Data Set"
-                options={dataSetOptions}
-                values={selectedDataSets}
-                onChange={(selected) => setDataSetHandler(selected)}
+                options={datasetOptions}
+                values={selectedDatasets}
+                onChange={(selected) => setDatasetHandler(selected)}
               />
             )}
             <Button

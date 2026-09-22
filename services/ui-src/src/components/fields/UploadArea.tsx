@@ -28,7 +28,7 @@ interface Props {
     instruction?: { type: AlertTypes; text: string };
     success?: string;
   };
-  dataSetId: string;
+  datasetId: string;
 }
 
 export const UploadArea = ({
@@ -38,7 +38,7 @@ export const UploadArea = ({
   multiple = true,
   disabled,
   notification,
-  dataSetId,
+  datasetId,
 }: Props) => {
   const fileInputRef: any = useRef(null);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
@@ -155,7 +155,7 @@ export const UploadArea = ({
       const file = getFileWithSafeName(files[i]);
       try {
         const { presignedUploadUrl, fileId } =
-          await recordFileInDatabaseAndGetUploadUrl(state!, dataSetId, file);
+          await recordFileInDatabaseAndGetUploadUrl(state!, datasetId, file);
         savedFiles.push({ name: displayName, fileId: fileId, size: file.size });
         await uploadFileToS3({ presignedUploadUrl }, file);
       } catch (error) {
@@ -261,14 +261,14 @@ export const UploadArea = ({
           {filesToUpload.length > 0 &&
             uploadListRender(
               state!,
-              dataSetId,
+              datasetId,
               filesToUpload ?? [],
               deleteFromReport
             )}
           {answer.length > 0 &&
             uploadListRender(
               state!,
-              dataSetId,
+              datasetId,
               modifiedAnswer(answer ?? []),
               deleteFromReport,
               downloadFile

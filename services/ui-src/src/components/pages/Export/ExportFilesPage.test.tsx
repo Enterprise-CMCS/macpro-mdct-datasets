@@ -11,7 +11,7 @@ const mockGetZipFile = vi.mocked(getZipFile);
 
 vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
   ...(await importOriginal()),
-  getDataSets: vi.fn().mockReturnValue([
+  getDatasets: vi.fn().mockReturnValue([
     {
       key: "abcd",
       name: "Flowers",
@@ -21,8 +21,8 @@ vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
       name: "Fruits",
     },
   ]),
-  createDataSet: vi.fn(),
-  updateDataSet: vi.fn(),
+  createDataset: vi.fn(),
+  updateDataset: vi.fn(),
 }));
 
 describe("<ExportFilesPage />", () => {
@@ -43,12 +43,12 @@ describe("<ExportFilesPage />", () => {
     expect(
       screen.getByLabelText("Export by Data Set (All States)")
     ).toBeVisible();
-    const dataSetFilter = screen.getByRole("button", {
-      name: "DataSet select",
+    const datasetFilter = screen.getByRole("button", {
+      name: "Dataset select",
     });
-    fireEvent.click(dataSetFilter);
+    fireEvent.click(datasetFilter);
     const search = screen.getByRole("searchbox", {
-      name: "Search DataSet by name",
+      name: "Search Dataset by name",
     });
     fireEvent.input(search, { target: { value: "Flowers" } });
     const checkbox1 = screen.getByRole("checkbox", { name: "Flowers" });
@@ -59,7 +59,7 @@ describe("<ExportFilesPage />", () => {
     expect(mockGetZipFile).toHaveBeenCalledWith({
       type: ZipRequestTypes.DATA_SET,
       state: "",
-      dataSets: ["abcd"],
+      datasets: ["abcd"],
     });
   });
 });

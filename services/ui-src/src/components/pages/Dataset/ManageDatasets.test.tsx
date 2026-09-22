@@ -1,14 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { ManageDataSets } from "./ManageDataSets";
+import { ManageDatasets } from "./ManageDatasets";
 import userEvent from "@testing-library/user-event";
 import {
-  createDataSet,
-  updateDataSet,
+  createDataset,
+  updateDataset,
 } from "utils/api/requestMethods/datasets";
 
 vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
   ...(await importOriginal()),
-  getDataSets: vi.fn().mockReturnValue([
+  getDatasets: vi.fn().mockReturnValue([
     {
       key: "abcd",
       name: "Flowers",
@@ -18,18 +18,18 @@ vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
       name: "Fruits",
     },
   ]),
-  createDataSet: vi.fn(),
-  updateDataSet: vi.fn(),
+  createDataset: vi.fn(),
+  updateDataset: vi.fn(),
 }));
 
-describe("<ManageDataSet />", () => {
+describe("<ManageDataset />", () => {
   beforeEach(async () => {
-    render(<ManageDataSets />);
+    render(<ManageDatasets />);
     await waitFor(() => {
       expect(screen.getByRole("cell", { name: "Flowers" })).toBeVisible();
     });
   });
-  test("ManageDataSet renders", () => {
+  test("ManageDataset renders", () => {
     expect(screen.getByText("Manage Data Sets")).toBeVisible();
     expect(
       screen.getByText(
@@ -39,8 +39,8 @@ describe("<ManageDataSet />", () => {
     expect(screen.getByRole("button", { name: "Add Data Set" })).toBeVisible();
   });
   test("Add a new Data Set", async () => {
-    const addDataSet = screen.getByRole("button", { name: "Add Data Set" });
-    await userEvent.click(addDataSet);
+    const addDataset = screen.getByRole("button", { name: "Add Data Set" });
+    await userEvent.click(addDataset);
     expect(screen.getByLabelText("Add Data Set")).toBeVisible();
     const textbox = screen.getByRole("textbox", { name: "Data Set Name" });
     await userEvent.type(textbox, "Colors");
@@ -49,19 +49,19 @@ describe("<ManageDataSet />", () => {
     });
     await userEvent.click(radio);
     await userEvent.click(screen.getByRole("button", { name: "Add Data Set" }));
-    expect(createDataSet).toHaveBeenCalled();
+    expect(createDataset).toHaveBeenCalled();
   });
   test("Edit a Data Set", async () => {
-    const editDataSet = screen.getByRole("button", {
+    const editDataset = screen.getByRole("button", {
       name: "Edit Data Set Flowers",
     });
-    await userEvent.click(editDataSet);
+    await userEvent.click(editDataset);
     expect(screen.getByLabelText("Edit Data Set")).toBeVisible();
     const textbox = screen.getByRole("textbox", { name: "Data Set Name" });
     await userEvent.type(textbox, "Oceans");
     await userEvent.click(
       screen.getByRole("button", { name: "Edit Data Set" })
     );
-    expect(updateDataSet).toHaveBeenCalled();
+    expect(updateDataset).toHaveBeenCalled();
   });
 });

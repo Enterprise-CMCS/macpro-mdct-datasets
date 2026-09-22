@@ -15,7 +15,7 @@ vi.mock("utils/state/useStore", () => ({
 
 vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
   ...(await importOriginal()),
-  getDataSets: vi.fn().mockReturnValue([
+  getDatasets: vi.fn().mockReturnValue([
     {
       key: "abcd",
       name: "Flowers",

@@ -21,21 +21,20 @@ export function createDataComponents(props: CreateDataComponentsProps) {
         type: dynamodb.AttributeType.STRING,
       },
     }),
-    //TODO: re-evaluate the partitionKey
-    new DynamoDBTable(scope, "DataSetUploads", {
+    new DynamoDBTable(scope, "uploads", {
       stage,
       isDev,
-      name: "dataSetUploads",
+      name: "uploads",
       partitionKey: {
-        name: "uploadedState",
+        name: "state",
         type: dynamodb.AttributeType.STRING,
       },
       sortKey: { name: "fileId", type: dynamodb.AttributeType.STRING },
     }),
-    new DynamoDBTable(scope, "DataSets", {
+    new DynamoDBTable(scope, "Datasets", {
       stage,
       isDev,
-      name: "dataSets",
+      name: "datasets",
       partitionKey: {
         name: "key",
         type: dynamodb.AttributeType.STRING,

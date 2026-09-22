@@ -14,7 +14,7 @@ export const parseBannerId = (event: APIGatewayProxyEvent) => {
   return { bannerId };
 };
 
-export const parseDataSetId = (event: APIGatewayProxyEvent) => {
+export const parseDatasetId = (event: APIGatewayProxyEvent) => {
   const { id } = event.pathParameters ?? {};
   if (!id) {
     logger.warn("Invalid banner id in path");
@@ -24,7 +24,7 @@ export const parseDataSetId = (event: APIGatewayProxyEvent) => {
   return { id };
 };
 
-export const parseDataSetFileUploadDownloadParameters = (
+export const parseDatasetFileUploadDownloadParameters = (
   event: APIGatewayProxyEvent
 ) => {
   const { state, id, fileId } = event.pathParameters ?? {};
@@ -42,7 +42,7 @@ export const parseDataSetFileUploadDownloadParameters = (
   return { state, id, fileId };
 };
 
-export const parseDataSetFileCreateParameters = (
+export const parseDatasetFileCreateParameters = (
   event: APIGatewayProxyEvent
 ) => {
   const { state, id } = event.pathParameters ?? {};
@@ -60,7 +60,7 @@ export const parseDataSetFileCreateParameters = (
   return { state, id };
 };
 
-export const parseDataSetFileUploadParameters = (
+export const parseDatasetFileUploadParameters = (
   event: APIGatewayProxyEvent
 ) => {
   const { state } = event.pathParameters ?? {};

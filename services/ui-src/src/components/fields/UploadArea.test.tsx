@@ -32,7 +32,7 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
 const mockDeleteFromReport = vi.fn();
 
 const props = {
-  dataSetId: "mock-id",
+  datasetId: "mock-id",
   answer: [{ name: "mock-name", size: 100, fileId: "mock-id" }],
   saveToReport: vi.fn(),
   updateElement: vi.fn(),

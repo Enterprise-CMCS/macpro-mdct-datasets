@@ -1,14 +1,14 @@
 import { handler } from "../../libs/handler-lib";
 import s3 from "../../libs/s3-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
-import { parseDataSetFileCreateParameters } from "../../libs/param-lib";
+import { parseDatasetFileCreateParameters } from "../../libs/param-lib";
 import { ok } from "../../libs/response-lib";
 import { updateUpload } from "../../storage/datasetUpload";
 import { UploadFileData } from "../../types/uploads";
 import KSUID from "ksuid";
 
-export const createDataSetUpload = handler(
-  parseDataSetFileCreateParameters,
+export const createDatasetUpload = handler(
+  parseDatasetFileCreateParameters,
   async (request) => {
     const { user, body } = request;
     const { state, id: datasetId } = request.parameters;

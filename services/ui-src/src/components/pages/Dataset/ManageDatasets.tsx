@@ -3,13 +3,13 @@ import { PageTemplate } from "components";
 import { ResponsiveTable } from "components/tables/ResponsiveTable";
 import { TextField, ChoiceList } from "@cmsgov/design-system";
 import {
-  getDataSets,
-  createDataSet,
-  updateDataSet,
+  getDatasets,
+  createDataset,
+  updateDataset,
 } from "../../../utils/api/requestMethods/datasets";
 import { JSX, useState, useEffect } from "react";
 import { Modal } from "components/modals/Modal";
-import { DataSetType } from "@datasets/shared";
+import { DatasetType } from "@datasets/shared";
 
 const headers = [
   { label: "Data Set Name" },
@@ -17,42 +17,42 @@ const headers = [
   { label: "Actions" },
 ];
 
-type DataSetModalProps = {
+type DatasetModalProps = {
   modalDisclosure: {
     isOpen: boolean;
     onClose: () => void;
   };
   onSubmit: Function;
-  dataSet?: DataSetType;
+  dataset?: DatasetType;
   state: "Add" | "Edit";
 };
 
-const defaultDataSet = {
+const defaultDataset = {
   name: "",
   status: "",
 };
 
-const DataSetModal = ({
+const DatasetModal = ({
   modalDisclosure,
   onSubmit: parentOnSubmit,
-  dataSet,
+  dataset,
   state,
-}: DataSetModalProps) => {
+}: DatasetModalProps) => {
   const errorContent = {
     name: "Must enter a valid data set name.",
     status: "Must select a status.",
   };
-  const [displayValue, setDisplayValue] = useState(dataSet ?? defaultDataSet);
+  const [displayValue, setDisplayValue] = useState(dataset ?? defaultDataset);
   const [errorMessage, setErrorMessage] = useState({ name: "", status: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setDisplayValue(dataSet ?? defaultDataSet);
-  }, [dataSet]);
+    setDisplayValue(dataset ?? defaultDataset);
+  }, [dataset]);
 
   const onClose = () => {
     setLoading(false);
-    setDisplayValue(defaultDataSet);
+    setDisplayValue(defaultDataset);
     setErrorMessage({ name: "", status: "" });
     modalDisclosure.onClose();
   };
@@ -77,9 +77,9 @@ const DataSetModal = ({
     setLoading(true);
     try {
       if (state === "Add") {
-        await createDataSet(displayValue as any);
+        await createDataset(displayValue as any);
       } else if (state === "Edit") {
-        await updateDataSet(displayValue as any);
+        await updateDataset(displayValue as any);
       }
     } finally {
       setLoading(false);
@@ -153,28 +153,28 @@ const DataSetModal = ({
   );
 };
 
-export const ManageDataSets = () => {
+export const ManageDatasets = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [rows, setRows] = useState<(string | JSX.Element)[][]>([]);
-  const [selectedDataSet, setSelectedDataSet] = useState<
-    DataSetType | undefined
+  const [selectedDataset, setSelectedDataset] = useState<
+    DatasetType | undefined
   >();
   const [modalState, setModalSet] = useState<"Add" | "Edit">("Add");
   const [loading, setLoading] = useState(false);
 
   const formatRows = async () => {
     setLoading(true);
-    const allDataSets = await getDataSets();
+    const allDatasets = await getDatasets();
     const formattedRows: (string | JSX.Element)[][] = [];
 
-    allDataSets.forEach((dataSet) => {
-      const name = dataSet.name;
-      const status = dataSet.status;
+    allDatasets.forEach((dataset) => {
+      const name = dataset.name;
+      const status = dataset.status;
       const columnActions = (
         <Button
           variant="outline"
           onClick={() => {
-            setSelectedDataSet(dataSet);
+            setSelectedDataset(dataset);
             setModalSet("Edit");
             setModalOpen(true);
           }}
@@ -209,7 +209,7 @@ export const ManageDataSets = () => {
         </Text>
         <Button
           onClick={() => {
-            setSelectedDataSet(undefined);
+            setSelectedDataset(undefined);
             setModalOpen(true);
           }}
         >
@@ -230,7 +230,7 @@ export const ManageDataSets = () => {
             set.
           </Text>
         ))}
-      <DataSetModal
+      <DatasetModal
         modalDisclosure={{
           isOpen: modalOpen,
           onClose: () => {
@@ -239,7 +239,7 @@ export const ManageDataSets = () => {
         }}
         onSubmit={formatRows}
         state={modalState}
-        dataSet={selectedDataSet}
+        dataset={selectedDataset}
       />
     </PageTemplate>
   );

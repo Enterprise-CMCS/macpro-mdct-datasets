@@ -21,7 +21,7 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { ZipRequestTypes } from "@datasets/shared";
 import { getZipFile } from "utils/other/fileUtils";
 import { DropdownOptions } from "types";
-import { getDataSets } from "../../../utils/api/requestMethods/datasets";
+import { getDatasets } from "../../../utils/api/requestMethods/datasets";
 
 const ExportCard = (
   title: string,
@@ -66,21 +66,21 @@ export const ExportFilesPage = () => {
   const [view, setView] = useState<"STATE" | "DATASET" | undefined>();
 
   const [selectedState, setSelectedState] = useState<string>();
-  const [selectedDataSets, setSelectedDataSets] = useState<string[]>([]);
-  const [dataSetOptions, setDataSetOptions] = useState<DropdownOptions[]>([]);
+  const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
+  const [datasetOptions, setDatasetOptions] = useState<DropdownOptions[]>([]);
 
-  const reloadDataSet = async () => {
+  const reloadDataset = async () => {
     setIsLoading(true);
-    const dataSets = await getDataSets();
-    setDataSetOptions([
+    const datasets = await getDatasets();
+    setDatasetOptions([
       { label: "All", value: "all" },
-      ...dataSets.map((set) => ({ label: set.name, value: set.key! })),
+      ...datasets.map((set) => ({ label: set.name, value: set.key! })),
     ]);
     setIsLoading(false);
   };
 
   useEffect(() => {
-    reloadDataSet();
+    reloadDataset();
   }, []);
 
   //using all states of now until we get a report lite route
@@ -88,34 +88,34 @@ export const ExportFilesPage = () => {
 
   useEffect(() => {
     setSelectedState("");
-    setSelectedDataSets([]);
+    setSelectedDatasets([]);
   }, [modalOpen]);
 
   const onStateChange = (evt: { target: { value: string } }) => {
     const newState = evt.target.value;
 
     setSelectedState(newState);
-    setSelectedDataSets([]);
+    setSelectedDatasets([]);
   };
 
-  const onDataSetChange = (selected: string[]) => {
-    if (!selectedDataSets.includes("all") && selected.includes("all")) {
+  const onDatasetChange = (selected: string[]) => {
+    if (!selectedDatasets.includes("all") && selected.includes("all")) {
       //if user selected all and it previously wasn't selected, set all checkboxes to selected
-      setSelectedDataSets(dataSetOptions.map((option) => option.value));
-    } else if (selectedDataSets.includes("all") && !selected.includes("all")) {
+      setSelectedDatasets(datasetOptions.map((option) => option.value));
+    } else if (selectedDatasets.includes("all") && !selected.includes("all")) {
       //if all was selected and now is deselected, remove all checkboxes
-      setSelectedDataSets([]);
+      setSelectedDatasets([]);
     } else if (
-      selected.length === dataSetOptions.length - 1 &&
+      selected.length === datasetOptions.length - 1 &&
       !selected.includes("all")
     ) {
       //if user selects all the selections, auto select all
-      setSelectedDataSets(["all", ...selected]);
-    } else if (selected.length < dataSetOptions.length + 1) {
+      setSelectedDatasets(["all", ...selected]);
+    } else if (selected.length < datasetOptions.length + 1) {
       //if user deselects a state and all is selected, it will be remove
-      setSelectedDataSets(selected.filter((selection) => selection !== "all"));
+      setSelectedDatasets(selected.filter((selection) => selection !== "all"));
     } else {
-      setSelectedDataSets(selected);
+      setSelectedDatasets(selected);
     }
   };
 
@@ -150,11 +150,11 @@ export const ExportFilesPage = () => {
     }
     setModalOpen(false);
 
-    const datasets = selectedDataSets.filter((dataset) => dataset !== "all");
+    const datasets = selectedDatasets.filter((dataset) => dataset !== "all");
     const body = {
       type: ZipRequestTypes.DATA_SET,
       state: selectedState,
-      dataSets: datasets,
+      datasets: datasets,
     };
     await getZipFile(body);
 
@@ -165,12 +165,12 @@ export const ExportFilesPage = () => {
     }
   };
 
-  const isDataSetSelectDisabled = () => {
+  const isDatasetSelectDisabled = () => {
     return view === "STATE" && selectedState === "";
   };
 
   const isExportSubmitDisabled = () => {
-    return isDataSetSelectDisabled() || selectedDataSets.length === 0;
+    return isDatasetSelectDisabled() || selectedDatasets.length === 0;
   };
 
   return (
@@ -237,12 +237,12 @@ export const ExportFilesPage = () => {
           )}
           <MultiSelect
             label="Select a Data Set"
-            onChange={(selected) => onDataSetChange(selected)}
-            options={dataSetOptions}
-            values={selectedDataSets}
+            onChange={(selected) => onDatasetChange(selected)}
+            options={datasetOptions}
+            values={selectedDatasets}
             placeholder={"- Select an option -"}
-            countLabel={"DataSet"}
-            disabled={isDataSetSelectDisabled()}
+            countLabel={"Dataset"}
+            disabled={isDatasetSelectDisabled()}
           ></MultiSelect>
         </Stack>
       </Modal>
