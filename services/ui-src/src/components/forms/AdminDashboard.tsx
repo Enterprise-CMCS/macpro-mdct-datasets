@@ -45,7 +45,6 @@ export const AdminDashboard = () => {
     type: SORT_TYPE;
   }>({ sort: "", type: SORT_TYPE.DEFAULT });
 
-  const { state } = useStore().user ?? {};
   const [dataSetOptions, setDataSetOptions] = useState<DropdownOptions[]>([]);
 
   const setStatesHandler = (states: string[]) => {
@@ -107,7 +106,9 @@ export const AdminDashboard = () => {
       const columnAction = (
         <Button
           variant="outline"
-          onClick={() => downloadFile(file.datasetId, state!, file.fileId)}
+          onClick={() =>
+            downloadFile(file.datasetId, file.uploadedState, file.fileId)
+          }
         >
           Download
         </Button>
