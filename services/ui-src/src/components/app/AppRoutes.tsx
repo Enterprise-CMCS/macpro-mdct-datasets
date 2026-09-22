@@ -43,7 +43,7 @@ export const AppRoutes = () => {
           element={!userIsAdmin ? <Navigate to="/profile" /> : <AdminPage />}
         />
         <Route path="/export" element={<ExportFilesPage />} />
-        <Route path="/data-sets" element={<ManageDatasets />} />
+        <Route path="/datasets" element={<ManageDatasets />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/403" element={<AccessDeniedPage />} />

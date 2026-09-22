@@ -19,7 +19,7 @@ export type DatasetUploadType = {
   state: string;
 };
 
-const uploadTableName = process.env.DatasetUploadsTable!;
+const uploadTableName = process.env.UploadsTable!;
 const client = createClient();
 
 export const deleteUpload = async (
@@ -29,7 +29,7 @@ export const deleteUpload = async (
   document: Record<string, any>
 ) => {
   var params = {
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: `${id}/${state}/${document.fileId}`,
   };
   await s3.deleteObject(params);

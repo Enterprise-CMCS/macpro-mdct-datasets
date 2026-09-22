@@ -173,7 +173,7 @@ export const Dashboard = () => {
       switch (type) {
         case "File name":
           return answer.filename;
-        case "Data Set":
+        case "Dataset":
           return answer.datasetId;
         case "Uploaded By":
           return answer.uploadedUsername;
@@ -215,7 +215,7 @@ export const Dashboard = () => {
       !displayValue || displayValue.fileId === ""
         ? {
             type: AlertTypes.WARNING,
-            text: "Select a data set above to unlock file upload.",
+            text: "Select a dataset above to unlock file upload.",
           }
         : {
             type: AlertTypes.INFO,
@@ -258,7 +258,7 @@ export const Dashboard = () => {
           </Heading>
           <Text>
             Use this page to upload documents and data requested by CMS. Select
-            the relevant data set for each file before uploading.
+            the relevant dataset for each file before uploading.
           </Text>
           <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
             Upload File(s)
@@ -266,9 +266,9 @@ export const Dashboard = () => {
           <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
             {datasetOptions.length > 0 && (
               <MultiSelect
-                label="Filter by Data Set:"
-                placeholder="Search data set"
-                countLabel="Data Set"
+                label="Filter by Dataset:"
+                placeholder="Search dataset"
+                countLabel="Dataset"
                 options={datasetOptions}
                 values={filterDataset}
                 onChange={(selected) => setDatasetHandler(selected)}
@@ -292,7 +292,7 @@ export const Dashboard = () => {
             ResponsiveTable(
               [
                 { label: "File name", sortable: true },
-                { label: "Data Set", sortable: true },
+                { label: "Dataset", sortable: true },
                 { label: "Uploaded By", sortable: true },
                 { label: "Upload Date", sortable: true },
                 { label: "Actions" },
@@ -310,8 +310,8 @@ export const Dashboard = () => {
           }}
           selections={
             <Dropdown
-              label={"Select the associated data set for the file(s)."}
-              name="associated-data-set"
+              label={"Select the associated dataset for the file(s)."}
+              name="associated-dataset"
               onChange={setDatasetDropdown}
               options={[
                 { label: "- Select an option -", value: "" },
@@ -333,9 +333,9 @@ export const Dashboard = () => {
           }}
           selections={
             <Dropdown
-              label={"Associated data set"}
-              name="associated-data-set"
-              hint="Updating the data set will reassign this file to that data set."
+              label={"Associated dataset"}
+              name="associated-dataset"
+              hint="Updating the dataset will reassign this file to that dataset."
               onChange={setDatasetDropdown}
               options={datasetOptions}
               value={displayValue?.datasetId}

@@ -13,7 +13,7 @@ const lambdaClient = new LambdaClient({ region: "us-east-1" });
 export const getPSURL = async (zipId: string) => {
   const key = formatS3ZipKey(zipId);
   const exists = await s3
-    .headObject({ Bucket: process.env.datasetBucketName, Key: key })
+    .headObject({ Bucket: process.env.uploadsBucketName, Key: key })
     .then(() => true)
     .catch(() => false);
 
@@ -23,7 +23,7 @@ export const getPSURL = async (zipId: string) => {
 
   const fileName = `MCDT_ALL_STATES.zip`;
   let psurl = await s3.getSignedDownloadUrl({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: key,
     ResponseContentDisposition: `attachment; filename=${fileName}`,
   });
@@ -35,7 +35,7 @@ export const getPSURL = async (zipId: string) => {
 export const zipBuffer = async (zipId: string, tags: string, zip: JSZip) => {
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
   await s3.putObject({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: formatS3ZipKey(zipId),
     Body: Readable.from(zipBuffer),
     ContentLength: zipBuffer.byteLength,

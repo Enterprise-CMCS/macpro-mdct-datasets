@@ -1,7 +1,7 @@
 import { handler } from "../../libs/handler-lib";
 import { parseDatasetFileUploadDownloadParameters } from "../../libs/param-lib";
 import { ok } from "../../libs/response-lib";
-import { deleteUpload, queryUpload } from "../../storage/datasetUpload";
+import { deleteUpload, queryUpload } from "../../storage/uploads";
 
 export const deleteDatasetUpload = handler(
   parseDatasetFileUploadDownloadParameters,

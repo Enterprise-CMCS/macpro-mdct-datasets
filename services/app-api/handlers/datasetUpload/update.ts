@@ -1,7 +1,7 @@
 import { handler } from "../../libs/handler-lib";
 import { parseDatasetFileUploadDownloadParameters } from "../../libs/param-lib";
 import { ok } from "../../libs/response-lib";
-import { updateUpload } from "../../storage/datasetUpload";
+import { updateUpload } from "../../storage/uploads";
 
 export const updateDatasetUpload = handler(
   parseDatasetFileUploadDownloadParameters,

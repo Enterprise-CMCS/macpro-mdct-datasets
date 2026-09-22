@@ -1,10 +1,7 @@
 import { UploadListProp } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
-import {
-  DatasetUploadType,
-  queryViewUploads,
-} from "../../storage/datasetUpload";
+import { DatasetUploadType, queryViewUploads } from "../../storage/uploads";
 
 export const formatS3ZipKey = (zipId: string) => `zips/${zipId}.zip`;
 
@@ -39,7 +36,7 @@ export const addDatasetFilesToZip = async (
     const { id, file, state, subType } = datasetUploadFile;
     if (!file?.fileId || !file?.name) continue;
     const item = await s3Lib.getObject({
-      Bucket: process.env.datasetBucketName,
+      Bucket: process.env.uploadsBucketName,
       Key: `${id}/${state}/${file.fileId}`,
     });
     const bytes = await item.Body?.transformToByteArray();

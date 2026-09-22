@@ -98,13 +98,13 @@ export const acceptedFileTypes = [
 ];
 
 export const tabTitleMap = {
-  "/": "Medicaid Data Collection Tool", //TO DO: TEMPORARY
+  "/": "Medicaid Data Collection Tool",
   "/help": "How can we help you? - Datasets",
   "/profile": "My Account - Datasets",
-  "/export": "Export Files - MDCT", //TO DO: TEMPORARY
+  "/export": "Export Files - Datasets",
   "/admin": "Banner Admin - Datasets",
   "/403": "Access Denied",
-  "/data-sets": "Manage Data Sets - MDCT", //TO DO: TEMPORARY
+  "/datasets": "Manage Datasets - Datasets",
 };
 
 export const getExtension = (filename: string): string | undefined => {

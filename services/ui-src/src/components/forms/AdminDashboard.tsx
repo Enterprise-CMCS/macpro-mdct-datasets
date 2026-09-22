@@ -137,7 +137,7 @@ export const AdminDashboard = () => {
           return answer.state;
         case "File name":
           return answer.filename;
-        case "Data Set":
+        case "Dataset":
           return answer.datasetId;
         case "Uploaded By":
           return answer.uploadedUsername;
@@ -180,7 +180,7 @@ export const AdminDashboard = () => {
           </Heading>
           <Text>
             Use this page to upload documents and data requested by CMS. Select
-            the relevant data set for each file before uploading.
+            the relevant dataset for each file before uploading.
           </Text>
           <Button
             as={Link}
@@ -202,9 +202,9 @@ export const AdminDashboard = () => {
             />
             {datasetOptions.length > 0 && (
               <MultiSelect
-                label="Filter by Data Set:"
-                placeholder="Search data set"
-                countLabel="Data Set"
+                label="Filter by Dataset:"
+                placeholder="Search dataset"
+                countLabel="Dataset"
                 options={datasetOptions}
                 values={selectedDatasets}
                 onChange={(selected) => setDatasetHandler(selected)}
@@ -229,7 +229,7 @@ export const AdminDashboard = () => {
               [
                 { label: "State/Territory", sortable: true },
                 { label: "File name", sortable: true },
-                { label: "Data Set", sortable: true },
+                { label: "Dataset", sortable: true },
                 { label: "Uploaded By", sortable: true },
                 { label: "Upload Date", sortable: true },
                 { label: "Actions" },

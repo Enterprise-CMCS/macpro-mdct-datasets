@@ -4,7 +4,7 @@ import { emptyParser } from "../../libs/param-lib";
 import { canWriteBanner } from "../../utils/authorization";
 import { created, forbidden } from "../../libs/response-lib";
 import { error } from "../../utils/constants";
-import { putDataset } from "../../storage/dataset";
+import { putDataset } from "../../storage/datasets";
 
 export const createDataset = handler(emptyParser, async (request) => {
   const { user, body } = request;

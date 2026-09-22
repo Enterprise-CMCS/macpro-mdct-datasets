@@ -9,7 +9,7 @@ import {
   queryUpload,
   queryStateUpload,
   queryViewUploads,
-} from "../../storage/datasetUpload";
+} from "../../storage/uploads";
 import { forbidden, ok } from "../../libs/response-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { error } from "../../utils/constants";
@@ -42,7 +42,7 @@ export const getDatasetUploadsByFileId = handler(
     let fileHeader: Uint8Array;
     try {
       const object = await s3.getObject({
-        Bucket: process.env.datasetBucketName,
+        Bucket: process.env.uploadsBucketName,
         Key: objectKey,
         Range: FILE_HEADER_BYTE_RANGE,
       });
@@ -60,7 +60,7 @@ export const getDatasetUploadsByFileId = handler(
     }
 
     let psurl = await s3.getSignedDownloadUrl({
-      Bucket: process.env.datasetBucketName,
+      Bucket: process.env.uploadsBucketName,
       Key: objectKey,
       ResponseContentDisposition: `attachment; filename = ${document.filename}`,
     });

@@ -21,7 +21,7 @@ export function createDataComponents(props: CreateDataComponentsProps) {
         type: dynamodb.AttributeType.STRING,
       },
     }),
-    new DynamoDBTable(scope, "uploads", {
+    new DynamoDBTable(scope, "Uploads", {
       stage,
       isDev,
       name: "uploads",

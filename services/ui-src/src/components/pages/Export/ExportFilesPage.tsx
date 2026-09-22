@@ -124,17 +124,17 @@ export const ExportFilesPage = () => {
       case "DATASET":
         setModalData({
           ...modalData,
-          heading: "Export by Data Set (All States)",
+          heading: "Export by Dataset (All States)",
           subheading:
-            "Select a data set to download submissions from all participating states.",
+            "Select a dataset to download submissions from all participating states.",
         });
         break;
       case "STATE":
         setModalData({
           ...modalData,
-          heading: "Export by State and Data Set",
+          heading: "Export by State and Dataset",
           subheading:
-            "Select a state and a data set to download the corresponding submissions.",
+            "Select a state and a dataset to download the corresponding submissions.",
         });
         break;
     }
@@ -191,14 +191,14 @@ export const ExportFilesPage = () => {
       ) : (
         <Flex flexDirection="column" gap="spacer4">
           {ExportCard(
-            "By Data Set (All States)",
-            "Bulk export submitted files from all participating states for a single data set request.",
+            "By Dataset (All States)",
+            "Bulk export submitted files from all participating states for a single dataset request.",
             () => setExportData("DATASET"),
             isReportsExporting
           )}
           {ExportCard(
-            "By State and Data Set",
-            "Export all submitted files for a single state filtered by a specific data set request.",
+            "By State and Dataset",
+            "Export all submitted files for a single state filtered by a specific dataset request.",
             () => setExportData("STATE"),
             isStateExporting
           )}
@@ -236,7 +236,7 @@ export const ExportFilesPage = () => {
             ></Dropdown>
           )}
           <MultiSelect
-            label="Select a Data Set"
+            label="Select a Dataset"
             onChange={(selected) => onDatasetChange(selected)}
             options={datasetOptions}
             values={selectedDatasets}

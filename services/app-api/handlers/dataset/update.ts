@@ -1,5 +1,5 @@
 import { handler } from "../../libs/handler-lib";
-import { putDataset } from "../../storage/dataset";
+import { putDataset } from "../../storage/datasets";
 import { error } from "../../utils/constants";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
 import { canWriteBanner } from "../../utils/authorization";

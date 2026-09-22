@@ -89,16 +89,16 @@ describe("<AdminDashboard />", () => {
       [1, 7],
       ["mock filename 1", "mock filename 2"]
     );
-    await sortResult("Data Set", [2, 8], ["Flowers", "Fruits"]);
+    await sortResult("Dataset", [2, 8], ["Flowers", "Fruits"]);
     await sortResult("Uploaded By", [3, 9], ["username 1", "username 2"]);
     await sortResult("Upload Date", [4, 10], ["09/17/2026", "09/21/2026"]);
   });
-  test("Set Data Set filter", async () => {
-    const stateFilter = screen.getByRole("button", { name: "Data Set select" });
+  test("Set Dataset filter", async () => {
+    const stateFilter = screen.getByRole("button", { name: "Dataset select" });
     fireEvent.click(stateFilter);
 
     const search = screen.getByRole("searchbox", {
-      name: "Search Data Set by name",
+      name: "Search Dataset by name",
     });
     fireEvent.input(search, { target: { value: "Flowers" } });
     const checkbox1 = screen.getByRole("checkbox", { name: "Flowers" });

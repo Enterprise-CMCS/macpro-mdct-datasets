@@ -17,7 +17,7 @@ import { deployFrontend } from "./deployFrontend.ts";
 import { isLocalStack } from "../local/util.ts";
 import { getSubnets } from "../utils/vpc.ts";
 import { createTopicsComponents } from "./topics.ts";
-import { createDatasetComponents } from "./dataset-uploads.ts";
+import { createUploadsComponents } from "./uploads.ts";
 
 export class ParentStack extends Stack {
   constructor(
@@ -47,8 +47,7 @@ export class ParentStack extends Stack {
     const vpc = ec2.Vpc.fromLookup(this, "Vpc", { vpcName });
     const kafkaAuthorizedSubnets = getSubnets(this, kafkaAuthorizedSubnetIds);
 
-    const attachmentsBucketName = `uploads-${stage}-attachments-${Aws.ACCOUNT_ID}`;
-    const datasetBucketName = `uploads-${stage}-datasets-${Aws.ACCOUNT_ID}`; // TODO: Remove after migrate
+    const uploadsBucketName = `uploads-${stage}-datasets-${Aws.ACCOUNT_ID}`;
 
     const loggingBucket = s3.Bucket.fromBucketName(
       this,
@@ -58,10 +57,10 @@ export class ParentStack extends Stack {
 
     const { tables } = createDataComponents(commonProps);
 
-    const datasetBucket = createDatasetComponents({
+    const uploadsBucket = createUploadsComponents({
       ...commonProps,
       loggingBucket,
-      datasetBucketName: datasetBucketName!,
+      uploadsBucketName: uploadsBucketName!,
     });
 
     const { apiGatewayRestApiUrl, restApiId } = createApiComponents({
@@ -69,7 +68,7 @@ export class ParentStack extends Stack {
       tables,
       vpc,
       kafkaAuthorizedSubnets,
-      datasetBucket,
+      uploadsBucket,
     });
 
     if (isLocalStack) {
@@ -103,7 +102,6 @@ export class ParentStack extends Stack {
       userPoolId,
       userPoolClientId,
       userPoolClientDomain: `${userPoolDomainName}.auth.${Aws.REGION}.amazoncognito.com`,
-      attachmentsBucketName: attachmentsBucketName!,
     });
 
     new CfnOutput(this, "CloudFrontUrl", {

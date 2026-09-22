@@ -12,7 +12,7 @@ import { Modal } from "components/modals/Modal";
 import { DatasetType } from "@datasets/shared";
 
 const headers = [
-  { label: "Data Set Name" },
+  { label: "Dataset Name" },
   { label: "Status" },
   { label: "Actions" },
 ];
@@ -39,7 +39,7 @@ const DatasetModal = ({
   state,
 }: DatasetModalProps) => {
   const errorContent = {
-    name: "Must enter a valid data set name.",
+    name: "Must enter a valid dataset name.",
     status: "Must select a status.",
   };
   const [displayValue, setDisplayValue] = useState(dataset ?? defaultDataset);
@@ -111,8 +111,8 @@ const DatasetModal = ({
         onClose: onClose,
       }}
       content={{
-        heading: `${state} Data Set`,
-        actionButtonText: `${state} Data Set`,
+        heading: `${state} Dataset`,
+        actionButtonText: `${state} Dataset`,
         closeButtonText: "Cancel",
       }}
       onConfirmHandler={onSubmit}
@@ -120,9 +120,9 @@ const DatasetModal = ({
     >
       <Stack gap="1.5rem">
         <TextField
-          name="data-set-name"
-          label="Data Set Name"
-          hint="Enter the data set name shown to states in drop-down menus."
+          name="dataset-name"
+          label="Dataset Name"
+          hint="Enter the dataset name shown to states in drop-down menus."
           value={displayValue.name}
           onChange={({ target }) => {
             setDisplayValue({
@@ -134,10 +134,10 @@ const DatasetModal = ({
           errorMessage={errorMessage.name}
         />
         <ChoiceList
-          name={"data-set-status"}
+          name={"dataset-status"}
           type={"radio"}
           label={"Status"}
-          hint="Inactive data sets are hidden from state submission options but preserved in historic admin exports."
+          hint="Inactive datasets are hidden from state submission options but preserved in historic admin exports."
           choices={buildChoices()}
           onChange={({ target }) => {
             setDisplayValue({
@@ -178,7 +178,7 @@ export const ManageDatasets = () => {
             setModalSet("Edit");
             setModalOpen(true);
           }}
-          aria-label={`Edit Data Set ${name}`}
+          aria-label={`Edit Dataset ${name}`}
         >
           Edit
         </Button>
@@ -201,10 +201,10 @@ export const ManageDatasets = () => {
     <PageTemplate>
       <Stack gap="1.5rem">
         <Heading as="h1" id="AdminHeader" tabIndex={-1} variant="h1">
-          Manage Data Sets
+          Manage Datasets
         </Heading>
         <Text sx={sx.subHeaderText}>
-          Add, edit, or disable data set categories available to states during
+          Add, edit, or disable dataset categories available to states during
           file submission.
         </Text>
         <Button
@@ -213,7 +213,7 @@ export const ManageDatasets = () => {
             setModalOpen(true);
           }}
         >
-          Add Data Set
+          Add Dataset
         </Button>
       </Stack>
       <Stack sx={sx.container}>
@@ -226,8 +226,7 @@ export const ManageDatasets = () => {
           </Box>
         ) : (
           <Text variant="tableEmpty">
-            No data sets created yet. Click Add Data Set to create your first
-            set.
+            No datasets created yet. Click Add Dataset to create your first set.
           </Text>
         ))}
       <DatasetModal
