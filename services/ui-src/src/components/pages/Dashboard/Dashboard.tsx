@@ -10,7 +10,13 @@ import {
   Text,
   Box,
 } from "@chakra-ui/react";
-import { AlertTypes, BannerAreas, StateNames } from "@datasets/shared";
+import {
+  AlertTypes,
+  BannerAreas,
+  DataSetStatusType,
+  DataSetType,
+  StateNames,
+} from "@datasets/shared";
 import { PageTemplate, Modal, Banner } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
@@ -49,6 +55,9 @@ export const Dashboard = () => {
     DataSetUploadType | { datasetId: string; fileId?: string }
   >();
   const [dataSetOptions, setDataSetOptions] = useState<DropdownOptions[]>([]);
+  const [dataSetFilterOptions, setDataSetFilterOptions] = useState<
+    DropdownOptions[]
+  >([]);
   const [uploadDrawerOpen, setUploadDrawerOpen] = useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
@@ -58,36 +67,41 @@ export const Dashboard = () => {
   const setDataSetHandler = (dataSet: string[]) => {
     setFilterDataSet(dataSet);
   };
-  const reloadDataSet = async () => {
+
+  const reloadData = async () => {
     setIsLoading(true);
-    const dataSets = await getDataSets();
 
+    const [dataSets, files] = await Promise.all([
+      getDataSets(),
+      getFilesByState(state!),
+    ]);
     if (dataSets && dataSets.length > 0) {
+      setDataSetFilterOptions(
+        dataSets.map((set) => ({ label: set.name, value: set.key! })),
+      );
       setDataSetOptions(
-        dataSets.map((set) => ({ label: set.name, value: set.key! }))
+        dataSets
+          .filter((set) => set.status === DataSetStatusType.ACTIVE)
+          .map((set) => ({ label: set.name, value: set.key! })),
       );
     }
-  };
-
-  const reloadFiles = async () => {
-    const result = await getFilesByState(state!);
-    if (result && result.length > 0) {
+    if (files && files.length > 0) {
       setFiles(
-        result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
+        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
       );
     }
+
     setIsLoading(false);
   };
 
   useEffect(() => {
-    reloadDataSet();
-    reloadFiles();
+    reloadData();
   }, []);
 
   useEffect(() => {
     if (filterDataSet.length > 0) {
       setSortedFiles(
-        files.filter((file) => filterDataSet.includes(file.datasetId))
+        files.filter((file) => filterDataSet.includes(file.datasetId)),
       );
     } else setSortedFiles(files);
   }, [files, filterDataSet]);
@@ -109,7 +123,7 @@ export const Dashboard = () => {
     if (deleteFile) {
       setModalLoading(true);
       await removeFile(state!, deleteFile.datasetId, deleteFile.fileId);
-      await reloadFiles();
+      await reloadData();
       setModalLoading(false);
       setDeleteModal(false);
     }
@@ -119,6 +133,12 @@ export const Dashboard = () => {
     setDisplayValue(undefined);
     setEditDrawerOpen(false);
     setUploadDrawerOpen(false);
+  };
+
+  const isDataSetInactive = (dataSetId: string) => {
+    return (
+      dataSetOptions.filter((option) => option.value === dataSetId).length === 0
+    );
   };
 
   const buildRows = (data: DataSetUploadType[]) => {
@@ -135,6 +155,7 @@ export const Dashboard = () => {
             variant="link"
             fontWeight="bold"
             onClick={() => onEditHandler(file)}
+            disabled={isDataSetInactive(file.datasetId)}
           >
             Edit
           </Button>
@@ -147,6 +168,7 @@ export const Dashboard = () => {
             }}
             aria-label={`Delete ${file.filename}`}
             rightIcon={<Image src={cancelIcon} alt="Remove" />}
+            disabled={isDataSetInactive(file.datasetId)}
           ></Button>
         </HStack>
       );
@@ -160,7 +182,7 @@ export const Dashboard = () => {
 
       return [
         file.filename,
-        dataSetOptions.find((opt) => opt.value === file.datasetId)?.label,
+        dataSetFilterOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
         columnAction,
@@ -202,14 +224,14 @@ export const Dashboard = () => {
   };
 
   const setDataSetDropdown = (
-    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
+    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject,
   ) => {
     setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
     const set = dataSetOptions.find(
-      (opt) => opt.value === displayValue?.datasetId
+      (opt) => opt.value === displayValue?.datasetId,
     )?.label;
     const instruction =
       !displayValue || displayValue.fileId === ""
@@ -230,7 +252,7 @@ export const Dashboard = () => {
 
   const uploadFileSave = async () => {
     setIsLoading(true);
-    await reloadFiles();
+    await reloadData();
     setModalLoading(false);
   };
 
@@ -238,7 +260,7 @@ export const Dashboard = () => {
     setModalLoading(true);
     await updateUploadedFile(state!, displayValue as DataSetUploadType);
     setIsLoading(true);
-    await reloadFiles();
+    await reloadData();
     setEditDrawerOpen(false);
     setModalLoading(false);
   };
@@ -264,12 +286,12 @@ export const Dashboard = () => {
             Upload File(s)
           </Button>
           <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
-            {dataSetOptions.length > 0 && (
+            {dataSetFilterOptions.length > 0 && (
               <MultiSelect
                 label="Filter by Data Set:"
                 placeholder="Search data set"
                 countLabel="Data Set"
-                options={dataSetOptions}
+                options={dataSetFilterOptions}
                 values={filterDataSet}
                 onChange={(selected) => setDataSetHandler(selected)}
               />
@@ -299,7 +321,7 @@ export const Dashboard = () => {
               ],
               tableRows,
               "",
-              sortRows
+              sortRows,
             )
           )}
         </Stack>
