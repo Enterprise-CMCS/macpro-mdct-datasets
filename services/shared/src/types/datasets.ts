@@ -33,8 +33,8 @@ export type UploadListProp = {
 
 export enum DataSetStatusType {
   ACTIVE = "active",
-  INACTIVE = "inactive"
-};
+  INACTIVE = "inactive",
+}
 
 export type DataSetType = {
   key?: string;

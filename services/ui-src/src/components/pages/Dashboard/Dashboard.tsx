@@ -14,7 +14,6 @@ import {
   AlertTypes,
   BannerAreas,
   DataSetStatusType,
-  DataSetType,
   StateNames,
 } from "@datasets/shared";
 import { PageTemplate, Modal, Banner } from "components";
@@ -77,17 +76,17 @@ export const Dashboard = () => {
     ]);
     if (dataSets && dataSets.length > 0) {
       setDataSetFilterOptions(
-        dataSets.map((set) => ({ label: set.name, value: set.key! })),
+        dataSets.map((set) => ({ label: set.name, value: set.key! }))
       );
       setDataSetOptions(
         dataSets
           .filter((set) => set.status === DataSetStatusType.ACTIVE)
-          .map((set) => ({ label: set.name, value: set.key! })),
+          .map((set) => ({ label: set.name, value: set.key! }))
       );
     }
     if (files && files.length > 0) {
       setFiles(
-        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
+        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );
     }
 
@@ -101,7 +100,7 @@ export const Dashboard = () => {
   useEffect(() => {
     if (filterDataSet.length > 0) {
       setSortedFiles(
-        files.filter((file) => filterDataSet.includes(file.datasetId)),
+        files.filter((file) => filterDataSet.includes(file.datasetId))
       );
     } else setSortedFiles(files);
   }, [files, filterDataSet]);
@@ -224,14 +223,14 @@ export const Dashboard = () => {
   };
 
   const setDataSetDropdown = (
-    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject,
+    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
   ) => {
     setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
     const set = dataSetOptions.find(
-      (opt) => opt.value === displayValue?.datasetId,
+      (opt) => opt.value === displayValue?.datasetId
     )?.label;
     const instruction =
       !displayValue || displayValue.fileId === ""
@@ -321,7 +320,7 @@ export const Dashboard = () => {
               ],
               tableRows,
               "",
-              sortRows,
+              sortRows
             )
           )}
         </Stack>

@@ -6,6 +6,7 @@ import {
   updateUploadedFile,
   deleteUploadedFile,
 } from "utils/api/requestMethods/uploads";
+import { DataSetStatusType } from "@datasets/shared";
 
 vi.mock("utils/state/useStore", () => ({
   useStore: vi.fn().mockImplementation(() => {
@@ -19,10 +20,12 @@ vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
     {
       key: "abcd",
       name: "Flowers",
+      status: DataSetStatusType.ACTIVE,
     },
     {
       key: "efgh",
       name: "Fruits",
+      status: DataSetStatusType.ACTIVE,
     },
   ]),
 }));

@@ -59,10 +59,10 @@ export const AdminDashboard = () => {
     setIsLoading(true);
     const [dataSets, files] = await Promise.all([getDataSets(), getFiles()]);
     setDataSetOptions(
-      dataSets.map((set) => ({ label: set.name, value: set.key! })),
+      dataSets.map((set) => ({ label: set.name, value: set.key! }))
     );
     setFiles(
-      files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
+      files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
     );
     setIsLoading(false);
   };
@@ -80,7 +80,7 @@ export const AdminDashboard = () => {
       const filteredStates =
         selectedStates.length > 0
           ? filteredDataSet.filter((file) =>
-              selectedStates.includes(file.uploadedState),
+              selectedStates.includes(file.uploadedState)
             )
           : filteredDataSet;
       setSortedFiles(filteredStates);
@@ -233,7 +233,7 @@ export const AdminDashboard = () => {
               ],
               tableRows,
               "",
-              sortRows,
+              sortRows
             )
           )}
         </Stack>

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AdminDashboard } from "./AdminDashboard";
 import userEvent from "@testing-library/user-event";
+import { DataSetStatusType } from "@datasets/shared";
 
 const mockUseNavigate = vi.fn();
 
@@ -20,10 +21,12 @@ vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
     {
       key: "abcd",
       name: "Flowers",
+      status: DataSetStatusType.ACTIVE,
     },
     {
       key: "efgh",
       name: "Fruits",
+      status: DataSetStatusType.ACTIVE,
     },
   ]),
 }));
