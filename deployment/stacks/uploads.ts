@@ -16,13 +16,13 @@ interface CreateUploadsComponentsProps {
 }
 
 /**
- * Creates a bucket for managing uploads
- * Files should be uploaded as /{state}/{fileId}
+ * Creates a bucket for managing universal dataset uploads
+ * Files should be uploaded as /{dataset}/{state}/{fileId}
  */
 export function createUploadsComponents(props: CreateUploadsComponentsProps) {
   const { scope, loggingBucket, isDev, uploadsBucketName } = props;
 
-  const uploadsBucket = new s3.Bucket(scope, "UploadsBucket", {
+  const uploadsBucket = new s3.Bucket(scope, "DataSetBucket", {
     bucketName: uploadsBucketName,
     autoDeleteObjects: isDev,
     encryption: s3.BucketEncryption.S3_MANAGED,
@@ -53,7 +53,7 @@ export function createUploadsComponents(props: CreateUploadsComponentsProps) {
 
   const s3MalwareProtectionRole = new iam.Role(
     scope,
-    "UploadsS3MalwareProtectionRole",
+    "DataSetS3MalwareProtectionRole",
     {
       assumedBy: new iam.ServicePrincipal(
         "malware-protection-plan.guardduty.amazonaws.com"
@@ -156,7 +156,7 @@ export function createUploadsComponents(props: CreateUploadsComponentsProps) {
 
   new guardduty.CfnMalwareProtectionPlan(
     scope,
-    "UploadsMalwareProtectionPlan",
+    "DataSetMalwareProtectionPlan",
     {
       actions: {
         tagging: {

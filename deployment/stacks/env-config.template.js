@@ -12,7 +12,6 @@ window._env_ = {
   COGNITO_REDIRECT_SIGNIN: "{{applicationEndpointUrl}}",
   COGNITO_REDIRECT_SIGNOUT: "{{applicationEndpointUrl}}postLogout",
   POST_SIGNOUT_REDIRECT: "{{redirectSignout}}",
-  S3_ATTACHMENTS_BUCKET_REGION: "us-east-1",
   REACT_APP_LD_SDK_CLIENT: "{{launchDarklyClient}}",
   TIMESTAMP: "{{timestamp}}",
 };
