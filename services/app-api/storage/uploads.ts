@@ -57,7 +57,7 @@ export const updateUpload = async (
     TableName: uploadTableName,
     Key: {
       state,
-      fileId: fileId,
+      fileId,
     },
     UpdateExpression:
       "SET uploadedUsername = :uploadedUsername, uploadedDate = :uploadedDate, filename = :filename, filesize = :filesize, datasetId = :datasetId",
@@ -92,7 +92,11 @@ export const batchPutUploads = async (uploads: DatasetUploadType[]) => {
 export const queryUpload = async (fileId: string, state: string) => {
   const documentParams: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression: "state = :state AND fileId = :fileId",
+    KeyConditionExpression: "#state = :state AND #fileId = :fileId",
+    ExpressionAttributeNames: {
+      "#fileId": "fileId",
+      "#state": "state",
+    },
     ExpressionAttributeValues: {
       ":state": state,
       ":fileId": fileId,
@@ -114,7 +118,10 @@ export const queryViewUploads = async () => {
 export const queryStateUpload = async (state: string) => {
   const params: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression: "state = :state",
+    KeyConditionExpression: "#state = :state",
+    ExpressionAttributeNames: {
+      "#state": "state",
+    },
     ExpressionAttributeValues: {
       ":state": state,
     },
