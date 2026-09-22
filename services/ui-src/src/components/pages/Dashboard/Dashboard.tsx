@@ -10,7 +10,12 @@ import {
   Text,
   Box,
 } from "@chakra-ui/react";
-import { AlertTypes, BannerAreas, StateNames } from "@datasets/shared";
+import {
+  AlertTypes,
+  BannerAreas,
+  DataSetUploadType,
+  StateNames,
+} from "@datasets/shared";
 import { PageTemplate, Modal, Banner } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
@@ -18,7 +23,6 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
-  DataSetUploadType,
   getFilesByState,
   updateUploadedFile,
 } from "../../../utils/api/requestMethods/uploads";

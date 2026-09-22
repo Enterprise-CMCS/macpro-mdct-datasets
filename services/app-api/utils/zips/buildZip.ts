@@ -1,10 +1,7 @@
-import { UploadListProp } from "@datasets/shared";
+import { DataSetUploadType, UploadListProp } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
-import {
-  DataSetUploadType,
-  queryViewUploads,
-} from "../../storage/datasetUpload";
+import { queryViewUploads } from "../../storage/datasetUpload";
 
 export const formatS3ZipKey = (zipId: string) => `zips/${zipId}.zip`;
 

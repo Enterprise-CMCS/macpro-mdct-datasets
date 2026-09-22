@@ -9,15 +9,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
-
-export type DataSetUploadType = {
-  filename: string;
-  fileId: string;
-  datasetId: string;
-  uploadedUsername: string;
-  uploadedDate: string;
-  uploadedState: string;
-};
+import { DataSetUploadType } from "@datasets/shared";
 
 const uploadTableName = process.env.DataSetUploadsTable!;
 const client = createClient();

@@ -38,3 +38,12 @@ export type DataSetType = {
   createdAt?: string;
   createdBy?: string;
 };
+
+export type DataSetUploadType = {
+  filename: string;
+  fileId: string;
+  datasetId: string;
+  uploadedUsername: string;
+  uploadedDate: string;
+  uploadedState: string;
+};
