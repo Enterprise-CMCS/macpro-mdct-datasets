@@ -1,6 +1,5 @@
 // api
 export * from "./api/apiLib";
-export * from "./api/requestMethods/getTemplateUrl";
 // auth
 export * from "./auth/UserProvider";
 export * from "./auth/authLifecycle";
@@ -10,6 +9,5 @@ export * from "./state/useStore";
 export * from "./other/parsing";
 export * from "./other/useBreakpoint";
 export * from "./other/time";
-export * from "./other/email";
 export * from "./other/routing";
 export * from "./other/a11y";

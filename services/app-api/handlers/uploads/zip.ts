@@ -8,18 +8,11 @@ import { getPSURL, zipBuffer, startZipWorker } from "../../utils/zips/polling";
 import { isZipRequestBody } from "../../utils/reportValidation";
 import { canRequestZip } from "../../utils/authorization";
 
-export interface ZipReportWorkerEvent {
-  type: ZipRequestTypes.REPORT;
-  zipId: string;
-  state: StateAbbr;
-  id: string;
-}
-
-export interface ZipObligatedAndSpentFundsWorkerEvent {
-  type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS;
+export interface ZipDataSetWorkerEvent {
+  type: ZipRequestTypes.DATA_SET;
   zipId: string;
   state?: StateAbbr;
-  reportSubTypeKeys: string[];
+  dataSets: string[];
 }
 
 export const triggerZipGeneration = handler(emptyParser, async (request) => {
@@ -27,7 +20,7 @@ export const triggerZipGeneration = handler(emptyParser, async (request) => {
   if (!isZipRequestBody(body)) {
     return badRequest("Invalid request");
   }
-  if (!canRequestZip(body, user)) {
+  if (!canRequestZip(user)) {
     return forbidden("User cannot request these files");
   }
   const zipId = await startZipWorker(body);
@@ -39,15 +32,13 @@ export const getZipStatus = handler(parseZipIdParameters, async (request) => {
   return await getPSURL(id);
 });
 
-export const zipWorker = async (
-  event: ZipReportWorkerEvent | ZipObligatedAndSpentFundsWorkerEvent
-) => {
+export const zipWorker = async (event: ZipDataSetWorkerEvent) => {
   const zip = new JSZip();
   const { type, zipId } = event;
   let tags = `type=${type}`;
 
-  if (type === ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS) {
-    const { reportSubTypeKeys: dataSetKeys, state } = event;
+  if (type === ZipRequestTypes.DATA_SET) {
+    const { dataSets: dataSetKeys, state } = event;
     await addDataSetFilesToZip(dataSetKeys, zip);
     tags = `${tags}&subTypeKeys=${dataSetKeys.join("-")}${state ? `&state=${state}` : ""}`;
   } else {

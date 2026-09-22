@@ -1,8 +1,6 @@
 export const sizes = {
   appMax: "100vw",
   basicPageWidth: "48rem",
-  reportPageWidth: "46rem",
-  fullPageWidth: "48rem",
   // Used for non-font sizing
   xs: "0.75rem", // 12px
   sm: "0.875rem", // 14px

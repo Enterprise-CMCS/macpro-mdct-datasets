@@ -1,14 +1,6 @@
+import { DataSetType } from "@datasets/shared";
 import { apiLib } from "utils";
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
-
-//TODO: Merge in shared folder when files are in their own repo
-export type DataSetType = {
-  key?: string;
-  name: string;
-  status: string;
-  createdAt?: string;
-  createdBy?: string;
-};
 
 export async function createDataSet(dataSetData: {
   name: string;

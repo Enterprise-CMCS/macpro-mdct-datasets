@@ -46,28 +46,8 @@ export const isZipRequestBody = (
       type: mixed<ZipRequestTypes>()
         .oneOf(Object.values(ZipRequestTypes))
         .required(),
-      report: object()
-        .shape({
-          state: string().required(),
-          id: string().required(),
-        })
-        .when("type", {
-          is: ZipRequestTypes.REPORT,
-          then: (schema) =>
-            schema.required("Report information required for REPORT zip"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
       state: string().notRequired(),
-      reportSubTypeKeys: array()
-        .of(string().required())
-        .when("type", {
-          is: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
-          then: (schema) =>
-            schema.required(
-              "Report sub types required for OBLIGATED_AND_SPENT_FUNDS zip"
-            ),
-          otherwise: (schema) => schema.notRequired(),
-        }),
+      dataSets: array().of(string().required()).notRequired(),
     })
     .required()
     .noUnknown();

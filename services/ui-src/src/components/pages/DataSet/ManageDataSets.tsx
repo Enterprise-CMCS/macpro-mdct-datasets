@@ -4,12 +4,12 @@ import { ResponsiveTable } from "components/tables/ResponsiveTable";
 import { TextField, ChoiceList } from "@cmsgov/design-system";
 import {
   getDataSets,
-  DataSetType,
   createDataSet,
   updateDataSet,
 } from "../../../utils/api/requestMethods/datasets";
 import { JSX, useState, useEffect } from "react";
 import { Modal } from "components/modals/Modal";
+import { DataSetType } from "@datasets/shared";
 
 const headers = [
   { label: "Data Set Name" },

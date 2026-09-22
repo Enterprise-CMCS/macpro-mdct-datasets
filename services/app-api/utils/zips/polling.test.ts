@@ -5,7 +5,7 @@ import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { StatusCodes } from "../../libs/response-lib";
 import s3Lib from "../../libs/s3-lib";
 import { getPSURL, startZipWorker, zipBuffer } from "./polling";
-import { StateAbbr, ZipRequestTypes } from "@datasets/shared";
+import { ZipRequestTypes } from "@datasets/shared";
 
 const lambdaMock = mockClient(LambdaClient);
 const mockInvoke = vi.fn();
@@ -20,17 +20,9 @@ vi.mock("../../libs/s3-lib", () => ({
   },
 }));
 
-const mockReportZipBody = {
-  type: ZipRequestTypes.REPORT,
-  report: {
-    state: "NJ" as StateAbbr,
-    id: "mock-report-id",
-  },
-};
-
-const mockObligatedAndSpentFundsZipBody = {
-  type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
-  reportSubTypeKeys: ["A1"],
+const mockDataSetZipBody = {
+  type: ZipRequestTypes.DATA_SET,
+  dataSets: ["Set1"],
 };
 
 describe("polling utils", () => {
@@ -82,14 +74,8 @@ describe("polling utils", () => {
   });
 
   describe("startZipWorker", () => {
-    test("startZipWorker works for report type", async () => {
-      const result = await startZipWorker(mockReportZipBody);
-      expect(mockInvoke).toHaveBeenCalled();
-      expect(result).toBeTypeOf("string");
-    });
-
-    test("startZipWorker works for obligated and spent funds type", async () => {
-      const result = await startZipWorker(mockObligatedAndSpentFundsZipBody);
+    test("startZipWorker works for dataset type", async () => {
+      const result = await startZipWorker(mockDataSetZipBody);
       expect(mockInvoke).toHaveBeenCalled();
       expect(result).toBeTypeOf("string");
     });

@@ -1,5 +1,5 @@
+import { DataSetType } from "@datasets/shared";
 import { logger } from "../libs/debug-lib";
-import { DataSetType } from "../storage/dataset";
 
 export const isValidDataSet = (dataset: unknown): dataset is DataSetType => {
   if (!dataset || "object" !== typeof dataset) {
