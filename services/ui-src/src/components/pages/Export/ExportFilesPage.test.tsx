@@ -63,5 +63,5 @@ describe("<ExportFilesPage />", () => {
       dataSets: ["abcd"],
     });
   });
-  testA11yAct(<ExportFilesPage/>);
+  testA11yAct(<ExportFilesPage />);
 });
