@@ -10,7 +10,8 @@ export const formatS3ZipKey = (zipId: string) => `zips/${zipId}.zip`;
 
 export const addDataSetFilesToZip = async (
   dataSetKeys: string[],
-  zip: JSZip
+  state: string | undefined,
+  zip: JSZip,
 ) => {
   const dataSetUploadFiles: {
     id: string;
@@ -28,8 +29,9 @@ export const addDataSetFilesToZip = async (
   };
 
   const files = await queryViewUploads();
+  const filteredFiles = state ? files.filter((file) => file.uploadedState === state) : files;
 
-  for (const file of files) {
+  for (const file of filteredFiles) {
     if (dataSetKeys.includes(file.datasetId)) {
       getDataSetFiles(file);
     }
