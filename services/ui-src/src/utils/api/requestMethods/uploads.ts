@@ -13,7 +13,7 @@ export type DatasetUploadType = {
   datasetId: string;
   uploadedUsername: string;
   uploadedDate: string;
-  uploadedState: string;
+  state: string;
 };
 
 export async function getFilesByState(state: string) {

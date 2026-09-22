@@ -36,7 +36,7 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
       datasetId: "abcd",
       uploadedUsername: "username 1",
       uploadedDate: "2026-09-21T17:49:36.821Z",
-      uploadedState: "NY",
+      state: "NY",
     },
     {
       filename: "mock filename 2",
@@ -44,7 +44,7 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
       datasetId: "efgh",
       uploadedUsername: "username 2",
       uploadedDate: "2026-09-17T17:49:36.821Z",
-      uploadedState: "NY",
+      state: "NY",
     },
   ]),
   uploadFileToS3: vi.fn(),

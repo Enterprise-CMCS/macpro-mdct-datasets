@@ -5,7 +5,7 @@ export type UploadFileData = {
 };
 
 export interface UploadData {
-  uploadedState: string;
+  state: string;
   filename: string;
   uploadedDate: string;
   uploadedUsername: string;

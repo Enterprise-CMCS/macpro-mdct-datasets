@@ -85,7 +85,7 @@ export const AdminDashboard = () => {
       const filteredStates =
         selectedStates.length > 0
           ? filteredDataset.filter((file) =>
-              selectedStates.includes(file.uploadedState)
+              selectedStates.includes(file.state)
             )
           : filteredDataset;
       setSortedFiles(filteredStates);
@@ -106,9 +106,7 @@ export const AdminDashboard = () => {
       const columnAction = (
         <Button
           variant="outline"
-          onClick={() =>
-            downloadFile(file.datasetId, file.uploadedState, file.fileId)
-          }
+          onClick={() => downloadFile(file.datasetId, file.state, file.fileId)}
         >
           Download
         </Button>
@@ -122,7 +120,7 @@ export const AdminDashboard = () => {
       });
 
       return [
-        StateNames[file.uploadedState as keyof typeof StateNames],
+        StateNames[file.state as keyof typeof StateNames],
         file.filename,
         datasetOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
@@ -136,7 +134,7 @@ export const AdminDashboard = () => {
     const getValue = (answer: DatasetUploadType, type: string) => {
       switch (type) {
         case "State/Territory":
-          return answer.uploadedState;
+          return answer.state;
         case "File name":
           return answer.filename;
         case "Data Set":

@@ -16,7 +16,7 @@ export type DatasetUploadType = {
   datasetId: string;
   uploadedUsername: string;
   uploadedDate: string;
-  uploadedState: string;
+  state: string;
 };
 
 const uploadTableName = process.env.DatasetUploadsTable!;
@@ -38,7 +38,7 @@ export const deleteUpload = async (
     new DeleteCommand({
       TableName: uploadTableName,
       Key: {
-        uploadedState: state,
+        state,
         fileId: decodedFileId,
       },
     })
@@ -56,7 +56,7 @@ export const updateUpload = async (
   const params = {
     TableName: uploadTableName,
     Key: {
-      uploadedState: state,
+      state,
       fileId: fileId,
     },
     UpdateExpression:
@@ -92,10 +92,9 @@ export const batchPutUploads = async (uploads: DatasetUploadType[]) => {
 export const queryUpload = async (fileId: string, state: string) => {
   const documentParams: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression:
-      "uploadedState = :uploadedState AND fileId = :fileId",
+    KeyConditionExpression: "state = :state AND fileId = :fileId",
     ExpressionAttributeValues: {
-      ":uploadedState": state,
+      ":state": state,
       ":fileId": fileId,
     },
   };
@@ -115,7 +114,7 @@ export const queryViewUploads = async () => {
 export const queryStateUpload = async (state: string) => {
   const params: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression: "uploadedState = :state",
+    KeyConditionExpression: "state = :state",
     ExpressionAttributeValues: {
       ":state": state,
     },

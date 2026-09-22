@@ -21,7 +21,7 @@ export const addDatasetFilesToZip = async (
   const getDatasetFiles = (file: DatasetUploadType) => {
     datasetUploadFiles.push({
       id: file.datasetId,
-      state: file.uploadedState,
+      state: file.state,
       subType: "",
       file: { name: file.filename, fileId: file.fileId, size: 0 },
     });
