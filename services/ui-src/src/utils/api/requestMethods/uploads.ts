@@ -7,7 +7,7 @@ interface PathURL {
   fileId: string;
 }
 
-export type DatasetUploadType = {
+export type UploadType = {
   filename: string;
   fileId: string;
   datasetId: string;
@@ -22,7 +22,7 @@ export async function getFilesByState(state: string) {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<DatasetUploadType[]>(`/dataset/${state}`, options)!;
+  return await apiLib.get<UploadType[]>(`/dataset/${state}`, options)!;
 }
 
 export async function getFiles() {
@@ -31,7 +31,7 @@ export async function getFiles() {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<DatasetUploadType[]>(`/dataset/`, options)!;
+  return await apiLib.get<UploadType[]>(`/dataset/`, options)!;
 }
 
 export const recordFileInDatabaseAndGetUploadUrl = async (
@@ -121,10 +121,7 @@ export const getFileDownloadUrl = async (
   return response.psurl;
 };
 
-export const updateUploadedFile = async (
-  state: string,
-  file: DatasetUploadType
-) => {
+export const updateUploadedFile = async (state: string, file: UploadType) => {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },

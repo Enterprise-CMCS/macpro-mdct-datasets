@@ -1,10 +1,10 @@
 import { handler } from "../../libs/handler-lib";
-import { parseDatasetFileUploadDownloadParameters } from "../../libs/param-lib";
+import { parseFileDownloadParameters } from "../../libs/param-lib";
 import { ok } from "../../libs/response-lib";
 import { updateUpload } from "../../storage/uploads";
 
-export const updateDatasetUpload = handler(
-  parseDatasetFileUploadDownloadParameters,
+export const updateUploadHandler = handler(
+  parseFileDownloadParameters,
   async (request) => {
     const { user, body } = request;
     const { state, id: datasetId, fileId } = request.parameters;

@@ -18,10 +18,7 @@ import { Banner, PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
-import {
-  DatasetUploadType,
-  getFiles,
-} from "../../utils/api/requestMethods/uploads";
+import { UploadType, getFiles } from "../../utils/api/requestMethods/uploads";
 import { downloadFile } from "../../utils/other/fileUtils";
 import { getDatasets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
@@ -33,8 +30,8 @@ export const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [files, setFiles] = useState<DatasetUploadType[]>([]);
-  const [sortedFiles, setSortedFiles] = useState<DatasetUploadType[]>([]);
+  const [files, setFiles] = useState<UploadType[]>([]);
+  const [sortedFiles, setSortedFiles] = useState<UploadType[]>([]);
   const [tableRows, setTableRows] = useState<
     (string | number | JSX.Element | undefined)[][]
   >([]);
@@ -101,7 +98,7 @@ export const AdminDashboard = () => {
     setDatasetHandler([]);
   };
 
-  const buildRows = (data: DatasetUploadType[]) => {
+  const buildRows = (data: UploadType[]) => {
     return data.map((file) => {
       const columnAction = (
         <Button
@@ -131,7 +128,7 @@ export const AdminDashboard = () => {
   };
 
   const sortRows = (row: string, type: SORT_TYPE) => {
-    const getValue = (answer: DatasetUploadType, type: string) => {
+    const getValue = (answer: UploadType, type: string) => {
       switch (type) {
         case "State/Territory":
           return answer.state;
@@ -148,7 +145,7 @@ export const AdminDashboard = () => {
       }
     };
 
-    const runSort = (arr: DatasetUploadType[]) => {
+    const runSort = (arr: UploadType[]) => {
       return type == SORT_TYPE.DEFAULT
         ? arr
         : arr.toSorted((a, b) => {

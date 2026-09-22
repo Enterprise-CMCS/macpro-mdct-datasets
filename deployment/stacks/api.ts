@@ -264,49 +264,49 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "createDatasetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/create.ts",
-    handler: "createDatasetUpload",
+  new Lambda(scope, "createUpload", {
+    entry: "services/app-api/handlers/uploads/create.ts",
+    handler: "createUpload",
     path: "/dataset/{state}/{id}",
     method: "POST",
     ...commonProps,
   });
 
   new Lambda(scope, "getUploadsByState", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploadsByState",
     path: "/dataset/{state}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDatasetUploadsByFileId", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDatasetUploadsByFileId",
+  new Lambda(scope, "getUploadByFileId", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploadByFileId",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDatasetUploads", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDatasetUploads",
+  new Lambda(scope, "getUploads", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploads",
     path: "dataset",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDatasetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/update.ts",
-    handler: "updateDatasetUpload",
+  new Lambda(scope, "updateUpload", {
+    entry: "services/app-api/handlers/uploads/update.ts",
+    handler: "updateUploadHandler",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "deleteDatasetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/delete.ts",
-    handler: "deleteDatasetUpload",
+  new Lambda(scope, "deleteUpload", {
+    entry: "services/app-api/handlers/uploads/delete.ts",
+    handler: "deleteUploadHandler",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "DELETE",
     ...commonProps,

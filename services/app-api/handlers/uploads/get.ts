@@ -1,8 +1,8 @@
 import s3 from "../../libs/s3-lib";
 import { handler } from "../../libs/handler-lib";
 import {
-  parseDatasetFileUploadParameters,
-  parseDatasetFileUploadDownloadParameters,
+  parseFileUploadParameters,
+  parseFileDownloadParameters,
   emptyParser,
 } from "../../libs/param-lib";
 import {
@@ -22,8 +22,8 @@ const FILE_HEADER_BYTE_RANGE = "bytes=0-4100";
 /**
  * This is for downloading the file stored in S3 bucket
  */
-export const getDatasetUploadsByFileId = handler(
-  parseDatasetFileUploadDownloadParameters,
+export const getUploadByFileId = handler(
+  parseFileDownloadParameters,
   async (request) => {
     const { state, id: datasetId, fileId } = request.parameters;
 
@@ -74,7 +74,7 @@ export const getDatasetUploadsByFileId = handler(
  * get file uploaded by state
  */
 export const getUploadsByState = handler(
-  parseDatasetFileUploadParameters,
+  parseFileUploadParameters,
   async (request) => {
     const { state } = request.parameters;
     const { user } = request;
@@ -92,7 +92,7 @@ export const getUploadsByState = handler(
 /**
  * get all file uploaded, used for admin dashboard
  */
-export const getDatasetUploads = handler(emptyParser, async (request) => {
+export const getUploads = handler(emptyParser, async (request) => {
   const { user } = request;
 
   if (!canReadState(user, user.state!)) {

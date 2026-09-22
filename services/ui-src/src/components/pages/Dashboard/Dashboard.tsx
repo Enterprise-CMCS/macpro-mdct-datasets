@@ -18,7 +18,7 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
-  DatasetUploadType,
+  UploadType,
   getFilesByState,
   updateUploadedFile,
 } from "../../../utils/api/requestMethods/uploads";
@@ -32,8 +32,8 @@ import { activeBannerSelector } from "utils/state/selectors";
 export const Dashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
   const [isLoading, setIsLoading] = useState(false);
-  const [files, setFiles] = useState<DatasetUploadType[]>([]);
-  const [sortedFiles, setSortedFiles] = useState<DatasetUploadType[]>([]);
+  const [files, setFiles] = useState<UploadType[]>([]);
+  const [sortedFiles, setSortedFiles] = useState<UploadType[]>([]);
   const [tableRows, setTableRows] = useState<
     (string | number | JSX.Element | undefined)[][]
   >([]);
@@ -46,14 +46,14 @@ export const Dashboard = () => {
   const { state } = useStore().user ?? {};
   const [filterDataset, setFilterDataset] = useState<string[]>([]);
   const [displayValue, setDisplayValue] = useState<
-    DatasetUploadType | { datasetId: string; fileId?: string }
+    UploadType | { datasetId: string; fileId?: string }
   >();
   const [datasetOptions, setDatasetOptions] = useState<DropdownOptions[]>([]);
   const [uploadDrawerOpen, setUploadDrawerOpen] = useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
-  const [deleteFile, setDeleteFile] = useState<DatasetUploadType | undefined>();
+  const [deleteFile, setDeleteFile] = useState<UploadType | undefined>();
 
   const setDatasetHandler = (dataset: string[]) => {
     setFilterDataset(dataset);
@@ -100,7 +100,7 @@ export const Dashboard = () => {
     setDatasetHandler([]);
   };
 
-  const onEditHandler = (file: DatasetUploadType) => {
+  const onEditHandler = (file: UploadType) => {
     setDisplayValue(file);
     setEditDrawerOpen(true);
   };
@@ -121,7 +121,7 @@ export const Dashboard = () => {
     setUploadDrawerOpen(false);
   };
 
-  const buildRows = (data: DatasetUploadType[]) => {
+  const buildRows = (data: UploadType[]) => {
     return data.map((file) => {
       const columnAction = (
         <HStack>
@@ -169,7 +169,7 @@ export const Dashboard = () => {
   };
 
   const sortRows = (row: string, type: SORT_TYPE) => {
-    const getValue = (answer: DatasetUploadType, type: string) => {
+    const getValue = (answer: UploadType, type: string) => {
       switch (type) {
         case "File name":
           return answer.filename;
@@ -184,7 +184,7 @@ export const Dashboard = () => {
       }
     };
 
-    const runSort = (arr: DatasetUploadType[]) => {
+    const runSort = (arr: UploadType[]) => {
       return type == SORT_TYPE.DEFAULT
         ? arr
         : arr.toSorted((a, b) => {
@@ -236,7 +236,7 @@ export const Dashboard = () => {
 
   const editFileSave = async () => {
     setModalLoading(true);
-    await updateUploadedFile(state!, displayValue as DatasetUploadType);
+    await updateUploadedFile(state!, displayValue as UploadType);
     setIsLoading(true);
     await reloadFiles();
     setEditDrawerOpen(false);
@@ -342,7 +342,7 @@ export const Dashboard = () => {
             />
           }
           onModalSubmit={editFileSave}
-          file={displayValue as DatasetUploadType}
+          file={displayValue as UploadType}
           submitting={modalLoading}
         />
         <Modal
