@@ -1,3 +1,4 @@
+import { DataSetStatusType } from "@datasets/shared";
 import { createDataSet, getDataSets, updateDataSet } from "./datasets";
 
 const mockPost = vi.fn();
@@ -26,7 +27,7 @@ describe("datasets api", () => {
   });
 
   test("updateDataSet", async () => {
-    await updateDataSet({ name: "name", status: "true" });
+    await updateDataSet({ name: "name", status: DataSetStatusType.ACTIVE });
     expect(mockPut).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,14 +5,14 @@ import {
   PutCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { DataSetType } from "@datasets/shared";
+import { DataSetStatusType, DataSetType } from "@datasets/shared";
 
 const mockDynamo = mockClient(DynamoDBDocumentClient);
 
 const mockDataset: DataSetType = {
   key: "123",
   name: "Dataset A",
-  status: "Active",
+  status: DataSetStatusType.ACTIVE,
 };
 
 describe("Dataset storage methods", () => {
