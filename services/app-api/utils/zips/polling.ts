@@ -4,11 +4,21 @@ import { fixLocalstackUrl } from "../../libs/localstack";
 import JSZip from "jszip";
 import { Readable } from "node:stream";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
-import { ZipRequestBody, ZipRequestTypes } from "@datasets/shared";
+import { StateAbbr, ZipRequestBody, ZipRequestTypes } from "@datasets/shared";
 import KSUID from "ksuid";
 import { formatS3ZipKey } from "./buildZip";
 
 const lambdaClient = new LambdaClient({ region: "us-east-1" });
+
+const getFileName = async (key: string) => {
+  const { TagSet } = await s3.getObjectTagging({
+    Bucket: process.env.datasetBucketName,
+    Key: key,
+  });
+  if (!TagSet) return "MDCT_DATASETS.zip";
+  const state = TagSet.find((tag) => tag.Key === "state")?.Value as StateAbbr;
+  return `MDCT_DATASETS_${state ?? "ALL_STATES"}.zip`;
+};
 
 export const getPSURL = async (zipId: string) => {
   const key = formatS3ZipKey(zipId);
@@ -21,7 +31,7 @@ export const getPSURL = async (zipId: string) => {
     return ok({ status: "pending" });
   }
 
-  const fileName = `MCDT_ALL_STATES.zip`;
+  const fileName = await getFileName(key);
   let psurl = await s3.getSignedDownloadUrl({
     Bucket: process.env.datasetBucketName,
     Key: key,

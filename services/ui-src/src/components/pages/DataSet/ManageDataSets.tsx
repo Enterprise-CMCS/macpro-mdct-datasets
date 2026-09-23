@@ -209,7 +209,6 @@ export const ManageDataSets = () => {
         </Text>
         <Button
           onClick={() => {
-            setSelectedDataSet(undefined);
             setModalOpen(true);
           }}
         >
@@ -234,6 +233,10 @@ export const ManageDataSets = () => {
         modalDisclosure={{
           isOpen: modalOpen,
           onClose: () => {
+            setSelectedDataSet({
+              name: "",
+              status: "",
+            });
             setModalOpen(false);
           },
         }}
