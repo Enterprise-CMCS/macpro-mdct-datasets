@@ -1,4 +1,4 @@
-// TODO: go back to the mdct-core managed header
+// This file is managed by macpro-mdct-core so if you'd like to change it let's do it there
 import { type Argv } from "yargs";
 import {
   CloudFormationClient,
@@ -31,10 +31,9 @@ export const deploy = {
       throw new Error("PROJECT environment variable is required but not set");
     }
 
-    // const project = process.env.PROJECT!;
+    const project = process.env.PROJECT!;
 
-    // TODO: Revert to check for ${project}-prerequisites after datasets account migration (${project}-prerequisites)
-    if (await stackExists(`rhtp-prerequisites`)) {
+    if (await stackExists(`${project}-prerequisites`)) {
       await runCommand("Clean .cdk", ["rm", "-rf", ".cdk"], ".");
       await runCommand(
         "CDK deploy",
