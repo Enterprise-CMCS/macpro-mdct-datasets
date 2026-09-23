@@ -1,20 +1,11 @@
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 import { apiLib } from "../apiLib";
-import { ZipRequestBody } from "@datasets/shared";
+import { UploadType, ZipRequestBody } from "@datasets/shared";
 
 interface PathURL {
   psurl: string;
   fileId: string;
 }
-
-export type UploadType = {
-  filename: string;
-  fileId: string;
-  datasetId: string;
-  uploadedUsername: string;
-  uploadedDate: string;
-  state: string;
-};
 
 export async function getFilesByState(state: string) {
   const requestHeaders = await getRequestHeaders();

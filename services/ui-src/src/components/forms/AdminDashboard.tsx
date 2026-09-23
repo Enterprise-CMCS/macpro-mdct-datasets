@@ -13,12 +13,13 @@ import {
   StateDropdownOptions,
   StateNames,
   BannerAreas,
+  UploadType,
 } from "@datasets/shared";
 import { Banner, PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
-import { UploadType, getFiles } from "../../utils/api/requestMethods/uploads";
+import { getFiles } from "../../utils/api/requestMethods/uploads";
 import { downloadFile } from "../../utils/other/fileUtils";
 import { getDatasets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
@@ -52,25 +53,20 @@ export const AdminDashboard = () => {
     setSelectedDatasets(dataset);
   };
 
-  const reloadDataset = async () => {
+  const reloadData = async () => {
     setIsLoading(true);
-    const datasets = await getDatasets();
+    const [datasets, files] = await Promise.all([getDatasets(), getFiles()]);
     setDatasetOptions(
       datasets.map((set) => ({ label: set.name, value: set.key! }))
     );
-  };
-
-  const reloadFiles = async () => {
-    const result = await getFiles();
     setFiles(
-      result.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
+      files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
     );
     setIsLoading(false);
   };
 
   useEffect(() => {
-    reloadDataset();
-    reloadFiles();
+    reloadData();
   }, []);
 
   useEffect(() => {

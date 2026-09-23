@@ -1,6 +1,14 @@
+import { MockedFunction } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AdminDashboard } from "./AdminDashboard";
 import userEvent from "@testing-library/user-event";
+import { getDatasets } from "utils/api/requestMethods/datasets";
+import {
+  mockDatasetsData,
+  mockAdminFileData,
+} from "utils/testing/mockDatasets";
+import { getFiles } from "utils/api/requestMethods/uploads";
+import { testA11yAct } from "utils/testing/commonTests";
 
 const mockUseNavigate = vi.fn();
 
@@ -14,44 +22,18 @@ vi.mock("utils/state/useStore", () => ({
   }),
 }));
 
-vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
-  ...(await importOriginal()),
-  getDatasets: vi.fn().mockReturnValue([
-    {
-      key: "abcd",
-      name: "Flowers",
-    },
-    {
-      key: "efgh",
-      name: "Fruits",
-    },
-  ]),
-}));
+vi.mock("utils/api/requestMethods/datasets");
+const mockedGetDatasets = getDatasets as unknown as MockedFunction<any>;
 
-vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
-  ...(await importOriginal()),
-  getFiles: vi.fn().mockReturnValue([
-    {
-      filename: "mock filename 1",
-      fileId: "mock-id-1",
-      datasetId: "abcd",
-      uploadedUsername: "username 1",
-      uploadedDate: "2026-09-21T17:49:36.821Z",
-      state: "NY",
-    },
-    {
-      filename: "mock filename 2",
-      fileId: "mock-id-2",
-      datasetId: "efgh",
-      uploadedUsername: "username 2",
-      uploadedDate: "2026-09-17T17:49:36.821Z",
-      state: "PA",
-    },
-  ]),
-}));
+vi.mock("utils/api/requestMethods/uploads");
+const mockedGetFiles = getFiles as unknown as MockedFunction<any>;
 
 describe("<AdminDashboard />", () => {
   beforeEach(async () => {
+    vi.clearAllMocks();
+    mockedGetDatasets.mockReturnValue(mockDatasetsData);
+    mockedGetFiles.mockReturnValue(mockAdminFileData);
+
     render(<AdminDashboard />);
     await waitFor(() => {
       expect(screen.getByRole("cell", { name: "New York" })).toBeVisible();
@@ -126,4 +108,5 @@ describe("<AdminDashboard />", () => {
       screen.queryByRole("cell", { name: "Pennsylvania" })
     ).not.toBeInTheDocument();
   });
+  testA11yAct(<AdminDashboard />);
 });

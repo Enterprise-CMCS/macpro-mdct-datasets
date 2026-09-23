@@ -31,10 +31,24 @@ export type UploadListProp = {
   fileId: string;
 };
 
+export enum DatasetStatusType {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
 export type DatasetType = {
   key?: string;
   name: string;
-  status: string;
+  status: DatasetStatusType;
   createdAt?: string;
   createdBy?: string;
+};
+
+export type UploadType = {
+  filename: string;
+  fileId: string;
+  datasetId: string;
+  uploadedUsername: string;
+  uploadedDate: string;
+  state: string;
 };

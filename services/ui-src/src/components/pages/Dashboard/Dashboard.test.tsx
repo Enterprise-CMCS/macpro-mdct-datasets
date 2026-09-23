@@ -1,3 +1,4 @@
+import { MockedFunction } from "vitest";
 import { render, waitFor, screen, fireEvent } from "@testing-library/react";
 import { Dashboard } from "./Dashboard";
 import userEvent from "@testing-library/user-event";
@@ -5,7 +6,11 @@ import {
   recordFileInDatabaseAndGetUploadUrl,
   updateUploadedFile,
   deleteUploadedFile,
+  getFilesByState,
 } from "utils/api/requestMethods/uploads";
+import { getDatasets } from "utils/api/requestMethods/datasets";
+import { testA11yAct } from "utils/testing/commonTests";
+import { mockDatasetsData, mockFileData } from "utils/testing/mockDatasets";
 
 vi.mock("utils/state/useStore", () => ({
   useStore: vi.fn().mockImplementation(() => {
@@ -13,50 +18,20 @@ vi.mock("utils/state/useStore", () => ({
   }),
 }));
 
-vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
-  ...(await importOriginal()),
-  getDatasets: vi.fn().mockReturnValue([
-    {
-      key: "abcd",
-      name: "Flowers",
-    },
-    {
-      key: "efgh",
-      name: "Fruits",
-    },
-  ]),
-}));
+vi.mock("utils/api/requestMethods/datasets");
+const mockedGetDatasets = getDatasets as unknown as MockedFunction<any>;
 
-vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
-  ...(await importOriginal()),
-  getFilesByState: vi.fn().mockReturnValue([
-    {
-      filename: "mock filename 1",
-      fileId: "mock-id-1",
-      datasetId: "abcd",
-      uploadedUsername: "username 1",
-      uploadedDate: "2026-09-21T17:49:36.821Z",
-      state: "NY",
-    },
-    {
-      filename: "mock filename 2",
-      fileId: "mock-id-2",
-      datasetId: "efgh",
-      uploadedUsername: "username 2",
-      uploadedDate: "2026-09-17T17:49:36.821Z",
-      state: "NY",
-    },
-  ]),
-  uploadFileToS3: vi.fn(),
-  recordFileInDatabaseAndGetUploadUrl: vi.fn(),
-  updateUploadedFile: vi.fn(),
-  deleteUploadedFile: vi.fn(),
-}));
+vi.mock("utils/api/requestMethods/uploads");
+const mockedGetFilesByState = getFilesByState as unknown as MockedFunction<any>;
 
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
 
 describe("<Dashboard />", () => {
   beforeEach(async () => {
+    vi.clearAllMocks();
+    mockedGetDatasets.mockReturnValue(mockDatasetsData);
+    mockedGetFilesByState.mockReturnValue(mockFileData);
+
     render(<Dashboard />);
     await waitFor(() => {
       expect(screen.getByRole("cell", { name: "Flowers" })).toBeVisible();
@@ -161,4 +136,5 @@ describe("<Dashboard />", () => {
     await userEvent.click(clearFilterBtn);
     expect(screen.queryByRole("cell", { name: "Fruits" })).toBeInTheDocument();
   });
+  testA11yAct(<Dashboard />);
 });

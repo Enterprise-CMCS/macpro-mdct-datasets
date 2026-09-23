@@ -1,11 +1,15 @@
-import { UploadListProp } from "@datasets/shared";
+import { UploadListProp, UploadType } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
-import { UploadType, queryViewUploads } from "../../storage/uploads";
+import { queryViewUploads } from "../../storage/uploads";
 
 export const formatS3ZipKey = (zipId: string) => `zips/${zipId}.zip`;
 
-export const addFilesToZip = async (datasetKeys: string[], zip: JSZip) => {
+export const addFilesToZip = async (
+  datasetKeys: string[],
+  state: string | undefined,
+  zip: JSZip
+) => {
   const uploads: {
     id: string;
     state: string;
@@ -22,8 +26,11 @@ export const addFilesToZip = async (datasetKeys: string[], zip: JSZip) => {
   };
 
   const files = await queryViewUploads();
+  const filteredFiles = state
+    ? files.filter((file) => file.state === state)
+    : files;
 
-  for (const file of files) {
+  for (const file of filteredFiles) {
     if (datasetKeys.includes(file.datasetId)) {
       getUploads(file);
     }

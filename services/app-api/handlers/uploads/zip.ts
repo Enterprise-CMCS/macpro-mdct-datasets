@@ -39,7 +39,7 @@ export const zipWorker = async (event: ZipWorkerEvent) => {
 
   if (type === ZipRequestTypes.DATA_SET) {
     const { datasets: datasetKeys, state } = event;
-    await addFilesToZip(datasetKeys, zip);
+    await addFilesToZip(datasetKeys, state, zip);
     tags = `${tags}&subTypeKeys=${datasetKeys.join("-")}${state ? `&state=${state}` : ""}`;
   } else {
     return badRequest(`Unidentified type. Cannot proceed. Event: ${event}`);

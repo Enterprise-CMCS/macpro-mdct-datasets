@@ -3,6 +3,7 @@ import { ExportFilesPage } from "./ExportFilesPage";
 import userEvent from "@testing-library/user-event";
 import { getZipFile } from "utils/other/fileUtils";
 import { ZipRequestTypes } from "@datasets/shared";
+import { testA11yAct } from "utils/testing/commonTests";
 
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
@@ -62,4 +63,5 @@ describe("<ExportFilesPage />", () => {
       datasets: ["abcd"],
     });
   });
+  testA11yAct(<ExportFilesPage />);
 });

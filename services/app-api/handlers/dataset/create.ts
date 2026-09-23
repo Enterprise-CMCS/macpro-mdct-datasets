@@ -5,10 +5,11 @@ import { canWriteBanner } from "../../utils/authorization";
 import { created, forbidden } from "../../libs/response-lib";
 import { error } from "../../utils/constants";
 import { putDataset } from "../../storage/datasets";
+import { DatasetStatusType } from "@datasets/shared";
 
 export const createDataset = handler(emptyParser, async (request) => {
   const { user, body } = request;
-  const { name, status } = body as { name: string; status: string };
+  const { name, status } = body as { name: string; status: DatasetStatusType };
 
   if (!canWriteBanner(user)) {
     return forbidden(error.UNAUTHORIZED);
