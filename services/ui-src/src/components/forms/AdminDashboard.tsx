@@ -13,15 +13,13 @@ import {
   StateDropdownOptions,
   StateNames,
   BannerAreas,
+  DataSetUploadType,
 } from "@datasets/shared";
 import { Banner, PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
-import {
-  DataSetUploadType,
-  getFiles,
-} from "../../utils/api/requestMethods/uploads";
+import { getFiles } from "../../utils/api/requestMethods/uploads";
 import { downloadFile } from "../../utils/other/fileUtils";
 import { getDataSets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";

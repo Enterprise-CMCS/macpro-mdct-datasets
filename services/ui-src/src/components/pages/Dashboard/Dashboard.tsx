@@ -14,6 +14,7 @@ import {
   AlertTypes,
   BannerAreas,
   DataSetStatusType,
+  DataSetUploadType,
   StateNames,
 } from "@datasets/shared";
 import { PageTemplate, Modal, Banner } from "components";
@@ -23,7 +24,6 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
-  DataSetUploadType,
   getFilesByState,
   updateUploadedFile,
 } from "../../../utils/api/requestMethods/uploads";

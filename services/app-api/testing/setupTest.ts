@@ -1,4 +1,6 @@
 process.env.BannersTable = "local-datasets-banners";
+process.env.DataSetsTable = "local-datasets-datasets";
+process.env.DataSetUploadsTable = "local-datasets-dataSetUploads";
 process.env.brokerString = "broker1,broker2";
 process.env.STAGE = "local";
 /*
