@@ -16,10 +16,10 @@ interface CreateUploadsComponentsProps {
 }
 
 /**
- * Creates a bucket for managing universal data set uploads.
+ * Creates a bucket for managing universal dataset uploads.
  * Files should be uploaded as /{dataset}/{state}/{fileId}, notably flipping the report order of params
  */
-export function createDataSetComponents(props: CreateUploadsComponentsProps) {
+export function createDatasetComponents(props: CreateUploadsComponentsProps) {
   const { scope, loggingBucket, isDev, datasetBucketName } = props;
 
   const datasetBucket = new s3.Bucket(scope, "DataSetBucket", {

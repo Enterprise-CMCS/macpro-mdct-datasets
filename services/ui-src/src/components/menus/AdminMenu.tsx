@@ -51,9 +51,9 @@ export const AdminMenu = () => {
             </MenuItem>
           </Link>
         )}
-        <Link as={RouterLink} to="/data-sets" variant="unstyled">
+        <Link as={RouterLink} to="/datasets" variant="unstyled">
           <MenuItem sx={sx.menuItem}>
-            <MenuOption role="button" text="Manage Data Sets" />
+            <MenuOption role="button" text="Manage Datasets" />
           </MenuItem>
         </Link>
         {userRole === UserRoles.APPROVER && (

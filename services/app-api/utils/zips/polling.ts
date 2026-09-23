@@ -59,8 +59,8 @@ export const startZipWorker = async (body: ZipRequestBody) => {
   const zipId = KSUID.randomSync().string;
   let payload: any = { type, zipId };
   if (type === ZipRequestTypes.DATA_SET) {
-    const { state, dataSets } = body;
-    payload = { ...payload, state, dataSets };
+    const { state, datasets } = body;
+    payload = { ...payload, state, datasets };
   } else {
     throw new Error("Type not recognized");
   }

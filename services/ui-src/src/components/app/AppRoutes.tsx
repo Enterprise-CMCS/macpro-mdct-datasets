@@ -8,7 +8,7 @@ import {
   Dashboard,
   AdminDashboard,
   ExportFilesPage,
-  ManageDataSets,
+  ManageDatasets,
 } from "components";
 import { useStore, focusHeading } from "utils";
 import { useEffect, useRef } from "react";
@@ -43,7 +43,7 @@ export const AppRoutes = () => {
           element={!userIsAdmin ? <Navigate to="/profile" /> : <AdminPage />}
         />
         <Route path="/export" element={<ExportFilesPage />} />
-        <Route path="/data-sets" element={<ManageDataSets />} />
+        <Route path="/datasets" element={<ManageDatasets />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/403" element={<AccessDeniedPage />} />

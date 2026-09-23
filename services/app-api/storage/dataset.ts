@@ -1,11 +1,11 @@
 import { paginateScan, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { createClient } from "./dynamo/dynamodb-lib";
-import { DataSetType } from "@datasets/shared";
+import { DatasetType } from "@datasets/shared";
 
-const datasetTableName = process.env.DataSetsTable;
+const datasetTableName = process.env.DatasetsTable;
 const client = createClient();
 
-export const putDataSet = async (dataset: DataSetType) => {
+export const putDataset = async (dataset: DatasetType) => {
   await client.send(
     new PutCommand({
       TableName: datasetTableName,
@@ -14,11 +14,11 @@ export const putDataSet = async (dataset: DataSetType) => {
   );
 };
 
-export const scanAllDataSets = async () => {
+export const scanAllDatasets = async () => {
   const pages = paginateScan({ client }, { TableName: datasetTableName });
   const items: Record<string, any>[] = [];
   for await (const page of pages) {
     items.push(...(page.Items ?? []));
   }
-  return items as DataSetType[];
+  return items as DatasetType[];
 };

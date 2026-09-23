@@ -10,7 +10,7 @@ export const isStateAbbr = (abbr: string | undefined): abbr is StateAbbr => {
 export interface ZipRequestBody {
   type: ZipRequestTypes;
   state?: string;
-  dataSets?: string[];
+  datasets?: string[];
 }
 
 export enum ZipRequestTypes {
@@ -31,20 +31,20 @@ export type UploadListProp = {
   fileId: string;
 };
 
-export enum DataSetStatusType {
+export enum DatasetStatusType {
   ACTIVE = "active",
   INACTIVE = "inactive",
 }
 
-export type DataSetType = {
+export type DatasetType = {
   key?: string;
   name: string;
-  status: DataSetStatusType;
+  status: DatasetStatusType;
   createdAt?: string;
   createdBy?: string;
 };
 
-export type DataSetUploadType = {
+export type DatasetUploadType = {
   filename: string;
   fileId: string;
   datasetId: string;

@@ -3,56 +3,56 @@ import { PageTemplate } from "components";
 import { ResponsiveTable } from "components/tables/ResponsiveTable";
 import { TextField, ChoiceList } from "@cmsgov/design-system";
 import {
-  getDataSets,
-  createDataSet,
-  updateDataSet,
+  getDatasets,
+  createDataset,
+  updateDataset,
 } from "../../../utils/api/requestMethods/datasets";
 import { JSX, useState, useEffect } from "react";
 import { Modal } from "components/modals/Modal";
-import { DataSetStatusType, DataSetType } from "@datasets/shared";
+import { DatasetStatusType, DatasetType } from "@datasets/shared";
 
 const headers = [
-  { label: "Data Set Name" },
+  { label: "Dataset Name" },
   { label: "Status" },
   { label: "Actions" },
 ];
 
-type DataSetModalProps = {
+type DatasetModalProps = {
   modalDisclosure: {
     isOpen: boolean;
     onClose: () => void;
   };
   onSubmit: Function;
-  dataSet?: DataSetType;
+  dataset?: DatasetType;
   state: "Add" | "Edit";
 };
 
-const defaultDataSet = {
+const defaultDataset = {
   name: "",
   status: "",
 };
 
-const DataSetModal = ({
+const DatasetModal = ({
   modalDisclosure,
   onSubmit: parentOnSubmit,
-  dataSet,
+  dataset,
   state,
-}: DataSetModalProps) => {
+}: DatasetModalProps) => {
   const errorContent = {
-    name: "Must enter a valid data set name.",
+    name: "Must enter a valid dataset name.",
     status: "Must select a status.",
   };
-  const [displayValue, setDisplayValue] = useState(dataSet ?? defaultDataSet);
+  const [displayValue, setDisplayValue] = useState(dataset ?? defaultDataset);
   const [errorMessage, setErrorMessage] = useState({ name: "", status: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setDisplayValue(dataSet ?? defaultDataSet);
-  }, [dataSet]);
+    setDisplayValue(dataset ?? defaultDataset);
+  }, [dataset]);
 
   const onClose = () => {
     setLoading(false);
-    setDisplayValue(defaultDataSet);
+    setDisplayValue(defaultDataset);
     setErrorMessage({ name: "", status: "" });
     modalDisclosure.onClose();
   };
@@ -77,9 +77,9 @@ const DataSetModal = ({
     setLoading(true);
     try {
       if (state === "Add") {
-        await createDataSet(displayValue as any);
+        await createDataset(displayValue as any);
       } else if (state === "Edit") {
-        await updateDataSet(displayValue as any);
+        await updateDataset(displayValue as any);
       }
     } finally {
       setLoading(false);
@@ -93,12 +93,12 @@ const DataSetModal = ({
       {
         label: "Active (Visible to states)",
         value: "active",
-        checked: displayValue.status === DataSetStatusType.ACTIVE,
+        checked: displayValue.status === DatasetStatusType.ACTIVE,
       },
       {
         label: "Inactive (Hidden from states)",
         value: "inactive",
-        checked: displayValue.status === DataSetStatusType.INACTIVE,
+        checked: displayValue.status === DatasetStatusType.INACTIVE,
       },
     ];
     return options;
@@ -111,8 +111,8 @@ const DataSetModal = ({
         onClose: onClose,
       }}
       content={{
-        heading: `${state} Data Set`,
-        actionButtonText: `${state} Data Set`,
+        heading: `${state} Dataset`,
+        actionButtonText: `${state} Dataset`,
         closeButtonText: "Cancel",
       }}
       onConfirmHandler={onSubmit}
@@ -120,9 +120,9 @@ const DataSetModal = ({
     >
       <Stack gap="1.5rem">
         <TextField
-          name="data-set-name"
-          label="Data Set Name"
-          hint="Enter the data set name shown to states in drop-down menus."
+          name="dataset-name"
+          label="Dataset Name"
+          hint="Enter the dataset name shown to states in drop-down menus."
           value={displayValue.name}
           onChange={({ target }) => {
             setDisplayValue({
@@ -134,10 +134,10 @@ const DataSetModal = ({
           errorMessage={errorMessage.name}
         />
         <ChoiceList
-          name={"data-set-status"}
+          name={"dataset-status"}
           type={"radio"}
           label={"Status"}
-          hint="Inactive data sets are hidden from state submission options but preserved in historic admin exports."
+          hint="Inactive datasets are hidden from state submission options but preserved in historic admin exports."
           choices={buildChoices()}
           onChange={({ target }) => {
             setDisplayValue({
@@ -153,39 +153,39 @@ const DataSetModal = ({
   );
 };
 
-export const ManageDataSets = () => {
+export const ManageDatasets = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [rows, setRows] = useState<(string | JSX.Element)[][]>([]);
-  const [selectedDataSet, setSelectedDataSet] = useState<
-    DataSetType | undefined
+  const [selectedDataset, setSelectedDataset] = useState<
+    DatasetType | undefined
   >();
   const [modalState, setModalSet] = useState<"Add" | "Edit">("Add");
   const [loading, setLoading] = useState(false);
 
   const formatRows = async () => {
     setLoading(true);
-    const allDataSets = await getDataSets();
+    const allDatasets = await getDatasets();
     const formattedRows: (string | JSX.Element)[][] = [];
 
-    allDataSets.forEach((dataSet) => {
-      const name = dataSet.name;
-      const status = dataSet.status;
+    allDatasets.forEach((dataset) => {
+      const name = dataset.name;
+      const status = dataset.status;
       const columnActions = (
         <Button
           variant="outline"
           onClick={() => {
-            setSelectedDataSet(dataSet);
+            setSelectedDataset(dataset);
             setModalSet("Edit");
             setModalOpen(true);
           }}
-          aria-label={`Edit Data Set ${name}`}
+          aria-label={`Edit Dataset ${name}`}
         >
           Edit
         </Button>
       );
       formattedRows.push([
         name,
-        status === DataSetStatusType.ACTIVE ? "Active" : "Inactive",
+        status === DatasetStatusType.ACTIVE ? "Active" : "Inactive",
         columnActions,
       ]);
     });
@@ -201,10 +201,10 @@ export const ManageDataSets = () => {
     <PageTemplate>
       <Stack gap="1.5rem">
         <Heading as="h1" id="AdminHeader" tabIndex={-1} variant="h1">
-          Manage Data Sets
+          Manage Datasets
         </Heading>
         <Text sx={sx.subHeaderText}>
-          Add, edit, or disable data set categories available to states during
+          Add, edit, or disable dataset categories available to states during
           file submission.
         </Text>
         <Button
@@ -212,7 +212,7 @@ export const ManageDataSets = () => {
             setModalOpen(true);
           }}
         >
-          Add Data Set
+          Add Dataset
         </Button>
       </Stack>
       <Stack sx={sx.container}>
@@ -225,24 +225,20 @@ export const ManageDataSets = () => {
           </Box>
         ) : (
           <Text variant="tableEmpty">
-            No data sets created yet. Click Add Data Set to create your first
-            set.
+            No datasets created yet. Click Add Dataset to create your first set.
           </Text>
         ))}
-      <DataSetModal
+      <DatasetModal
         modalDisclosure={{
           isOpen: modalOpen,
           onClose: () => {
-            setSelectedDataSet({
-              name: "",
-              status: "",
-            });
+            setSelectedDataset(undefined);
             setModalOpen(false);
           },
         }}
         onSubmit={formatRows}
         state={modalState}
-        dataSet={selectedDataSet}
+        dataset={selectedDataset}
       />
     </PageTemplate>
   );

@@ -47,7 +47,7 @@ export const isZipRequestBody = (
         .oneOf(Object.values(ZipRequestTypes))
         .required(),
       state: string().notRequired(),
-      dataSets: array().of(string().required()).notRequired(),
+      datasets: array().of(string().required()).notRequired(),
     })
     .required()
     .noUnknown();

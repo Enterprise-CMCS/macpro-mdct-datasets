@@ -1,4 +1,4 @@
-import { addDataSetFilesToZip, formatS3ZipKey } from "./buildZip";
+import { addDatasetFilesToZip, formatS3ZipKey } from "./buildZip";
 import JSZip from "jszip";
 import s3Lib from "../../libs/s3-lib";
 
@@ -36,9 +36,9 @@ describe("buildZip util", () => {
     expect(zipId).toEqual("zips/file-123.zip");
   });
 
-  test("addDataSetFilesToZip", async () => {
+  test("addDatasetFilesToZip", async () => {
     const mockZip = new JSZip();
-    await addDataSetFilesToZip(mockDatasetKeys, mockZip);
+    await addDatasetFilesToZip(mockDatasetKeys, "AL", mockZip);
     expect(s3Lib.getObject).toHaveBeenCalled();
     expect(mockZip.files).toBeDefined();
   });

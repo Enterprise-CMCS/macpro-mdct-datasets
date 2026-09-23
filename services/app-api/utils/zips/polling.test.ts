@@ -20,9 +20,9 @@ vi.mock("../../libs/s3-lib", () => ({
   },
 }));
 
-const mockDataSetZipBody = {
+const mockDatasetZipBody = {
   type: ZipRequestTypes.DATA_SET,
-  dataSets: ["Set1"],
+  datasets: ["Set1"],
 };
 
 describe("polling utils", () => {
@@ -75,7 +75,7 @@ describe("polling utils", () => {
 
   describe("startZipWorker", () => {
     test("startZipWorker works for dataset type", async () => {
-      const result = await startZipWorker(mockDataSetZipBody);
+      const result = await startZipWorker(mockDatasetZipBody);
       expect(mockInvoke).toHaveBeenCalled();
       expect(result).toBeTypeOf("string");
     });

@@ -1,4 +1,4 @@
-import { DataSetUploadType, ZipRequestTypes } from "@datasets/shared";
+import { DatasetUploadType, ZipRequestTypes } from "@datasets/shared";
 import {
   deleteUploadedFile,
   getFileDownloadUrl,
@@ -23,7 +23,7 @@ vi.mock("../apiLib", () => ({
 
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
 
-const mockDatasetUpload: DataSetUploadType = {
+const mockDatasetUpload: DatasetUploadType = {
   filename: "File1",
   fileId: "123",
   datasetId: "abc",
@@ -77,7 +77,7 @@ describe("upload apis", () => {
     const requestBody = {
       type: ZipRequestTypes.DATA_SET,
       state: "AL",
-      dataSets: ["123"],
+      datasets: ["123"],
     };
     const result = await getZipPresignedUrl(requestBody);
     expect(result).toEqual(mockUrl.psurl);

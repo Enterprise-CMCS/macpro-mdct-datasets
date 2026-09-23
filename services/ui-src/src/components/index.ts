@@ -43,6 +43,6 @@ export { Table } from "./tables/Table";
 export { Dashboard } from "./pages/Dashboard/Dashboard";
 // skipNav
 export { SkipNav } from "./skipNav/SkipNav";
-//DataSets
+//Datasets
 export { ExportFilesPage } from "./pages/Export/ExportFilesPage";
-export { ManageDataSets } from "./pages/DataSet/ManageDataSets";
+export { ManageDatasets } from "./pages/Dataset/ManageDatasets";

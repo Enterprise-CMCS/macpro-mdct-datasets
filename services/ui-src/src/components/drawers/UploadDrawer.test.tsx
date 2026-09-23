@@ -47,7 +47,7 @@ const modalComponent = (
     saveToReport={mockSaveToReport}
     deleteFromReport={mockDeleteFromReport}
     modalHeading={"Upload Attachments"}
-    dataSetId={""}
+    datasetId={""}
   />
 );
 

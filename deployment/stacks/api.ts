@@ -264,9 +264,9 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "createDataSetUpload", {
+  new Lambda(scope, "createDatasetUpload", {
     entry: "services/app-api/handlers/datasetUpload/create.ts",
-    handler: "createDataSetUpload",
+    handler: "createDatasetUpload",
     path: "/dataset/{state}/{id}",
     method: "POST",
     ...commonProps,
@@ -280,57 +280,57 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSetUploadsByFileId", {
+  new Lambda(scope, "getDatasetUploadsByFileId", {
     entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDataSetUploadsByFileId",
+    handler: "getDatasetUploadsByFileId",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSetUploads", {
+  new Lambda(scope, "getDatasetUploads", {
     entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDataSetUploads",
+    handler: "getDatasetUploads",
     path: "dataset",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDataSetUpload", {
+  new Lambda(scope, "updateDatasetUpload", {
     entry: "services/app-api/handlers/datasetUpload/update.ts",
-    handler: "updateDataSetUpload",
+    handler: "updateDatasetUpload",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "deleteDataSetUpload", {
+  new Lambda(scope, "deleteDatasetUpload", {
     entry: "services/app-api/handlers/datasetUpload/delete.ts",
-    handler: "deleteDataSetUpload",
+    handler: "deleteDatasetUpload",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "DELETE",
     ...commonProps,
   });
 
-  new Lambda(scope, "createDataSet", {
+  new Lambda(scope, "createDataset", {
     entry: "services/app-api/handlers/dataset/create.ts",
-    handler: "createDataSet",
+    handler: "createDataset",
     path: "datasets",
     method: "POST",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDataSet", {
+  new Lambda(scope, "updateDataset", {
     entry: "services/app-api/handlers/dataset/update.ts",
-    handler: "updateDataSet",
+    handler: "updateDataset",
     path: "datasets/{id}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSets", {
+  new Lambda(scope, "getDatasets", {
     entry: "services/app-api/handlers/dataset/get.ts",
-    handler: "getDataSets",
+    handler: "getDatasets",
     path: "datasets",
     method: "GET",
     ...commonProps,

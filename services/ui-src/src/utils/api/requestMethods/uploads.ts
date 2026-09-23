@@ -1,6 +1,6 @@
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 import { apiLib } from "../apiLib";
-import { DataSetUploadType, ZipRequestBody } from "@datasets/shared";
+import { DatasetUploadType, ZipRequestBody } from "@datasets/shared";
 
 interface PathURL {
   psurl: string;
@@ -13,7 +13,7 @@ export async function getFilesByState(state: string) {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<DataSetUploadType[]>(`/dataset/${state}`, options)!;
+  return await apiLib.get<DatasetUploadType[]>(`/dataset/${state}`, options)!;
 }
 
 export async function getFiles() {
@@ -22,7 +22,7 @@ export async function getFiles() {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<DataSetUploadType[]>(`/dataset/`, options)!;
+  return await apiLib.get<DatasetUploadType[]>(`/dataset/`, options)!;
 }
 
 export const recordFileInDatabaseAndGetUploadUrl = async (
@@ -114,7 +114,7 @@ export const getFileDownloadUrl = async (
 
 export const updateUploadedFile = async (
   state: string,
-  file: DataSetUploadType
+  file: DatasetUploadType
 ) => {
   const requestHeaders = await getRequestHeaders();
   const options = {

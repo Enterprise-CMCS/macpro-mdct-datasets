@@ -1,15 +1,15 @@
-import { DataSetStatusType } from "@datasets/shared";
+import { DatasetStatusType } from "@datasets/shared";
 
-export const mockDataSetsData = [
+export const mockDatasetsData = [
   {
     key: "abcd",
     name: "Flowers",
-    status: DataSetStatusType.ACTIVE,
+    status: DatasetStatusType.ACTIVE,
   },
   {
     key: "efgh",
     name: "Fruits",
-    status: DataSetStatusType.ACTIVE,
+    status: DatasetStatusType.ACTIVE,
   },
 ];
 

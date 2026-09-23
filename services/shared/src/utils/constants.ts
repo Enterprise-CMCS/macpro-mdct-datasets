@@ -104,7 +104,7 @@ export const tabTitleMap = {
   "/export": "Export Files - MDCT", //TO DO: TEMPORARY
   "/admin": "Banner Admin - Datasets",
   "/403": "Access Denied",
-  "/data-sets": "Manage Data Sets - MDCT", //TO DO: TEMPORARY
+  "/datasets": "Manage Datasets - MDCT", //TO DO: TEMPORARY
 };
 
 export const getExtension = (filename: string): string | undefined => {
