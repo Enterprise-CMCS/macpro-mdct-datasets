@@ -1,7 +1,7 @@
-import { DataSetType } from "@datasets/shared";
+import { DatasetType } from "@datasets/shared";
 import { logger } from "../libs/debug-lib";
 
-export const isValidDataSet = (dataset: unknown): dataset is DataSetType => {
+export const isValidDataset = (dataset: unknown): dataset is DatasetType => {
   if (!dataset || "object" !== typeof dataset) {
     logger.warn("Invalid: dataset must be an object");
     return false;

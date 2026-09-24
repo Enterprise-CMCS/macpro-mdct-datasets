@@ -4,25 +4,25 @@ import { emptyParser } from "../../libs/param-lib";
 import { canWriteBanner } from "../../utils/authorization";
 import { created, forbidden } from "../../libs/response-lib";
 import { error } from "../../utils/constants";
-import { putDataSet } from "../../storage/dataset";
-import { DataSetStatusType } from "@datasets/shared";
+import { putDataset } from "../../storage/datasets";
+import { DatasetStatusType } from "@datasets/shared";
 
-export const createDataSet = handler(emptyParser, async (request) => {
+export const createDataset = handler(emptyParser, async (request) => {
   const { user, body } = request;
-  const { name, status } = body as { name: string; status: DataSetStatusType };
+  const { name, status } = body as { name: string; status: DatasetStatusType };
 
   if (!canWriteBanner(user)) {
     return forbidden(error.UNAUTHORIZED);
   }
 
   //TODO: Revisit whether to use this or not
-  // if (!isValidDataSet(request.body)) {
+  // if (!isValidDataset(request.body)) {
   //   return badRequest("Invalid request");
   // }
 
   const currentTime = new Date().toISOString();
 
-  const newDataSet = {
+  const newDataset = {
     key: randomUUID(),
     name,
     status,
@@ -30,7 +30,7 @@ export const createDataSet = handler(emptyParser, async (request) => {
     createdBy: user.fullName,
   };
 
-  await putDataSet(newDataSet);
+  await putDataset(newDataset);
 
-  return created(newDataSet);
+  return created(newDataset);
 });

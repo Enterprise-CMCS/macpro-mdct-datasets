@@ -28,7 +28,7 @@ interface CreateApiComponentsProps {
   vpc: ec2.IVpc;
   kafkaAuthorizedSubnets: ec2.ISubnet[];
   brokerString: string;
-  datasetBucket: s3.IBucket;
+  uploadsBucket: s3.IBucket;
   launchDarklyServer: string;
   launchDarklyLocalFlags?: string;
 }
@@ -43,7 +43,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     // kafkaAuthorizedSubnets,
     brokerString,
     tables,
-    datasetBucket,
+    uploadsBucket,
     launchDarklyServer,
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
   } = props;
@@ -179,7 +179,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     STAGE: stage,
     launchDarklyServer,
     launchDarklyLocalFlags,
-    datasetBucketName: datasetBucket.bucketName,
+    uploadsBucketName: uploadsBucket.bucketName,
     ...Object.fromEntries(
       tables.map((table) => [`${table.node.id}Table`, table.table.tableName])
     ),
@@ -194,7 +194,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     environment,
     isDev,
     tables,
-    buckets: [datasetBucket],
+    buckets: [uploadsBucket],
   };
 
   // Banner handlers
@@ -264,73 +264,73 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "createDataSetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/create.ts",
-    handler: "createDataSetUpload",
+  new Lambda(scope, "createUpload", {
+    entry: "services/app-api/handlers/uploads/create.ts",
+    handler: "createUpload",
     path: "/dataset/{state}/{id}",
     method: "POST",
     ...commonProps,
   });
 
   new Lambda(scope, "getUploadsByState", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploadsByState",
     path: "/dataset/{state}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSetUploadsByFileId", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDataSetUploadsByFileId",
+  new Lambda(scope, "getUploadByFileId", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploadByFileId",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSetUploads", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDataSetUploads",
+  new Lambda(scope, "getUploads", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploads",
     path: "dataset",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDataSetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/update.ts",
-    handler: "updateDataSetUpload",
+  new Lambda(scope, "updateUpload", {
+    entry: "services/app-api/handlers/uploads/update.ts",
+    handler: "updateUploadHandler",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "deleteDataSetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/delete.ts",
-    handler: "deleteDataSetUpload",
+  new Lambda(scope, "deleteUpload", {
+    entry: "services/app-api/handlers/uploads/delete.ts",
+    handler: "deleteUploadHandler",
     path: "/dataset/{state}/{id}/files/{fileId}",
     method: "DELETE",
     ...commonProps,
   });
 
-  new Lambda(scope, "createDataSet", {
+  new Lambda(scope, "createDataset", {
     entry: "services/app-api/handlers/dataset/create.ts",
-    handler: "createDataSet",
+    handler: "createDataset",
     path: "datasets",
     method: "POST",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDataSet", {
+  new Lambda(scope, "updateDataset", {
     entry: "services/app-api/handlers/dataset/update.ts",
-    handler: "updateDataSet",
+    handler: "updateDataset",
     path: "datasets/{id}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSets", {
+  new Lambda(scope, "getDatasets", {
     entry: "services/app-api/handlers/dataset/get.ts",
-    handler: "getDataSets",
+    handler: "getDatasets",
     path: "datasets",
     method: "GET",
     ...commonProps,

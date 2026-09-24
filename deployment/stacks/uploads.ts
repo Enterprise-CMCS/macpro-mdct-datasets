@@ -12,18 +12,18 @@ interface CreateUploadsComponentsProps {
   scope: Construct;
   loggingBucket: s3.IBucket;
   isDev: boolean;
-  datasetBucketName: string;
+  uploadsBucketName: string;
 }
 
 /**
- * Creates a bucket for managing universal data set uploads.
- * Files should be uploaded as /{dataset}/{state}/{fileId}, notably flipping the report order of params
+ * Creates a bucket for managing universal dataset uploads
+ * Files should be uploaded as /{dataset}/{state}/{fileId}
  */
-export function createDataSetComponents(props: CreateUploadsComponentsProps) {
-  const { scope, loggingBucket, isDev, datasetBucketName } = props;
+export function createUploadsComponents(props: CreateUploadsComponentsProps) {
+  const { scope, loggingBucket, isDev, uploadsBucketName } = props;
 
-  const datasetBucket = new s3.Bucket(scope, "DataSetBucket", {
-    bucketName: datasetBucketName,
+  const uploadsBucket = new s3.Bucket(scope, "DataSetBucket", {
+    bucketName: uploadsBucketName,
     autoDeleteObjects: isDev,
     encryption: s3.BucketEncryption.S3_MANAGED,
     versioned: true,
@@ -86,8 +86,8 @@ export function createDataSetComponents(props: CreateUploadsComponentsProps) {
                 "s3:*Tagging",
               ],
               resources: [
-                datasetBucket.bucketArn,
-                `${datasetBucket.bucketArn}/*`,
+                uploadsBucket.bucketArn,
+                `${uploadsBucket.bucketArn}/*`,
               ],
             }),
           ],
@@ -96,60 +96,60 @@ export function createDataSetComponents(props: CreateUploadsComponentsProps) {
     }
   );
 
-  datasetBucket.addToResourcePolicy(
+  uploadsBucket.addToResourcePolicy(
     new iam.PolicyStatement({
       actions: ["s3:GetObject"],
       effect: iam.Effect.DENY,
-      resources: [`${datasetBucket.bucketArn}/*`],
+      resources: [`${uploadsBucket.bucketArn}/*`],
       principals: [new iam.ArnPrincipal("*")],
       conditions: {
         StringNotEquals: {
           "s3:ExistingObjectTag/GuardDutyMalwareScanStatus": "NO_THREATS_FOUND",
         },
         ArnNotLike: {
-          "aws:ResourceArn": `${datasetBucket.bucketArn}/zips/*`,
+          "aws:ResourceArn": `${uploadsBucket.bucketArn}/zips/*`,
         },
       },
     })
   );
 
-  datasetBucket.addToResourcePolicy(
+  uploadsBucket.addToResourcePolicy(
     new iam.PolicyStatement({
       actions: ["s3:PutObject"],
       effect: iam.Effect.DENY,
       principals: [new iam.ArnPrincipal("*")],
       notResources: [
-        `${datasetBucket.bucketArn}/*.bmp`,
-        `${datasetBucket.bucketArn}/*.txt`,
-        `${datasetBucket.bucketArn}/*.csv`,
-        `${datasetBucket.bucketArn}/*.jar`,
-        `${datasetBucket.bucketArn}/*.odt`,
-        `${datasetBucket.bucketArn}/*.ods`,
-        `${datasetBucket.bucketArn}/*.odp`,
-        `${datasetBucket.bucketArn}/*.msg`,
-        `${datasetBucket.bucketArn}/*.potx`,
-        `${datasetBucket.bucketArn}/*.pptx`,
-        `${datasetBucket.bucketArn}/*.ppt`,
-        `${datasetBucket.bucketArn}/*.rtf`,
-        `${datasetBucket.bucketArn}/*.tif`,
-        `${datasetBucket.bucketArn}/*.gif`,
-        `${datasetBucket.bucketArn}/*.jpeg`,
-        `${datasetBucket.bucketArn}/*.png`,
-        `${datasetBucket.bucketArn}/*.docm`,
-        `${datasetBucket.bucketArn}/*.docx`,
-        `${datasetBucket.bucketArn}/*.doc`,
-        `${datasetBucket.bucketArn}/*.pdf`,
-        `${datasetBucket.bucketArn}/*.jpg`,
-        `${datasetBucket.bucketArn}/*.xlsx`,
-        `${datasetBucket.bucketArn}/*.zip`,
-        `${datasetBucket.bucketArn}/*.xltx`,
-        `${datasetBucket.bucketArn}/*.xls`,
-        `${datasetBucket.bucketArn}/*.xml`,
+        `${uploadsBucket.bucketArn}/*.bmp`,
+        `${uploadsBucket.bucketArn}/*.txt`,
+        `${uploadsBucket.bucketArn}/*.csv`,
+        `${uploadsBucket.bucketArn}/*.jar`,
+        `${uploadsBucket.bucketArn}/*.odt`,
+        `${uploadsBucket.bucketArn}/*.ods`,
+        `${uploadsBucket.bucketArn}/*.odp`,
+        `${uploadsBucket.bucketArn}/*.msg`,
+        `${uploadsBucket.bucketArn}/*.potx`,
+        `${uploadsBucket.bucketArn}/*.pptx`,
+        `${uploadsBucket.bucketArn}/*.ppt`,
+        `${uploadsBucket.bucketArn}/*.rtf`,
+        `${uploadsBucket.bucketArn}/*.tif`,
+        `${uploadsBucket.bucketArn}/*.gif`,
+        `${uploadsBucket.bucketArn}/*.jpeg`,
+        `${uploadsBucket.bucketArn}/*.png`,
+        `${uploadsBucket.bucketArn}/*.docm`,
+        `${uploadsBucket.bucketArn}/*.docx`,
+        `${uploadsBucket.bucketArn}/*.doc`,
+        `${uploadsBucket.bucketArn}/*.pdf`,
+        `${uploadsBucket.bucketArn}/*.jpg`,
+        `${uploadsBucket.bucketArn}/*.xlsx`,
+        `${uploadsBucket.bucketArn}/*.zip`,
+        `${uploadsBucket.bucketArn}/*.xltx`,
+        `${uploadsBucket.bucketArn}/*.xls`,
+        `${uploadsBucket.bucketArn}/*.xml`,
       ],
     })
   );
 
-  datasetBucket.addLifecycleRule({
+  uploadsBucket.addLifecycleRule({
     tagFilters: { auto_delete_category: "generated_zip" },
     expiration: Duration.days(1),
   });
@@ -165,12 +165,12 @@ export function createDataSetComponents(props: CreateUploadsComponentsProps) {
       },
       protectedResource: {
         s3Bucket: {
-          bucketName: datasetBucketName,
+          bucketName: uploadsBucketName,
         },
       },
       role: s3MalwareProtectionRole.roleArn,
     }
   );
 
-  return datasetBucket;
+  return uploadsBucket;
 }

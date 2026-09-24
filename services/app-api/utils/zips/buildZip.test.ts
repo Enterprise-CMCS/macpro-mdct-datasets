@@ -1,4 +1,4 @@
-import { addDataSetFilesToZip, formatS3ZipKey } from "./buildZip";
+import { addFilesToZip, formatS3ZipKey } from "./buildZip";
 import JSZip from "jszip";
 import s3Lib from "../../libs/s3-lib";
 
@@ -12,7 +12,7 @@ vi.mock("../../libs/s3-lib", () => ({
   },
 }));
 
-vi.mock("../../storage/datasetUpload", () => ({
+vi.mock("../../storage/uploads", () => ({
   queryViewUploads: vi.fn().mockResolvedValue([
     {
       filename: "file 1",
@@ -20,7 +20,7 @@ vi.mock("../../storage/datasetUpload", () => ({
       datasetId: "abc123",
       uploadedUsername: "A",
       uploadedDate: "today",
-      uploadedState: "AL",
+      state: "AL",
     },
   ]),
 }));
@@ -36,9 +36,9 @@ describe("buildZip util", () => {
     expect(zipId).toEqual("zips/file-123.zip");
   });
 
-  test("addDataSetFilesToZip", async () => {
+  test("addFilesToZip", async () => {
     const mockZip = new JSZip();
-    await addDataSetFilesToZip(mockDatasetKeys, mockZip);
+    await addFilesToZip(mockDatasetKeys, "AL", mockZip);
     expect(s3Lib.getObject).toHaveBeenCalled();
     expect(mockZip.files).toBeDefined();
   });

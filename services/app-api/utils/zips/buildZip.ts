@@ -1,25 +1,25 @@
-import { DataSetUploadType, UploadListProp } from "@datasets/shared";
+import { UploadListProp, UploadType } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
-import { queryViewUploads } from "../../storage/datasetUpload";
+import { queryViewUploads } from "../../storage/uploads";
 
 export const formatS3ZipKey = (zipId: string) => `zips/${zipId}.zip`;
 
-export const addDataSetFilesToZip = async (
-  dataSetKeys: string[],
+export const addFilesToZip = async (
+  datasetKeys: string[],
   state: string | undefined,
   zip: JSZip
 ) => {
-  const dataSetUploadFiles: {
+  const uploads: {
     id: string;
     state: string;
     subType: string;
     file: UploadListProp;
   }[] = [];
-  const getDataSetFiles = (file: DataSetUploadType) => {
-    dataSetUploadFiles.push({
+  const getUploads = (file: UploadType) => {
+    uploads.push({
       id: file.datasetId,
-      state: file.uploadedState,
+      state: file.state,
       subType: "",
       file: { name: file.filename, fileId: file.fileId, size: 0 },
     });
@@ -27,20 +27,20 @@ export const addDataSetFilesToZip = async (
 
   const files = await queryViewUploads();
   const filteredFiles = state
-    ? files.filter((file) => file.uploadedState === state)
+    ? files.filter((file) => file.state === state)
     : files;
 
   for (const file of filteredFiles) {
-    if (dataSetKeys.includes(file.datasetId)) {
-      getDataSetFiles(file);
+    if (datasetKeys.includes(file.datasetId)) {
+      getUploads(file);
     }
   }
 
-  for (const dataSetUploadFile of dataSetUploadFiles) {
-    const { id, file, state, subType } = dataSetUploadFile;
+  for (const upload of uploads) {
+    const { id, file, state, subType } = upload;
     if (!file?.fileId || !file?.name) continue;
     const item = await s3Lib.getObject({
-      Bucket: process.env.datasetBucketName,
+      Bucket: process.env.uploadsBucketName,
       Key: `${id}/${state}/${file.fileId}`,
     });
     const bytes = await item.Body?.transformToByteArray();

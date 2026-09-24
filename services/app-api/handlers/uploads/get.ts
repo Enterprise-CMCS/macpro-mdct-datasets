@@ -1,15 +1,15 @@
 import s3 from "../../libs/s3-lib";
 import { handler } from "../../libs/handler-lib";
 import {
-  parseDataSetFileUploadParameters,
-  parseDataSetFileUploadDownloadParameters,
+  parseFileUploadParameters,
+  parseFileDownloadParameters,
   emptyParser,
 } from "../../libs/param-lib";
 import {
   queryUpload,
   queryStateUpload,
   queryViewUploads,
-} from "../../storage/datasetUpload";
+} from "../../storage/uploads";
 import { forbidden, ok } from "../../libs/response-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { error } from "../../utils/constants";
@@ -22,8 +22,8 @@ const FILE_HEADER_BYTE_RANGE = "bytes=0-4100";
 /**
  * This is for downloading the file stored in S3 bucket
  */
-export const getDataSetUploadsByFileId = handler(
-  parseDataSetFileUploadDownloadParameters,
+export const getUploadByFileId = handler(
+  parseFileDownloadParameters,
   async (request) => {
     const { state, id: datasetId, fileId } = request.parameters;
 
@@ -42,7 +42,7 @@ export const getDataSetUploadsByFileId = handler(
     let fileHeader: Uint8Array;
     try {
       const object = await s3.getObject({
-        Bucket: process.env.datasetBucketName,
+        Bucket: process.env.uploadsBucketName,
         Key: objectKey,
         Range: FILE_HEADER_BYTE_RANGE,
       });
@@ -60,7 +60,7 @@ export const getDataSetUploadsByFileId = handler(
     }
 
     let psurl = await s3.getSignedDownloadUrl({
-      Bucket: process.env.datasetBucketName,
+      Bucket: process.env.uploadsBucketName,
       Key: objectKey,
       ResponseContentDisposition: `attachment; filename = ${document.filename}`,
     });
@@ -74,7 +74,7 @@ export const getDataSetUploadsByFileId = handler(
  * get file uploaded by state
  */
 export const getUploadsByState = handler(
-  parseDataSetFileUploadParameters,
+  parseFileUploadParameters,
   async (request) => {
     const { state } = request.parameters;
     const { user } = request;
@@ -92,7 +92,7 @@ export const getUploadsByState = handler(
 /**
  * get all file uploaded, used for admin dashboard
  */
-export const getDataSetUploads = handler(emptyParser, async (request) => {
+export const getUploads = handler(emptyParser, async (request) => {
   const { user } = request;
 
   if (!canReadState(user, user.state!)) {

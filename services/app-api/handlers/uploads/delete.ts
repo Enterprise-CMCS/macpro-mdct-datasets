@@ -1,10 +1,10 @@
 import { handler } from "../../libs/handler-lib";
-import { parseDataSetFileUploadDownloadParameters } from "../../libs/param-lib";
+import { parseFileDownloadParameters } from "../../libs/param-lib";
 import { ok } from "../../libs/response-lib";
-import { deleteUpload, queryUpload } from "../../storage/datasetUpload";
+import { deleteUpload, queryUpload } from "../../storage/uploads";
 
-export const deleteDataSetUpload = handler(
-  parseDataSetFileUploadDownloadParameters,
+export const deleteUploadHandler = handler(
+  parseFileDownloadParameters,
   async (request) => {
     const { state, id, fileId } = request.parameters;
 

@@ -1,22 +1,22 @@
 import { handler } from "../../libs/handler-lib";
-import { putDataSet } from "../../storage/dataset";
+import { putDataset } from "../../storage/datasets";
 import { error } from "../../utils/constants";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
 import { canWriteBanner } from "../../utils/authorization";
-import { parseDataSetId } from "../../libs/param-lib";
-import { isValidDataSet } from "../../utils/dataSetValidation";
+import { parseDatasetId } from "../../libs/param-lib";
+import { isValidDataset } from "../../utils/datasetValidation";
 
-export const updateDataSet = handler(parseDataSetId, async (request) => {
+export const updateDataset = handler(parseDatasetId, async (request) => {
   const user = request.user;
 
   if (!canWriteBanner(user)) {
     return forbidden(error.UNAUTHORIZED);
   }
 
-  if (!isValidDataSet(request.body)) {
+  if (!isValidDataset(request.body)) {
     return badRequest("Invalid request");
   }
 
-  await putDataSet(request.body);
+  await putDataset(request.body);
   return ok(request.body);
 });

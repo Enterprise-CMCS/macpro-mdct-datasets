@@ -12,7 +12,7 @@ const lambdaClient = new LambdaClient({ region: "us-east-1" });
 
 const getFileName = async (key: string) => {
   const { TagSet } = await s3.getObjectTagging({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: key,
   });
   if (!TagSet) return "MDCT_DATASETS.zip";
@@ -23,7 +23,7 @@ const getFileName = async (key: string) => {
 export const getPSURL = async (zipId: string) => {
   const key = formatS3ZipKey(zipId);
   const exists = await s3
-    .headObject({ Bucket: process.env.datasetBucketName, Key: key })
+    .headObject({ Bucket: process.env.uploadsBucketName, Key: key })
     .then(() => true)
     .catch(() => false);
 
@@ -33,7 +33,7 @@ export const getPSURL = async (zipId: string) => {
 
   const fileName = await getFileName(key);
   let psurl = await s3.getSignedDownloadUrl({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: key,
     ResponseContentDisposition: `attachment; filename=${fileName}`,
   });
@@ -45,7 +45,7 @@ export const getPSURL = async (zipId: string) => {
 export const zipBuffer = async (zipId: string, tags: string, zip: JSZip) => {
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
   await s3.putObject({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: formatS3ZipKey(zipId),
     Body: Readable.from(zipBuffer),
     ContentLength: zipBuffer.byteLength,
@@ -59,8 +59,8 @@ export const startZipWorker = async (body: ZipRequestBody) => {
   const zipId = KSUID.randomSync().string;
   let payload: any = { type, zipId };
   if (type === ZipRequestTypes.DATA_SET) {
-    const { state, dataSets } = body;
-    payload = { ...payload, state, dataSets };
+    const { state, datasets } = body;
+    payload = { ...payload, state, datasets };
   } else {
     throw new Error("Type not recognized");
   }

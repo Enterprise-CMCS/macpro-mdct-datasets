@@ -14,19 +14,17 @@ export const parseBannerId = (event: APIGatewayProxyEvent) => {
   return { bannerId };
 };
 
-export const parseDataSetId = (event: APIGatewayProxyEvent) => {
+export const parseDatasetId = (event: APIGatewayProxyEvent) => {
   const { id } = event.pathParameters ?? {};
   if (!id) {
-    logger.warn("Invalid banner id in path");
+    logger.warn("Invalid dataset id in path");
     return undefined;
   }
 
   return { id };
 };
 
-export const parseDataSetFileUploadDownloadParameters = (
-  event: APIGatewayProxyEvent
-) => {
+export const parseFileDownloadParameters = (event: APIGatewayProxyEvent) => {
   const { state, id, fileId } = event.pathParameters ?? {};
 
   if (!isStateAbbr(state)) {
@@ -42,9 +40,7 @@ export const parseDataSetFileUploadDownloadParameters = (
   return { state, id, fileId };
 };
 
-export const parseDataSetFileCreateParameters = (
-  event: APIGatewayProxyEvent
-) => {
+export const parseFileUpdateParameters = (event: APIGatewayProxyEvent) => {
   const { state, id } = event.pathParameters ?? {};
 
   if (!isStateAbbr(state)) {
@@ -60,9 +56,7 @@ export const parseDataSetFileCreateParameters = (
   return { state, id };
 };
 
-export const parseDataSetFileUploadParameters = (
-  event: APIGatewayProxyEvent
-) => {
+export const parseFileUploadParameters = (event: APIGatewayProxyEvent) => {
   const { state } = event.pathParameters ?? {};
 
   if (!isStateAbbr(state)) {

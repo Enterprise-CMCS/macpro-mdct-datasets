@@ -2,10 +2,10 @@ import { proxyEvent } from "../../testing/proxyEvent";
 import {
   emptyParser,
   parseBannerId,
-  parseDataSetId,
-  parseDataSetFileUploadDownloadParameters,
-  parseDataSetFileCreateParameters,
-  parseDataSetFileUploadParameters,
+  parseDatasetId,
+  parseFileDownloadParameters,
+  parseFileUpdateParameters,
+  parseFileUploadParameters,
   parseZipIdParameters,
 } from "../param-lib";
 
@@ -35,9 +35,9 @@ describe("Path parameter parsing", () => {
     });
   });
 
-  describe("parseDataSetId", () => {
+  describe("parseDatasetId", () => {
     test("should return undefined if no id provided", () => {
-      const result = parseDataSetId(proxyEvent);
+      const result = parseDatasetId(proxyEvent);
       expect(result).toBeUndefined();
     });
 
@@ -46,15 +46,15 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { id: "foo" },
       };
-      const result = parseDataSetId(event)!;
+      const result = parseDatasetId(event)!;
       expect(result).toBeDefined();
       expect(result.id).toBe("foo");
     });
   });
 
-  describe("parseDataSetFileUploadDownloadParameters", () => {
+  describe("parseFileDownloadParameters", () => {
     test("should return undefined if no state provided", () => {
-      const result = parseDataSetFileUploadDownloadParameters(proxyEvent);
+      const result = parseFileDownloadParameters(proxyEvent);
       expect(result).toBeUndefined();
     });
 
@@ -63,7 +63,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "foo" },
       };
-      const result = parseDataSetFileUploadDownloadParameters(event);
+      const result = parseFileDownloadParameters(event);
       expect(result).toBeUndefined();
     });
 
@@ -72,7 +72,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "AL" },
       };
-      const result = parseDataSetFileUploadDownloadParameters(event);
+      const result = parseFileDownloadParameters(event);
       expect(result).toBeUndefined();
     });
 
@@ -81,7 +81,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "AL", id: "foo" },
       };
-      const result = parseDataSetFileUploadDownloadParameters(event);
+      const result = parseFileDownloadParameters(event);
       expect(result).toBeUndefined();
     });
 
@@ -90,7 +90,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "AL", id: "foo", fileId: "bar" },
       };
-      const result = parseDataSetFileUploadDownloadParameters(event)!;
+      const result = parseFileDownloadParameters(event)!;
       expect(result).toBeDefined();
       expect(result.id).toBe("foo");
       expect(result.state).toBe("AL");
@@ -98,9 +98,9 @@ describe("Path parameter parsing", () => {
     });
   });
 
-  describe("parseDataSetFileCreateParameters", () => {
+  describe("parseFileUpdateParameters", () => {
     test("should return undefined if no state provided", () => {
-      const result = parseDataSetFileCreateParameters(proxyEvent);
+      const result = parseFileUpdateParameters(proxyEvent);
       expect(result).toBeUndefined();
     });
 
@@ -109,7 +109,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "foo" },
       };
-      const result = parseDataSetFileCreateParameters(event);
+      const result = parseFileUpdateParameters(event);
       expect(result).toBeUndefined();
     });
 
@@ -118,7 +118,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "AL" },
       };
-      const result = parseDataSetFileCreateParameters(event);
+      const result = parseFileUpdateParameters(event);
       expect(result).toBeUndefined();
     });
 
@@ -127,16 +127,16 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "AL", id: "foo" },
       };
-      const result = parseDataSetFileCreateParameters(event)!;
+      const result = parseFileUpdateParameters(event)!;
       expect(result).toBeDefined();
       expect(result.id).toBe("foo");
       expect(result.state).toBe("AL");
     });
   });
 
-  describe("parseDataSetFileUploadParameters", () => {
+  describe("parseFileUploadParameters", () => {
     test("should return undefined if no state provided", () => {
-      const result = parseDataSetFileUploadParameters(proxyEvent);
+      const result = parseFileUploadParameters(proxyEvent);
       expect(result).toBeUndefined();
     });
 
@@ -145,7 +145,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "foo" },
       };
-      const result = parseDataSetFileUploadParameters(event);
+      const result = parseFileUploadParameters(event);
       expect(result).toBeUndefined();
     });
 
@@ -154,7 +154,7 @@ describe("Path parameter parsing", () => {
         ...proxyEvent,
         pathParameters: { state: "AL" },
       };
-      const result = parseDataSetFileUploadParameters(event)!;
+      const result = parseFileUploadParameters(event)!;
       expect(result).toBeDefined();
       expect(result.state).toBe("AL");
     });

@@ -9,9 +9,9 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
-import { DataSetUploadType } from "@datasets/shared";
+import { UploadType } from "@datasets/shared";
 
-const uploadTableName = process.env.DataSetUploadsTable!;
+const uploadTableName = process.env.UploadsTable!;
 const client = createClient();
 
 export const deleteUpload = async (
@@ -21,7 +21,7 @@ export const deleteUpload = async (
   document: Record<string, any>
 ) => {
   var params = {
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: `${id}/${state}/${document.fileId}`,
   };
   await s3.deleteObject(params);
@@ -30,7 +30,7 @@ export const deleteUpload = async (
     new DeleteCommand({
       TableName: uploadTableName,
       Key: {
-        uploadedState: state,
+        state,
         fileId: decodedFileId,
       },
     })
@@ -48,8 +48,8 @@ export const updateUpload = async (
   const params = {
     TableName: uploadTableName,
     Key: {
-      uploadedState: state,
-      fileId: fileId,
+      state,
+      fileId,
     },
     UpdateExpression:
       "SET uploadedUsername = :uploadedUsername, uploadedDate = :uploadedDate, filename = :filename, filesize = :filesize, datasetId = :datasetId",
@@ -65,7 +65,7 @@ export const updateUpload = async (
   await client.send(new UpdateCommand(params));
 };
 
-export const batchPutUploads = async (uploads: DataSetUploadType[]) => {
+export const batchPutUploads = async (uploads: UploadType[]) => {
   const BATCH_SIZE = 25;
   for (let i = 0; i < uploads.length; i += BATCH_SIZE) {
     const batch = uploads.slice(i, i + BATCH_SIZE);
@@ -84,10 +84,13 @@ export const batchPutUploads = async (uploads: DataSetUploadType[]) => {
 export const queryUpload = async (fileId: string, state: string) => {
   const documentParams: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression:
-      "uploadedState = :uploadedState AND fileId = :fileId",
+    KeyConditionExpression: "#state = :state AND #fileId = :fileId",
+    ExpressionAttributeNames: {
+      "#fileId": "fileId",
+      "#state": "state",
+    },
     ExpressionAttributeValues: {
-      ":uploadedState": state,
+      ":state": state,
       ":fileId": fileId,
     },
   };
@@ -101,13 +104,16 @@ export const queryViewUploads = async () => {
   for await (const page of pages) {
     items.push(...(page.Items ?? []));
   }
-  return items as DataSetUploadType[];
+  return items as UploadType[];
 };
 
 export const queryStateUpload = async (state: string) => {
   const params: QueryCommandInput = {
     TableName: uploadTableName,
-    KeyConditionExpression: "uploadedState = :state",
+    KeyConditionExpression: "#state = :state",
+    ExpressionAttributeNames: {
+      "#state": "state",
+    },
     ExpressionAttributeValues: {
       ":state": state,
     },
@@ -116,5 +122,5 @@ export const queryStateUpload = async (state: string) => {
   const response = paginateQuery({ client }, params);
   const uploads = await collectPageItems(response);
 
-  return uploads as DataSetUploadType[];
+  return uploads as UploadType[];
 };

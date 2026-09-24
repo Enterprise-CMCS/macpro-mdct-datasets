@@ -1,18 +1,18 @@
-import { putDataSet, scanAllDataSets } from "./dataset";
+import { putDataset, scanAllDatasets } from "./datasets";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   DynamoDBDocumentClient,
   PutCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { DataSetStatusType, DataSetType } from "@datasets/shared";
+import { DatasetStatusType, DatasetType } from "@datasets/shared";
 
 const mockDynamo = mockClient(DynamoDBDocumentClient);
 
-const mockDataset: DataSetType = {
+const mockDataset: DatasetType = {
   key: "123",
   name: "Dataset A",
-  status: DataSetStatusType.ACTIVE,
+  status: DatasetStatusType.ACTIVE,
 };
 
 describe("Dataset storage methods", () => {
@@ -24,7 +24,7 @@ describe("Dataset storage methods", () => {
     const mockPut = vi.fn();
     mockDynamo.on(PutCommand).callsFakeOnce(mockPut);
 
-    await putDataSet(mockDataset);
+    await putDataset(mockDataset);
 
     expect(mockPut).toHaveBeenCalledWith(
       {
@@ -43,7 +43,7 @@ describe("Dataset storage methods", () => {
 
     mockDynamo.on(ScanCommand).callsFakeOnce(mockScan).callsFakeOnce(mockScan);
 
-    const datasets = await scanAllDataSets();
+    const datasets = await scanAllDatasets();
 
     expect(datasets).toEqual([mockDataset, mockDataset]);
     expect(mockScan).toHaveBeenCalledWith(

@@ -17,7 +17,7 @@ export const UploadDrawer = ({
   multiple = true,
   disabled,
   notification,
-  dataSetId,
+  datasetId,
 }: Props) => {
   return (
     <Drawer
@@ -38,7 +38,7 @@ export const UploadDrawer = ({
           multiple={multiple}
           disabled={disabled}
           notification={notification}
-          dataSetId={dataSetId}
+          datasetId={datasetId}
         />
       </Stack>
     </Drawer>
@@ -60,7 +60,7 @@ interface Props {
   deleteFromReport?: (file: UploadListProp) => void;
   multiple?: boolean;
   disabled?: boolean;
-  dataSetId: string;
+  datasetId: string;
   notification?: {
     instruction?: { type: AlertTypes; text: string };
     success?: string;

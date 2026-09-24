@@ -1,15 +1,15 @@
-import { DataSetStatusType } from "@datasets/shared";
+import { DatasetStatusType } from "@datasets/shared";
 
-export const mockDataSetsData = [
+export const mockDatasetsData = [
   {
     key: "abcd",
     name: "Flowers",
-    status: DataSetStatusType.ACTIVE,
+    status: DatasetStatusType.ACTIVE,
   },
   {
     key: "efgh",
     name: "Fruits",
-    status: DataSetStatusType.ACTIVE,
+    status: DatasetStatusType.ACTIVE,
   },
 ];
 
@@ -20,7 +20,7 @@ export const mockFileData = [
     datasetId: "abcd",
     uploadedUsername: "username 1",
     uploadedDate: "2026-09-21T17:49:36.821Z",
-    uploadedState: "NY",
+    state: "NY",
   },
   {
     filename: "mock filename 2",
@@ -28,7 +28,7 @@ export const mockFileData = [
     datasetId: "efgh",
     uploadedUsername: "username 2",
     uploadedDate: "2026-09-17T17:49:36.821Z",
-    uploadedState: "NY",
+    state: "NY",
   },
 ];
 
@@ -39,7 +39,7 @@ export const mockAdminFileData = [
     datasetId: "abcd",
     uploadedUsername: "username 1",
     uploadedDate: "2026-09-21T17:49:36.821Z",
-    uploadedState: "NY",
+    state: "NY",
   },
   {
     filename: "mock filename 2",
@@ -47,6 +47,6 @@ export const mockAdminFileData = [
     datasetId: "efgh",
     uploadedUsername: "username 2",
     uploadedDate: "2026-09-17T17:49:36.821Z",
-    uploadedState: "PA",
+    state: "PA",
   },
 ];
