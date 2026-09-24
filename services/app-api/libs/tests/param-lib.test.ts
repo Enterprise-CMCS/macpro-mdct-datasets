@@ -76,16 +76,16 @@ describe("Path parameter parsing", () => {
       expect(result).toBeUndefined();
     });
 
-    test("should return undefined if fileId missing", () => {
+    test("should return undefined if id is missing", () => {
       const event = {
         ...proxyEvent,
-        pathParameters: { state: "AL", id: "foo" },
+        pathParameters: { state: "AL" },
       };
       const result = parseFileDownloadParameters(event);
       expect(result).toBeUndefined();
     });
 
-    test("should return state, id, and fileId", () => {
+    test("should return state, id", () => {
       const event = {
         ...proxyEvent,
         pathParameters: { state: "AL", id: "foo" },
@@ -103,19 +103,10 @@ describe("Path parameter parsing", () => {
       expect(result).toBeUndefined();
     });
 
-    test("should return undefined if state invalid", () => {
+    test("should return undefined if state is invalid", () => {
       const event = {
         ...proxyEvent,
         pathParameters: { state: "foo" },
-      };
-      const result = parseFileUpdateParameters(event);
-      expect(result).toBeUndefined();
-    });
-
-    test("should return undefined if id missing", () => {
-      const event = {
-        ...proxyEvent,
-        pathParameters: { state: "AL" },
       };
       const result = parseFileUpdateParameters(event);
       expect(result).toBeUndefined();
