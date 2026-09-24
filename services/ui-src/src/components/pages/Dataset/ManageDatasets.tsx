@@ -122,7 +122,7 @@ const DatasetModal = ({
         <TextField
           name="dataset-name"
           label="Dataset Name"
-          hint="Enter the dataset name shown to states in drop-down menus."
+          hint="Enter the dataset name as it will appear to states in selection menus."
           value={displayValue.name}
           onChange={({ target }) => {
             setDisplayValue({
@@ -204,8 +204,7 @@ export const ManageDatasets = () => {
           Manage Datasets
         </Heading>
         <Text sx={sx.subHeaderText}>
-          Add, edit, or disable dataset categories available to states during
-          file submission.
+          Add, edit, or disable dataset categories available to states during file submission.
         </Text>
         <Button
           onClick={() => {

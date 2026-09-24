@@ -8,6 +8,8 @@ import {
   Stack,
   Text,
   Spinner,
+  Image,
+  Link,
 } from "@chakra-ui/react";
 import { Dropdown } from "@cmsgov/design-system";
 import { PageTemplate } from "components/layout/PageTemplate";
@@ -22,12 +24,14 @@ import { ZipRequestTypes } from "@datasets/shared";
 import { getZipFile } from "utils/other/fileUtils";
 import { DropdownOptions } from "types";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
+import { Link as RouterLink } from "react-router";
+import arrowLeftIcon from "assets/icons/arrows/icon_arrow_left_blue.svg";
 
 const ExportCard = (
   title: string,
   desc: string,
   onClick: () => void,
-  isZipLoading: boolean
+  isZipLoading: boolean,
 ) => {
   return (
     <Card
@@ -175,13 +179,16 @@ export const ExportFilesPage = () => {
 
   return (
     <PageTemplate>
+      <Link as={RouterLink} to="/" variant="return">
+        <Image src={arrowLeftIcon} alt="" className="icon" />
+        Return to admin dashboard
+      </Link>
       <Box>
         <Heading as="h1" variant="h1" tabIndex={-1}>
           Export Files
         </Heading>
         <Text paddingTop={"1rem"}>
-          Select an export type below. Requested files will be bundled and
-          downloaded as a compressed ZIP file.
+          Select an export option below. Requested files will be bundled into a compressed ZIP file for download.
         </Text>
       </Box>
       {isLoading ? (
@@ -192,15 +199,15 @@ export const ExportFilesPage = () => {
         <Flex flexDirection="column" gap="spacer4">
           {ExportCard(
             "By Dataset (All States)",
-            "Bulk export submitted files from all participating states for a single dataset request.",
+            "Export submitted files from all participating states for a single dataset.",
             () => setExportData("DATASET"),
-            isReportsExporting
+            isReportsExporting,
           )}
           {ExportCard(
             "By State and Dataset",
-            "Export all submitted files for a single state filtered by a specific dataset request.",
+            "Export submitted files for a single state filtered by dataset.",
             () => setExportData("STATE"),
-            isStateExporting
+            isStateExporting,
           )}
         </Flex>
       )}

@@ -320,7 +320,9 @@ export const Dashboard = () => {
               ],
               tableRows,
               "",
-              sortRows
+              sortRows,
+              undefined,
+              "No files uploaded yet. Select Upload Files above to submit documents for an active data request."
             )
           )}
         </Stack>
