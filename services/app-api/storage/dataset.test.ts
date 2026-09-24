@@ -28,7 +28,7 @@ describe("Dataset storage methods", () => {
 
     expect(mockPut).toHaveBeenCalledWith(
       {
-        TableName: "local-datasets-datasets",
+        TableName: "local-datasets",
         Item: mockDataset,
       },
       expect.any(Function)
@@ -48,7 +48,7 @@ describe("Dataset storage methods", () => {
     expect(datasets).toEqual([mockDataset, mockDataset]);
     expect(mockScan).toHaveBeenCalledWith(
       expect.objectContaining({
-        TableName: "local-datasets-datasets",
+        TableName: "local-datasets",
       }),
       expect.any(Function)
     );
