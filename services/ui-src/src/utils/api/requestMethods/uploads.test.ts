@@ -98,20 +98,17 @@ describe("upload apis", () => {
   test("updateUploadedFile", async () => {
     (apiLib.put as Mock).mockReturnValue(Promise.resolve());
     await updateUploadedFile("PA", mockDatasetUpload);
-    expect(apiLib.put as Mock).toHaveBeenCalledWith(
-      "/dataset/PA/abc/files/123",
-      {
-        headers: { "x-api-key": undefined },
-        body: mockDatasetUpload,
-      }
-    );
+    expect(apiLib.put as Mock).toHaveBeenCalledWith("/uploads/PA/123", {
+      headers: { "x-api-key": undefined },
+      body: mockDatasetUpload,
+    });
   });
 
   test("deleteUploadedFile", async () => {
     (apiLib.del as Mock).mockReturnValue(Promise.resolve());
     await deleteUploadedFile("PA", "mock-file-id");
     expect(apiLib.del as Mock).toHaveBeenCalledWith(
-      "/dataset/PA/mock-id/files/mock-file-id",
+      "/uploads/PA/mock-file-id",
       {
         headers: { "x-api-key": undefined },
       }
