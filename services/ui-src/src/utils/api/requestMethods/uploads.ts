@@ -115,10 +115,7 @@ export const updateUploadedFile = async (state: string, file: UploadType) => {
     headers: { ...requestHeaders },
     body: { ...file },
   };
-  await apiLib.put(
-    `/uploads/${state}/${file.datasetId}/files/${file.fileId}`,
-    options
-  );
+  await apiLib.put(`/uploads/${state}/${file.fileId}`, options);
 };
 
 export const deleteUploadedFile = async (state: string, fileId: string) => {

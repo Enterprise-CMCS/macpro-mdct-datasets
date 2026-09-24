@@ -88,13 +88,12 @@ describe("Path parameter parsing", () => {
     test("should return state, id, and fileId", () => {
       const event = {
         ...proxyEvent,
-        pathParameters: { state: "AL", id: "foo", fileId: "bar" },
+        pathParameters: { state: "AL", id: "foo" },
       };
       const result = parseFileDownloadParameters(event)!;
       expect(result).toBeDefined();
       expect(result.id).toBe("foo");
       expect(result.state).toBe("AL");
-      expect(result.fileId).toBe("bar");
     });
   });
 

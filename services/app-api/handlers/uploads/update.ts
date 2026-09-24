@@ -9,7 +9,7 @@ export const updateUploadHandler = handler(
     const { user, body } = request;
     const { state, id: fileId } = request.parameters;
     const { filename, filesize, datasetId } = body as any;
-    const username = user.email ?? "";
+    const username = user.fullName ?? "";
 
     await updateUpload(state, username, filename, fileId, datasetId, filesize);
     return ok(body);
