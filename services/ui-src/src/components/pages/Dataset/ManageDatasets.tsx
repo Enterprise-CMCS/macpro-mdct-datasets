@@ -198,7 +198,7 @@ export const ManageDatasets = () => {
   }, []);
 
   return (
-    <PageTemplate>
+    <PageTemplate returnTo={{ label: "Return to admin dashboard", path: "/" }}>
       <Stack gap="1.5rem">
         <Heading as="h1" id="AdminHeader" tabIndex={-1} variant="h1">
           Manage Datasets

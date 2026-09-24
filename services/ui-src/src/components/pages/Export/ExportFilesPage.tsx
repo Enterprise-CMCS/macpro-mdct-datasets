@@ -8,8 +8,6 @@ import {
   Stack,
   Text,
   Spinner,
-  Image,
-  Link,
 } from "@chakra-ui/react";
 import { Dropdown } from "@cmsgov/design-system";
 import { PageTemplate } from "components/layout/PageTemplate";
@@ -24,8 +22,6 @@ import { ZipRequestTypes } from "@datasets/shared";
 import { getZipFile } from "utils/other/fileUtils";
 import { DropdownOptions } from "types";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
-import { Link as RouterLink } from "react-router";
-import arrowLeftIcon from "assets/icons/arrows/icon_arrow_left_blue.svg";
 
 const ExportCard = (
   title: string,
@@ -178,11 +174,7 @@ export const ExportFilesPage = () => {
   };
 
   return (
-    <PageTemplate>
-      <Link as={RouterLink} to="/" variant="return">
-        <Image src={arrowLeftIcon} alt="" className="icon" />
-        Return to admin dashboard
-      </Link>
+    <PageTemplate returnTo={{ label: "Return to admin dashboard", path: "/" }}>
       <Box>
         <Heading as="h1" variant="h1" tabIndex={-1}>
           Export Files

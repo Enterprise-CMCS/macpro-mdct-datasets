@@ -245,7 +245,7 @@ const sx = {
   layout: {
     ".contentFlex": {
       maxWidth: "appMax",
-      marginTop: "spacer7",
+      marginTop: "5.25rem",
       marginBottom: "100px",
       alignItems: "center",
     },
