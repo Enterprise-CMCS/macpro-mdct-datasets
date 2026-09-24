@@ -31,7 +31,7 @@ const ExportCard = (
   title: string,
   desc: string,
   onClick: () => void,
-  isZipLoading: boolean,
+  isZipLoading: boolean
 ) => {
   return (
     <Card
@@ -188,7 +188,8 @@ export const ExportFilesPage = () => {
           Export Files
         </Heading>
         <Text paddingTop={"1rem"}>
-          Select an export option below. Requested files will be bundled into a compressed ZIP file for download.
+          Select an export option below. Requested files will be bundled into a
+          compressed ZIP file for download.
         </Text>
       </Box>
       {isLoading ? (
@@ -201,13 +202,13 @@ export const ExportFilesPage = () => {
             "By Dataset (All States)",
             "Export submitted files from all participating states for a single dataset.",
             () => setExportData("DATASET"),
-            isReportsExporting,
+            isReportsExporting
           )}
           {ExportCard(
             "By State and Dataset",
             "Export submitted files for a single state filtered by dataset.",
             () => setExportData("STATE"),
-            isStateExporting,
+            isStateExporting
           )}
         </Flex>
       )}

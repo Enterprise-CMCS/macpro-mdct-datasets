@@ -204,7 +204,8 @@ export const ManageDatasets = () => {
           Manage Datasets
         </Heading>
         <Text sx={sx.subHeaderText}>
-          Add, edit, or disable dataset categories available to states during file submission.
+          Add, edit, or disable dataset categories available to states during
+          file submission.
         </Text>
         <Button
           onClick={() => {

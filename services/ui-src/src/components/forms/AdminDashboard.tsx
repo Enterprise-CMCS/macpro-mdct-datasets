@@ -172,7 +172,9 @@ export const AdminDashboard = () => {
             File Upload Admin Dashboard
           </Heading>
           <Text>
-            Search, filter, and download individual files submitted by states and territories. To download multiple files at once, use the bulk export tool.
+            Search, filter, and download individual files submitted by states
+            and territories. To download multiple files at once, use the bulk
+            export tool.
           </Text>
           <Button
             as={Link}

@@ -69,8 +69,7 @@ const HorizontalTable = (
   rows: TableRowType[][],
   sorting: (header: string, type: SORT_TYPE) => void,
   variant: string,
-  styleOverride?: string[],
-  emptyMessage?: string,
+  styleOverride?: string[]
 ) => {
   const onSort = (sortName: string) => {
     const type =
@@ -165,19 +164,12 @@ export const ResponsiveTable = (
   variant?: string,
   sorting: (header: string, type: SORT_TYPE) => void = () => {},
   styleOverride?: string[],
-  emptyMessage?: string,
+  emptyMessage?: string
 ) => {
   return (
     <>
       <Hide below="md" key="table">
-        {HorizontalTable(
-          headers,
-          rows,
-          sorting,
-          variant ?? "",
-          styleOverride,
-          emptyMessage,
-        )}
+        {HorizontalTable(headers, rows, sorting, variant ?? "", styleOverride)}
         {rows.length === 0 && (
           <Flex justifyContent="center" alignItems="center">
             <Text>{emptyMessage}</Text>
@@ -187,7 +179,7 @@ export const ResponsiveTable = (
       <Show below="md" key="table-mobile">
         {VerticalTable(
           headers.map((header) => header.label),
-          rows,
+          rows
         )}
       </Show>
     </>
