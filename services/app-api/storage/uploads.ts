@@ -17,12 +17,11 @@ const client = createClient();
 export const deleteUpload = async (
   decodedFileId: string,
   state: string,
-  id: string,
   document: Record<string, any>
 ) => {
   var params = {
     Bucket: process.env.uploadsBucketName,
-    Key: `${id}/${state}/${document.fileId}`,
+    Key: `${state}/${document.fileId}`,
   };
   await s3.deleteObject(params);
 

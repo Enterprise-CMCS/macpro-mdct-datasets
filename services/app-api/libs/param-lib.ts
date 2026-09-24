@@ -41,19 +41,14 @@ export const parseFileDownloadParameters = (event: APIGatewayProxyEvent) => {
 };
 
 export const parseFileUpdateParameters = (event: APIGatewayProxyEvent) => {
-  const { state, id } = event.pathParameters ?? {};
+  const { state } = event.pathParameters ?? {};
 
   if (!isStateAbbr(state)) {
     logger.warn("Invalid state abbreviation in path");
     return undefined;
   }
 
-  if (!id) {
-    logger.warn("Missing file ID in path");
-    return undefined;
-  }
-
-  return { state, id };
+  return { state };
 };
 
 export const parseFileUploadParameters = (event: APIGatewayProxyEvent) => {

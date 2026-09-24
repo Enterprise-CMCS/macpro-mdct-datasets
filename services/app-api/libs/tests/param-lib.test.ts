@@ -122,14 +122,13 @@ describe("Path parameter parsing", () => {
       expect(result).toBeUndefined();
     });
 
-    test("should return state and id", () => {
+    test("should return state", () => {
       const event = {
         ...proxyEvent,
         pathParameters: { state: "AL", id: "foo" },
       };
       const result = parseFileUpdateParameters(event)!;
       expect(result).toBeDefined();
-      expect(result.id).toBe("foo");
       expect(result.state).toBe("AL");
     });
   });
