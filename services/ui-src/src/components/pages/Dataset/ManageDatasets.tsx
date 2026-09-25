@@ -210,6 +210,7 @@ export const ManageDatasets = () => {
         <Button
           onClick={() => {
             setSelectedDataset(undefined);
+            setModalSet("Add");
             setModalOpen(true);
           }}
         >
