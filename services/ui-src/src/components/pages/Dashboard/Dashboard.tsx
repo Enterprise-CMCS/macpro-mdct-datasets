@@ -121,7 +121,7 @@ export const Dashboard = () => {
   const onDeleteHandler = async () => {
     if (deleteFile) {
       setModalLoading(true);
-      await removeFile(state!, deleteFile.datasetId, deleteFile.fileId);
+      await removeFile(state!, deleteFile.fileId);
       await reloadData();
       setModalLoading(false);
       setDeleteModal(false);

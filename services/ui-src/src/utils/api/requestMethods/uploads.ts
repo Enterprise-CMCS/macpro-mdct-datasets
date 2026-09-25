@@ -13,7 +13,7 @@ export async function getFilesByState(state: string) {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<UploadType[]>(`/dataset/${state}`, options)!;
+  return await apiLib.get<UploadType[]>(`/uploads/${state}`, options)!;
 }
 
 export async function getFiles() {
@@ -22,7 +22,7 @@ export async function getFiles() {
     headers: { ...requestHeaders },
   };
 
-  return await apiLib.get<UploadType[]>(`/dataset/`, options)!;
+  return await apiLib.get<UploadType[]>(`/uploads/`, options)!;
 }
 
 export const recordFileInDatabaseAndGetUploadUrl = async (
@@ -35,6 +35,7 @@ export const recordFileInDatabaseAndGetUploadUrl = async (
     uploadedFileName: uploadedFile.name,
     uploadedFileType: uploadedFile.type,
     uploadedFileSize: uploadedFile.size,
+    datasetId: id,
   };
 
   const options = {
@@ -43,7 +44,7 @@ export const recordFileInDatabaseAndGetUploadUrl = async (
   };
 
   const { psurl, fileId } = await apiLib.post<PathURL>(
-    `/dataset/${state}/${id}`,
+    `/uploads/${state}/`,
     options
   );
 
@@ -95,18 +96,14 @@ export const uploadFileToS3 = async (
   });
 };
 
-export const getFileDownloadUrl = async (
-  datasetId: string,
-  state: string,
-  fileId: string
-) => {
+export const getFileDownloadUrl = async (state: string, fileId: string) => {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
   };
 
   const response = await apiLib.get<PathURL>(
-    `/dataset/${state}/${datasetId}/files/${fileId}`,
+    `/uploads/${state}/${fileId}`,
     options
   );
   return response.psurl;
@@ -118,20 +115,13 @@ export const updateUploadedFile = async (state: string, file: UploadType) => {
     headers: { ...requestHeaders },
     body: { ...file },
   };
-  await apiLib.put(
-    `/dataset/${state}/${file.datasetId}/files/${file.fileId}`,
-    options
-  );
+  await apiLib.put(`/uploads/${state}/${file.fileId}`, options);
 };
 
-export const deleteUploadedFile = async (
-  state: string,
-  id: string,
-  fileId: string
-) => {
+export const deleteUploadedFile = async (state: string, fileId: string) => {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
   };
-  await apiLib.del(`/dataset/${state}/${id}/files/${fileId}`, options);
+  await apiLib.del(`/uploads/${state}/${fileId}`, options);
 };

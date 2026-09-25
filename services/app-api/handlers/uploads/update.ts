@@ -7,9 +7,9 @@ export const updateUploadHandler = handler(
   parseFileDownloadParameters,
   async (request) => {
     const { user, body } = request;
-    const { state, id: datasetId, fileId } = request.parameters;
-    const { filename, filesize } = body as any;
-    const username = user.email ?? "";
+    const { state, id: fileId } = request.parameters;
+    const { filename, filesize, datasetId } = body as any;
+    const username = user.fullName ?? "";
 
     await updateUpload(state, username, filename, fileId, datasetId, filesize);
     return ok(body);
