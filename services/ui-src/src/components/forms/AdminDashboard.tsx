@@ -172,8 +172,9 @@ export const AdminDashboard = () => {
             File Upload Admin Dashboard
           </Heading>
           <Text>
-            Use this page to upload documents and data requested by CMS. Select
-            the relevant dataset for each file before uploading.
+            Search, filter, and download individual files submitted by states
+            and territories. To download multiple files at once, use the bulk
+            export tool.
           </Text>
           <Button
             as={Link}
@@ -229,7 +230,9 @@ export const AdminDashboard = () => {
               ],
               tableRows,
               "",
-              sortRows
+              sortRows,
+              undefined,
+              "No files found matching your selected criteria. Try adjusting your filters or click Clear Filter."
             )
           )}
         </Stack>
@@ -242,7 +245,7 @@ const sx = {
   layout: {
     ".contentFlex": {
       maxWidth: "appMax",
-      marginTop: "spacer7",
+      marginTop: "5.25rem",
       marginBottom: "100px",
       alignItems: "center",
     },

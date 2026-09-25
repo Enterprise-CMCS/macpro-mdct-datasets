@@ -122,7 +122,7 @@ const DatasetModal = ({
         <TextField
           name="dataset-name"
           label="Dataset Name"
-          hint="Enter the dataset name shown to states in drop-down menus."
+          hint="Enter the dataset name as it will appear to states in selection menus."
           value={displayValue.name}
           onChange={({ target }) => {
             setDisplayValue({
@@ -198,7 +198,7 @@ export const ManageDatasets = () => {
   }, []);
 
   return (
-    <PageTemplate>
+    <PageTemplate returnTo={{ label: "Return to admin dashboard", path: "/" }}>
       <Stack gap="1.5rem">
         <Heading as="h1" id="AdminHeader" tabIndex={-1} variant="h1">
           Manage Datasets
