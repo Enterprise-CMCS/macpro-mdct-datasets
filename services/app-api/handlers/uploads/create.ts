@@ -2,10 +2,12 @@ import { handler } from "../../libs/handler-lib";
 import s3 from "../../libs/s3-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { parseFileUpdateParameters } from "../../libs/param-lib";
-import { ok } from "../../libs/response-lib";
+import { forbidden, ok } from "../../libs/response-lib";
 import { updateUpload } from "../../storage/uploads";
 import { UploadFileData } from "../../types/uploads";
 import KSUID from "ksuid";
+import { canWriteState } from "../../utils/authorization";
+import { error } from "../../utils/constants";
 
 export const createUpload = handler(
   parseFileUpdateParameters,
@@ -14,6 +16,10 @@ export const createUpload = handler(
     const { state, id: datasetId } = request.parameters;
     // Format Info
     const { uploadedFileName, uploadedFileSize } = body as UploadFileData;
+
+    if (!canWriteState(user, state)) {
+      return forbidden(error.UNAUTHORIZED);
+    }
 
     const username = user.fullName ?? "";
     const fileId = `${KSUID.randomSync().string}_${uploadedFileName}`;
