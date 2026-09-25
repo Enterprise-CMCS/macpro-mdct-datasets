@@ -14,7 +14,7 @@ import { useStore, focusHeading } from "utils";
 import { useEffect, useRef } from "react";
 
 export const AppRoutes = () => {
-  const { userIsAdmin } = useStore().user ?? {};
+  const { userIsAdmin, userIsEndUser, userIsReadOnly } = useStore().user ?? {};
 
   const { pathname } = useLocation();
   const firstRouteRender = useRef(true);
@@ -36,14 +36,26 @@ export const AppRoutes = () => {
         {/* General Routes */}
         <Route
           path="/"
-          element={!userIsAdmin ? <Dashboard /> : <AdminDashboard />}
+          element={userIsEndUser ? <Dashboard /> : <AdminDashboard />}
         />
         <Route
           path="/admin"
-          element={!userIsAdmin ? <Navigate to="/profile" /> : <AdminPage />}
+          element={userIsAdmin ? <AdminPage /> : <Navigate to="/403" />}
         />
-        <Route path="/export" element={<ExportFilesPage />} />
-        <Route path="/datasets" element={<ManageDatasets />} />
+        <Route
+          path="/export"
+          element={
+            userIsAdmin || userIsReadOnly ? (
+              <ExportFilesPage />
+            ) : (
+              <Navigate to="/403" />
+            )
+          }
+        />
+        <Route
+          path="/datasets"
+          element={userIsAdmin ? <ManageDatasets /> : <Navigate to="/403" />}
+        />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/403" element={<AccessDeniedPage />} />
