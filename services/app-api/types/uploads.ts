@@ -2,6 +2,7 @@ export type UploadFileData = {
   uploadedFileName: string;
   uploadedFileType: string;
   uploadedFileSize: number;
+  datasetId: string;
 };
 
 export interface UploadData {

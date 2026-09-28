@@ -9,7 +9,7 @@ export const deleteUploadHandler = handler(
   parseFileDownloadParameters,
   async (request) => {
     const { user } = request;
-    const { state, id, fileId } = request.parameters;
+    const { state, id: fileId } = request.parameters;
 
     if (!canWriteState(user, state)) {
       return forbidden(error.UNAUTHORIZED);
@@ -22,7 +22,7 @@ export const deleteUploadHandler = handler(
     }
     const document = results.Items[0];
 
-    await deleteUpload(fileId, state, id, document);
+    await deleteUpload(fileId, state, document);
     return ok();
   }
 );

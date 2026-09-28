@@ -9,14 +9,14 @@ export const updateUploadHandler = handler(
   parseFileDownloadParameters,
   async (request) => {
     const { user, body } = request;
-    const { state, id: datasetId, fileId } = request.parameters;
+    const { state, id: fileId } = request.parameters;
 
     if (!canWriteState(user, state)) {
       return forbidden(error.UNAUTHORIZED);
     }
 
-    const { filename, filesize } = body as any;
-    const username = user.email ?? "";
+    const { filename, filesize, datasetId } = body as any;
+    const username = user.fullName ?? "";
 
     await updateUpload(state, username, filename, fileId, datasetId, filesize);
     return ok(body);

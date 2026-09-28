@@ -25,7 +25,7 @@ const FILE_HEADER_BYTE_RANGE = "bytes=0-4100";
 export const getUploadByFileId = handler(
   parseFileDownloadParameters,
   async (request) => {
-    const { state, id: datasetId, fileId } = request.parameters;
+    const { state, id: fileId } = request.parameters;
 
     const results = await queryUpload(fileId, state);
     if (!results.Items || results.Items.length === 0) {
@@ -38,7 +38,7 @@ export const getUploadByFileId = handler(
       return forbidden(error.UNAUTHORIZED);
     }
 
-    const objectKey = `${datasetId}/${state}/${document.fileId}`;
+    const objectKey = `${state}/${document.fileId}`;
     let fileHeader: Uint8Array;
     try {
       const object = await s3.getObject({
