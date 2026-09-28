@@ -14,6 +14,7 @@ import {
   Box,
   Button,
   Image,
+  Flex,
 } from "@chakra-ui/react";
 import { JSX } from "react";
 import sortIcon from "assets/icons/sort/icon_sort.svg";
@@ -112,6 +113,7 @@ const HorizontalTable = (
           ))}
         </Tr>
       </Thead>
+
       <Tbody>
         {rows.map((column: TableRowType[], rowIndex) => (
           <Tr
@@ -161,12 +163,18 @@ export const ResponsiveTable = (
   rows: TableRowType[][],
   variant?: string,
   sorting: (header: string, type: SORT_TYPE) => void = () => {},
-  styleOverride?: string[]
+  styleOverride?: string[],
+  emptyMessage?: string
 ) => {
   return (
     <>
       <Hide below="md" key="table">
         {HorizontalTable(headers, rows, sorting, variant ?? "", styleOverride)}
+        {rows.length === 0 && (
+          <Flex justifyContent="center" alignItems="center">
+            <Text>{emptyMessage}</Text>
+          </Flex>
+        )}
       </Hide>
       <Show below="md" key="table-mobile">
         {VerticalTable(

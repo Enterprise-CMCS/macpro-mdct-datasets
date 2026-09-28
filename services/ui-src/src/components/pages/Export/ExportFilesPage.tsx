@@ -174,14 +174,14 @@ export const ExportFilesPage = () => {
   };
 
   return (
-    <PageTemplate>
+    <PageTemplate returnTo={{ label: "Return to admin dashboard", path: "/" }}>
       <Box>
         <Heading as="h1" variant="h1" tabIndex={-1}>
           Export Files
         </Heading>
         <Text paddingTop={"1rem"}>
-          Select an export type below. Requested files will be bundled and
-          downloaded as a compressed ZIP file.
+          Select an export option below. Requested files will be bundled into a
+          compressed ZIP file for download.
         </Text>
       </Box>
       {isLoading ? (
@@ -192,13 +192,13 @@ export const ExportFilesPage = () => {
         <Flex flexDirection="column" gap="spacer4">
           {ExportCard(
             "By Dataset (All States)",
-            "Bulk export submitted files from all participating states for a single dataset request.",
+            "Export submitted files from all participating states for a single dataset.",
             () => setExportData("DATASET"),
             isReportsExporting
           )}
           {ExportCard(
             "By State and Dataset",
-            "Export all submitted files for a single state filtered by a specific dataset request.",
+            "Export submitted files for a single state filtered by dataset.",
             () => setExportData("STATE"),
             isStateExporting
           )}

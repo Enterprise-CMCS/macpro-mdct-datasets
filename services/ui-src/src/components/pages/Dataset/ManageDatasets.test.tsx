@@ -6,6 +6,7 @@ import {
   updateDataset,
 } from "utils/api/requestMethods/datasets";
 
+vi.mock("react-router");
 vi.mock("utils/api/requestMethods/datasets", async (importOriginal) => ({
   ...(await importOriginal()),
   getDatasets: vi.fn().mockReturnValue([

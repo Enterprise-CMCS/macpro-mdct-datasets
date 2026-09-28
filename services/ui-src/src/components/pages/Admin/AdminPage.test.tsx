@@ -5,6 +5,8 @@ import { useStore } from "utils";
 import { testA11yAct } from "utils/testing/commonTests";
 import { BannerShape, BannerAreas } from "@datasets/shared";
 
+vi.mock("react-router");
+
 const daysFromToday = (offset: number) => {
   const date = new Date();
   date.setDate(date.getDate() + offset);

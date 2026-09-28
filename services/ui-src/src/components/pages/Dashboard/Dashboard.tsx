@@ -320,7 +320,9 @@ export const Dashboard = () => {
               ],
               tableRows,
               "",
-              sortRows
+              sortRows,
+              undefined,
+              "No files uploaded yet. Select Upload Files above to submit documents for an active data request."
             )
           )}
         </Stack>
@@ -394,7 +396,7 @@ const sx = {
   layout: {
     ".contentFlex": {
       maxWidth: "appMax",
-      marginTop: "spacer7",
+      marginTop: "5.25rem",
       marginBottom: "100px",
       alignItems: "center",
     },

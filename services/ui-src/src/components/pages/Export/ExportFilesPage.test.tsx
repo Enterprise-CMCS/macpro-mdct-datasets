@@ -7,6 +7,7 @@ import { testA11yAct } from "utils/testing/commonTests";
 
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
+vi.mock("react-router");
 vi.mock("utils/other/fileUtils");
 const mockGetZipFile = vi.mocked(getZipFile);
 
