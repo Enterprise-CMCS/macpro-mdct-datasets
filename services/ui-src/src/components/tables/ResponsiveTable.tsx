@@ -20,6 +20,7 @@ import { JSX } from "react";
 import sortIcon from "assets/icons/sort/icon_sort.svg";
 import sortAscIcon from "assets/icons/sort/icon_sort_asc.svg";
 import sortDescIcon from "assets/icons/sort/icon_sort_desc.svg";
+import { Pagination } from "@cmsgov/design-system";
 
 export type TableRowType = string | number | JSX.Element | undefined | boolean;
 
@@ -69,7 +70,7 @@ const HorizontalTable = (
   rows: TableRowType[][],
   sorting: (header: string, type: SORT_TYPE) => void,
   variant: string,
-  styleOverride?: string[]
+  styleOverride?: string[],
 ) => {
   const onSort = (sortName: string) => {
     const type =
@@ -166,6 +167,7 @@ export const ResponsiveTable = (
   styleOverride?: string[],
   emptyMessage?: string
 ) => {
+
   return (
     <>
       <Hide below="md" key="table">
@@ -179,9 +181,15 @@ export const ResponsiveTable = (
       <Show below="md" key="table-mobile">
         {VerticalTable(
           headers.map((header) => header.label),
-          rows
+          rows,
         )}
       </Show>
+      <Pagination
+        currentPage={0}
+        onPageChange={() => {}}
+        totalPages={10}
+        renderHref={() => "/"}
+      ></Pagination>
     </>
   );
 };

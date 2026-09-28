@@ -33,6 +33,7 @@ import { EditDrawer } from "../../drawers/EditDrawer";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { activeBannerSelector } from "utils/state/selectors";
+import { DevTools, ToolType } from "components/devTools/DevTools";
 
 export const Dashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
@@ -74,19 +75,21 @@ export const Dashboard = () => {
       getDatasets(),
       getFilesByState(state!),
     ]);
+
     if (datasets && datasets.length > 0) {
       setDatasetFilterOptions(
-        datasets.map((set) => ({ label: set.name, value: set.key! }))
+        datasets.map((set) => ({ label: set.name, value: set.key! })),
       );
       setDatasetOptions(
         datasets
-          .filter((set) => set.status === DatasetStatusType.ACTIVE)
-          .map((set) => ({ label: set.name, value: set.key! }))
+        .filter((set) => set.status === DatasetStatusType.ACTIVE)
+        .map((set) => ({ label: set.name, value: set.key! })),
       );
     }
+    console.log("files", files)
     if (files && files.length > 0) {
       setFiles(
-        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
+        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
       );
     }
 
@@ -100,7 +103,7 @@ export const Dashboard = () => {
   useEffect(() => {
     if (filterDataset.length > 0) {
       setSortedFiles(
-        files.filter((file) => filterDataset.includes(file.datasetId))
+        files.filter((file) => filterDataset.includes(file.datasetId)),
       );
     } else setSortedFiles(files);
   }, [files, filterDataset]);
@@ -141,7 +144,7 @@ export const Dashboard = () => {
   };
 
   const buildRows = (data: UploadType[]) => {
-    return data.map((file) => {
+    return data.map((file, index) => {
       const columnAction = (
         <HStack>
           <Button
@@ -180,7 +183,7 @@ export const Dashboard = () => {
       });
 
       return [
-        file.filename,
+        index + "- " + file.filename,
         datasetFilterOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
@@ -223,14 +226,14 @@ export const Dashboard = () => {
   };
 
   const setDatasetDropdown = (
-    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
+    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject,
   ) => {
     setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
     const set = datasetOptions.find(
-      (opt) => opt.value === displayValue?.datasetId
+      (opt) => opt.value === displayValue?.datasetId,
     )?.label;
     const instruction =
       !displayValue || displayValue.fileId === ""
@@ -273,6 +276,12 @@ export const Dashboard = () => {
         </Box>
       ) : null}
       <PageTemplate type="report" sxOverride={sx.layout}>
+        <DevTools
+          type={ToolType.DASHBOARD}
+          state={state}
+          datasetId={datasetOptions?.[0]?.value}
+          reload={reloadData}
+        ></DevTools>
         <Stack sx={sx.box} gap="2rem">
           <Heading as="h1" variant="h1">
             {StateNames[state as keyof typeof StateNames]} File Upload
@@ -322,7 +331,7 @@ export const Dashboard = () => {
               "",
               sortRows,
               undefined,
-              "No files uploaded yet. Select Upload Files above to submit documents for an active data request."
+              "No files uploaded yet. Select Upload Files above to submit documents for an active data request.",
             )
           )}
         </Stack>

@@ -92,13 +92,14 @@ export const queryUpload = async (fileId: string, state: string) => {
       ":state": state,
       ":fileId": fileId,
     },
+    Limit: 1
   };
 
   return await client.send(new QueryCommand(documentParams));
 };
 
 export const queryViewUploads = async () => {
-  const pages = paginateScan({ client }, { TableName: uploadTableName });
+  const pages = paginateScan({ client, pageSize: 1 }, { TableName: uploadTableName });
   const items: Record<string, any>[] = [];
   for await (const page of pages) {
     items.push(...(page.Items ?? []));
@@ -116,9 +117,10 @@ export const queryStateUpload = async (state: string) => {
     ExpressionAttributeValues: {
       ":state": state,
     },
+    Limit: 1
   };
 
-  const response = paginateQuery({ client }, params);
+  const response = paginateQuery({ client, pageSize: 1 }, params);
   const uploads = await collectPageItems(response);
 
   return uploads as UploadType[];
