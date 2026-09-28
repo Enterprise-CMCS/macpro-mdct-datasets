@@ -267,7 +267,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   new Lambda(scope, "createUpload", {
     entry: "services/app-api/handlers/uploads/create.ts",
     handler: "createUpload",
-    path: "/dataset/{state}/{id}",
+    path: "/uploads/{state}/",
     method: "POST",
     ...commonProps,
   });
@@ -275,7 +275,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   new Lambda(scope, "getUploadsByState", {
     entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploadsByState",
-    path: "/dataset/{state}",
+    path: "/uploads/{state}",
     method: "GET",
     ...commonProps,
   });
@@ -283,7 +283,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   new Lambda(scope, "getUploadByFileId", {
     entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploadByFileId",
-    path: "/dataset/{state}/{id}/files/{fileId}",
+    path: "/uploads/{state}/{id}",
     method: "GET",
     ...commonProps,
   });
@@ -291,7 +291,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   new Lambda(scope, "getUploads", {
     entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploads",
-    path: "dataset",
+    path: "uploads",
     method: "GET",
     ...commonProps,
   });
@@ -299,7 +299,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   new Lambda(scope, "updateUpload", {
     entry: "services/app-api/handlers/uploads/update.ts",
     handler: "updateUploadHandler",
-    path: "/dataset/{state}/{id}/files/{fileId}",
+    path: "/uploads/{state}/{id}",
     method: "PUT",
     ...commonProps,
   });
@@ -307,7 +307,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   new Lambda(scope, "deleteUpload", {
     entry: "services/app-api/handlers/uploads/delete.ts",
     handler: "deleteUploadHandler",
-    path: "/dataset/{state}/{id}/files/{fileId}",
+    path: "/uploads/{state}/{id}",
     method: "DELETE",
     ...commonProps,
   });

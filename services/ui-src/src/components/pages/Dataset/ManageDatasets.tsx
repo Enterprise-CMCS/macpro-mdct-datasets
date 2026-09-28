@@ -233,7 +233,10 @@ export const ManageDatasets = () => {
         modalDisclosure={{
           isOpen: modalOpen,
           onClose: () => {
-            setSelectedDataset(undefined);
+            setSelectedDataset({
+              name: "",
+              status: "" as any,
+            });
             setModalOpen(false);
           },
         }}

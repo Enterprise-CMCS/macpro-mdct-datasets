@@ -35,7 +35,7 @@ export const downloadFile = async (
   state: string,
   fileId: string
 ) => {
-  const fileLink = await getFileDownloadUrl(datasetId, state, fileId);
+  const fileLink = await getFileDownloadUrl(state, fileId);
   const sanitizeLink = DOMPurify.sanitize(fileLink);
   window.open(sanitizeLink);
 };
@@ -49,8 +49,8 @@ export const getZipFile = async (body: ZipRequestBody) => {
   link.click();
 };
 
-export const removeFile = async (state: string, id: string, fileId: string) => {
-  return deleteUploadedFile(state, id, fileId);
+export const removeFile = async (state: string, fileId: string) => {
+  return deleteUploadedFile(state, fileId);
 };
 
 export const uploadListRender = (

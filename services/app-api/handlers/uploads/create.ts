@@ -11,9 +11,10 @@ export const createUpload = handler(
   parseFileUpdateParameters,
   async (request) => {
     const { user, body } = request;
-    const { state, id: datasetId } = request.parameters;
+    const { state } = request.parameters;
     // Format Info
-    const { uploadedFileName, uploadedFileSize } = body as UploadFileData;
+    const { uploadedFileName, uploadedFileSize, datasetId } =
+      body as UploadFileData;
 
     const username = user.fullName ?? "";
     const fileId = `${KSUID.randomSync().string}_${uploadedFileName}`;
@@ -30,7 +31,7 @@ export const createUpload = handler(
     // Pre-sign url
     let psurl = await s3.createPresignedPost({
       Bucket: process.env.uploadsBucketName,
-      Key: `${datasetId}/${state}/${fileId}`,
+      Key: `${state}/${fileId}`,
     });
     psurl = fixLocalstackUrl(psurl);
     return ok({ psurl, fileId });

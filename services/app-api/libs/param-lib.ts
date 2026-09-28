@@ -25,22 +25,6 @@ export const parseDatasetId = (event: APIGatewayProxyEvent) => {
 };
 
 export const parseFileDownloadParameters = (event: APIGatewayProxyEvent) => {
-  const { state, id, fileId } = event.pathParameters ?? {};
-
-  if (!isStateAbbr(state)) {
-    logger.warn("Invalid state abbreviation in path");
-    return undefined;
-  }
-
-  if (!id || !fileId) {
-    logger.warn("Missing file ID in path");
-    return undefined;
-  }
-
-  return { state, id, fileId };
-};
-
-export const parseFileUpdateParameters = (event: APIGatewayProxyEvent) => {
   const { state, id } = event.pathParameters ?? {};
 
   if (!isStateAbbr(state)) {
@@ -54,6 +38,17 @@ export const parseFileUpdateParameters = (event: APIGatewayProxyEvent) => {
   }
 
   return { state, id };
+};
+
+export const parseFileUpdateParameters = (event: APIGatewayProxyEvent) => {
+  const { state } = event.pathParameters ?? {};
+
+  if (!isStateAbbr(state)) {
+    logger.warn("Invalid state abbreviation in path");
+    return undefined;
+  }
+
+  return { state };
 };
 
 export const parseFileUploadParameters = (event: APIGatewayProxyEvent) => {

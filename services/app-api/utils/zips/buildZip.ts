@@ -37,11 +37,11 @@ export const addFilesToZip = async (
   }
 
   for (const upload of uploads) {
-    const { id, file, state, subType } = upload;
+    const { file, state, subType } = upload;
     if (!file?.fileId || !file?.name) continue;
     const item = await s3Lib.getObject({
       Bucket: process.env.uploadsBucketName,
-      Key: `${id}/${state}/${file.fileId}`,
+      Key: `${state}/${file.fileId}`,
     });
     const bytes = await item.Body?.transformToByteArray();
     if (bytes) {

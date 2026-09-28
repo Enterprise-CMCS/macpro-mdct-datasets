@@ -6,7 +6,7 @@ import { deleteUpload, queryUpload } from "../../storage/uploads";
 export const deleteUploadHandler = handler(
   parseFileDownloadParameters,
   async (request) => {
-    const { state, id, fileId } = request.parameters;
+    const { state, id: fileId } = request.parameters;
 
     // Get file, check aws filename before deleting
     const results = await queryUpload(fileId, state);
@@ -15,7 +15,7 @@ export const deleteUploadHandler = handler(
     }
     const document = results.Items[0];
 
-    await deleteUpload(fileId, state, id, document);
+    await deleteUpload(fileId, state, document);
     return ok();
   }
 );
