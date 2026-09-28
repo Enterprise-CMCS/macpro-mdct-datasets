@@ -313,7 +313,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   });
 
   new Lambda(scope, "createDataset", {
-    entry: "services/app-api/handlers/dataset/create.ts",
+    entry: "services/app-api/handlers/datasets/create.ts",
     handler: "createDataset",
     path: "datasets",
     method: "POST",
@@ -321,7 +321,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   });
 
   new Lambda(scope, "updateDataset", {
-    entry: "services/app-api/handlers/dataset/update.ts",
+    entry: "services/app-api/handlers/datasets/update.ts",
     handler: "updateDataset",
     path: "datasets/{id}",
     method: "PUT",
@@ -329,7 +329,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   });
 
   new Lambda(scope, "getDatasets", {
-    entry: "services/app-api/handlers/dataset/get.ts",
+    entry: "services/app-api/handlers/datasets/get.ts",
     handler: "getDatasets",
     path: "datasets",
     method: "GET",

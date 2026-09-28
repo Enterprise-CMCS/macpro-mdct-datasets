@@ -1,14 +1,28 @@
 import React from "react";
-import { Box, Flex, SystemStyleObject } from "@chakra-ui/react";
+import { Box, Flex, SystemStyleObject, Link, Image } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router";
+import arrowLeftIcon from "assets/icons/arrows/icon_arrow_left_blue.svg";
 
 export const PageTemplate = ({
   type = "standard",
   children,
   sxOverride,
+  returnTo,
 }: Props) => {
   return (
     <section>
       <Box sx={{ ...sx.contentBox, ...sxOverride }} className={type}>
+        {returnTo && (
+          <Link
+            as={RouterLink}
+            to={returnTo.path}
+            variant="return"
+            sx={sx.returnBtn}
+          >
+            <Image src={arrowLeftIcon} alt="" className="icon" />
+            {returnTo.label}
+          </Link>
+        )}
         <Flex
           sx={sx.contentFlex}
           className={`contentFlex ${type}`}
@@ -25,6 +39,7 @@ interface Props {
   type?: "standard" | "report";
   children: React.ReactNode;
   sxOverride?: SystemStyleObject;
+  returnTo?: { label: string; path: string };
 }
 
 const sx = {
@@ -40,7 +55,7 @@ const sx = {
     flexDirection: "column",
     "&.standard": {
       maxWidth: "basicPageWidth",
-      marginY: "spacer7",
+      marginY: "5.25rem",
       marginX: "auto",
     },
     ".mobile &": {
@@ -49,5 +64,10 @@ const sx = {
     "&.report": {
       height: "100%",
     },
+  },
+  returnBtn: {
+    position: "absolute",
+    top: "1.25rem",
+    // marginTop: "1.5rem",
   },
 };
