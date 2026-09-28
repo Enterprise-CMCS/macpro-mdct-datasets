@@ -159,7 +159,7 @@ export const ManageDatasets = () => {
   const [selectedDataset, setSelectedDataset] = useState<
     DatasetType | undefined
   >();
-  const [modalState, setModalSet] = useState<"Add" | "Edit">("Add");
+  const [modalState, setModalState] = useState<"Add" | "Edit">("Add");
   const [loading, setLoading] = useState(false);
 
   const formatRows = async () => {
@@ -175,7 +175,7 @@ export const ManageDatasets = () => {
           variant="outline"
           onClick={() => {
             setSelectedDataset(dataset);
-            setModalSet("Edit");
+            setModalState("Edit");
             setModalOpen(true);
           }}
           aria-label={`Edit Dataset ${name}`}
@@ -210,7 +210,7 @@ export const ManageDatasets = () => {
         <Button
           onClick={() => {
             setSelectedDataset(undefined);
-            setModalSet("Add");
+            setModalState("Add");
             setModalOpen(true);
           }}
         >
