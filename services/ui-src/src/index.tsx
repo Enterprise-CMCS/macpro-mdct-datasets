@@ -12,7 +12,7 @@ import theme from "styles/theme";
 import "./styles/index.scss";
 
 const apiRestConfig = {
-  rhtp: {
+  datasets: {
     endpoint: config.apiGateway.URL,
     region: config.apiGateway.REGION,
   },

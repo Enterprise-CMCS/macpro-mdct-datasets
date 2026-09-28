@@ -4,7 +4,7 @@ import { proxyEvent } from "../../testing/proxyEvent";
 import { APIGatewayProxyEvent, User } from "../../types/types";
 import { getBanners } from "./fetch";
 import { authenticatedUser } from "../../utils/authentication";
-import { BannerAreas, BannerShape, UserRoles } from "@rhtp/shared";
+import { BannerAreas, BannerShape, UserRoles } from "@datasets/shared";
 import { scanAllBanners } from "../../storage/banners";
 
 vi.mock("../../utils/authentication");
@@ -25,7 +25,7 @@ const testEvent: APIGatewayProxyEvent = {
 
 const mockBanner: BannerShape = {
   key: "889c059a-54fe-4331-8d31-3d8e91665806", // #gitleaks:allow
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   title: "mock title",
   description: "mock description",
   link: "https://example.com",

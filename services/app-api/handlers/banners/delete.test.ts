@@ -8,7 +8,7 @@ import { error } from "../../utils/constants";
 import { DeleteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 import { authenticatedUser } from "../../utils/authentication";
-import { UserRoles } from "@rhtp/shared";
+import { UserRoles } from "@datasets/shared";
 
 const dynamoClientMock = mockClient(DynamoDBDocumentClient);
 

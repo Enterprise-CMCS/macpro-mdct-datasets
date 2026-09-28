@@ -1,134 +1,51 @@
 import { MockedFunction } from "vitest";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AdminDashboard } from "./AdminDashboard";
-import { RouterWrappedComponent } from "utils/testing/mockRouter";
-import { mockReport, mockReport2 } from "utils/testing/mockForm";
 import userEvent from "@testing-library/user-event";
+import { getDatasets } from "utils/api/requestMethods/datasets";
+import {
+  mockDatasetsData,
+  mockAdminFileData,
+} from "utils/testing/mockDatasets";
+import { getFiles } from "utils/api/requestMethods/uploads";
 import { testA11yAct } from "utils/testing/commonTests";
-import { createReport, useStore } from "utils";
-import { mockAdminUserStore } from "utils/testing/setupTest";
-
-vi.mock("utils/state/useStore");
-const mockedUseStore = useStore as unknown as MockedFunction<typeof useStore>;
-mockedUseStore.mockReturnValue(mockAdminUserStore);
-
-vi.mock("launchdarkly-react-client-sdk", () => ({
-  useFlags: vi.fn().mockReturnValue({
-    adminCanEditReport: true,
-  }),
-}));
-
-const mockGetReport = vi.fn().mockResolvedValue([mockReport, mockReport2]);
-vi.mock("../../utils/api/requestMethods/report", () => ({
-  getReportByType: () => mockGetReport(),
-  createReport: vi.fn(),
-}));
-
-vi.mock("../../utils/api/requestMethods/commentMethods", () => ({
-  getComments: vi.fn().mockResolvedValue([]),
-  createComment: vi.fn().mockResolvedValue({}),
-}));
-
-vi.mock("../../utils/api/requestMethods/notificationRecipients", () => ({
-  getAssignedStatesByEmail: vi.fn().mockResolvedValue([]),
-}));
 
 const mockUseNavigate = vi.fn();
-vi.mock("react-router", async (importOriginal) => ({
-  ...(await importOriginal()),
+
+vi.mock("react-router", () => ({
   useNavigate: () => mockUseNavigate,
 }));
 
-window.HTMLElement.prototype.scrollIntoView = vi.fn();
+vi.mock("utils/state/useStore", () => ({
+  useStore: vi.fn().mockImplementation(() => {
+    return {};
+  }),
+}));
+
+vi.mock("utils/api/requestMethods/datasets");
+const mockedGetDatasets = getDatasets as unknown as MockedFunction<any>;
+
+vi.mock("utils/api/requestMethods/uploads");
+const mockedGetFiles = getFiles as unknown as MockedFunction<any>;
 
 describe("<AdminDashboard />", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
-    await act(async () => {
-      render(
-        <RouterWrappedComponent>
-          <AdminDashboard />
-        </RouterWrappedComponent>
-      );
+    mockedGetDatasets.mockReturnValue(mockDatasetsData);
+    mockedGetFiles.mockReturnValue(mockAdminFileData);
+
+    render(<AdminDashboard />);
+    await waitFor(() => {
+      expect(screen.getByRole("cell", { name: "New York" })).toBeVisible();
     });
   });
-  it("AdminDashboard renders", async () => {
+  test("AdminDashboard renders", () => {
+    expect(screen.getByText("File Upload Admin Dashboard")).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: "RHTP Admin Dashboard" })
+      screen.getByRole("link", { name: "Bulk Export Files" })
     ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: "Admin Instructions" })
-    ).toBeVisible();
-    expect(screen.getByRole("button", { name: "States select" })).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: "All Filter by Budget Period" })
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: "Clear All Filters" })
-    ).toBeVisible();
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole("columnheader", { name: "State/Territory" })
-      ).toBeVisible();
-    });
-
-    expect(screen.getByText("plan id")).toBeVisible();
   });
-
-  it("State filters are selectable", async () => {
-    await waitFor(() => {
-      expect(screen.getByText("plan id")).toBeVisible();
-    });
-    const stateFilter = screen.getByRole("button", { name: "States select" });
-    fireEvent.click(stateFilter);
-
-    const search = screen.getByRole("searchbox", {
-      name: "Search States by name",
-    });
-    fireEvent.input(search, { target: { value: "New Jersey" } });
-    const checkbox1 = screen.getByRole("checkbox", { name: "New Jersey" });
-    await userEvent.click(checkbox1);
-    fireEvent.input(search, { target: { value: "Ala" } });
-    const checkbox2 = screen.getByRole("checkbox", { name: "Alabama" });
-    await userEvent.click(checkbox2);
-    expect(localStorage.getItem("states")).toEqual("AL,NJ");
-
-    expect(
-      screen.getByRole("button", { name: "Remove New Jersey tag" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Remove Alabama tag" })
-    ).toBeInTheDocument();
-
-    await userEvent.click(
-      screen.getByRole("button", { name: "Remove Alabama tag" })
-    );
-
-    expect(
-      screen.queryByRole("button", { name: "Remove Alabama tag" })
-    ).not.toBeInTheDocument();
-
-    const clearFilterBtn = screen.getByRole("button", {
-      name: "Clear All Filters",
-    });
-    await userEvent.click(clearFilterBtn);
-    expect(
-      screen.queryByRole("button", { name: "Remove New Jersey tag" })
-    ).not.toBeInTheDocument();
-  });
-
-  it("Table sort are clickable", async () => {
-    await waitFor(() => {
-      expect(screen.queryByText("plan id")).toBeVisible();
-    });
-
+  test("Test table sorts", async () => {
     const sortResult = async (
       sort: string,
       columns: number[],
@@ -148,84 +65,48 @@ describe("<AdminDashboard />", () => {
       ]).toStrictEqual(results.toReversed());
     };
 
-    await sortResult("State/Territory", [0, 7], ["Minnesota", "New Jersey"]);
-    await sortResult("Report Name", [1, 8], ["plan id", "plan mn id"]);
-    await sortResult("Budget Period", [2, 9], ["1", "2"]);
-    await sortResult("Last Edited", [3, 10], ["04/17/2026", "04/17/2026"]);
-    await sortResult("Status", [4, 11], ["In progress", "Not started"]);
+    await sortResult("State/Territory", [0, 6], ["New York", "Pennsylvania"]);
+    await sortResult(
+      "File name",
+      [1, 7],
+      ["mock filename 1", "mock filename 2"]
+    );
+    await sortResult("Dataset", [2, 8], ["Flowers", "Fruits"]);
+    await sortResult("Uploaded By", [3, 9], ["username 1", "username 2"]);
+    await sortResult("Upload Date", [4, 10], ["09/17/2026", "09/21/2026"]);
   });
+  test("Set Dataset filter", async () => {
+    const stateFilter = screen.getByRole("button", { name: "Dataset select" });
+    fireEvent.click(stateFilter);
 
-  it("View report", async () => {
-    await waitFor(() => {
-      expect(screen.getByText("plan id")).toBeVisible();
+    const search = screen.getByRole("searchbox", {
+      name: "Search Dataset by name",
     });
-    const reportBtn = screen.getAllByRole("button", { name: "View Report" });
-    await userEvent.click(reportBtn[0]);
-    expect(mockUseNavigate).toHaveBeenCalled();
+    fireEvent.input(search, { target: { value: "Flowers" } });
+    const checkbox1 = screen.getByRole("checkbox", { name: "Flowers" });
+    await userEvent.click(checkbox1);
+    expect(
+      screen.queryByRole("cell", { name: "Fruits" })
+    ).not.toBeInTheDocument();
+    const clearFilterBtn = screen.getByRole("button", {
+      name: "Clear All Filters",
+    });
+    await userEvent.click(clearFilterBtn);
+    expect(screen.queryByRole("cell", { name: "Fruits" })).toBeInTheDocument();
   });
+  test("Set State(s) filter", async () => {
+    const stateFilter = screen.getByRole("button", { name: "States select" });
+    fireEvent.click(stateFilter);
 
-  it("Can open and close comment drawer", async () => {
-    const commentStatusButton = screen.getAllByRole("button", {
-      name: "Comment/Status",
-    })[0];
-    await userEvent.click(commentStatusButton);
+    const search = screen.getByRole("searchbox", {
+      name: "Search States by name",
+    });
+    fireEvent.input(search, { target: { value: "New York" } });
+    const checkbox1 = screen.getByRole("checkbox", { name: "New York" });
+    await userEvent.click(checkbox1);
     expect(
-      screen.getByRole("heading", { name: /Add comment to/ })
-    ).toBeInTheDocument();
-    await userEvent.click(screen.getAllByRole("button", { name: "Close" })[0]);
-    expect(
-      screen.queryByRole("heading", { name: /Add comment to/ })
+      screen.queryByRole("cell", { name: "Pennsylvania" })
     ).not.toBeInTheDocument();
   });
-
-  it("Can open and close admin create report modal", async () => {
-    const createReportButton = screen.getByRole("button", {
-      name: "Start First Annual Report",
-    });
-    await userEvent.click(createReportButton);
-    expect(
-      screen.getByRole("heading", { name: "Start First Annual Report" })
-    ).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Close" }));
-    expect(
-      screen.queryByRole("heading", { name: "Start First Annual Report" })
-    ).not.toBeInTheDocument();
-  });
-
-  it("Cannot create report for state with existing report", async () => {
-    const createReportButton = screen.getByRole("button", {
-      name: "Start First Annual Report",
-    });
-    await userEvent.click(createReportButton);
-
-    const stateDropdown = screen.getAllByLabelText("State")[1];
-    await userEvent.click(stateDropdown);
-    // mock reports for NJ and MN so should not see those options
-    expect(
-      screen.queryByRole("option", { name: "New Jersey" })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("option", { name: "Minnesota" })
-    ).not.toBeInTheDocument();
-  });
-
-  it("Can create report for state with no existing report", async () => {
-    const createReportButton = screen.getByRole("button", {
-      name: "Start First Annual Report",
-    });
-    await userEvent.click(createReportButton);
-
-    const stateDropdown = screen.getAllByLabelText("State")[1];
-    await userEvent.click(stateDropdown);
-    await userEvent.click(screen.getByRole("option", { name: "Alaska" }));
-    await userEvent.click(screen.getByRole("button", { name: "Start" }));
-    expect(createReport).toHaveBeenCalled();
-  });
-});
-describe("Test A11y", () => {
-  testA11yAct(
-    <RouterWrappedComponent>
-      <AdminDashboard />
-    </RouterWrappedComponent>
-  );
+  testA11yAct(<AdminDashboard />);
 });

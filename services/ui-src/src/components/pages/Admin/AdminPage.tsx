@@ -24,7 +24,7 @@ import {
   bannerAreaOptions,
   BannerFormData,
   BannerShape,
-} from "@rhtp/shared";
+} from "@datasets/shared";
 import iconActive from "assets/icons/status/icon_status_check.svg";
 import iconScheduled from "assets/icons/status/icon_status_inprogress.svg";
 import iconExpired from "assets/icons/alert/icon_warning.svg";
@@ -106,7 +106,10 @@ export const AdminPage = () => {
   };
 
   return (
-    <PageTemplate data-testid="admin-view">
+    <PageTemplate
+      data-testid="admin-view"
+      returnTo={{ label: "Return to admin dashboard", path: "/" }}
+    >
       <Box>
         <Heading as="h1" id="AdminHeader" tabIndex={-1} sx={sx.headerText}>
           Banner Editor

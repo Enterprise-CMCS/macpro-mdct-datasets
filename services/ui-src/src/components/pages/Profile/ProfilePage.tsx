@@ -27,8 +27,7 @@ export const ProfilePage = () => {
         My Account
       </Heading>
       <Text>
-        If any information is incorrect, please contact the Rural Health
-        Transformation Program (RHTP) Help Desk at{" "}
+        If any information is incorrect, please contact the MDCT Help Desk at{" "}
         <Link href={`mailto:${HELP_DESK_EMAIL_ADDRESS}`} isExternal>
           {HELP_DESK_EMAIL_ADDRESS}
         </Link>

@@ -15,8 +15,7 @@ import config from "config";
 import { initAuthManager, updateTimeout, getExpiration, useStore } from "utils";
 import { PRODUCTION_HOST_DOMAIN } from "../../constants";
 import { User, UserContextShape } from "types/users";
-import { UserRoles } from "@rhtp/shared";
-import { useFlags } from "launchdarkly-react-client-sdk";
+import { UserRoles } from "@datasets/shared";
 
 type ExpectedTokenShape = {
   email: string;
@@ -50,7 +49,6 @@ export const UserProvider = ({ children }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isProduction = window.location.origin.includes(PRODUCTION_HOST_DOMAIN);
-  const flags = useFlags();
 
   // state management
   const { user, showLocalLogins, setUser, setShowLocalLogins } = useStore();
@@ -69,7 +67,6 @@ export const UserProvider = ({ children }: Props) => {
     }
   };
 
-  // TODO: Update for non-rhtp users
   const checkAuthState = useCallback(async () => {
     // Allow Post Logout flow alongside user login flow
     if (location?.pathname.toLowerCase() === "/postlogout") {
@@ -91,23 +88,18 @@ export const UserProvider = ({ children }: Props) => {
         "custom:cms_state": state,
       } = payload as ExpectedTokenShape;
 
-      // "custom:cms_roles" is an string of concat roles so we need to check for the one applicable to RHTP
-      const userRole = cms_role.split(",").find((r) => r.includes("mdctrhtp"));
+      // "custom:cms_roles" is an string of concat roles so we need to check for the one applicable to MDCT Datasets
+      const userRole = cms_role
+        .split(",")
+        .find((r) => r.includes("mdctdatasets"));
       const full_name = [given_name, " ", family_name].join("");
-      const adminCanEditReport = flags?.adminCanEditReport ?? false;
       const userIsAdmin =
-        userRole === UserRoles.ADMIN ||
-        userRole === UserRoles.APPROVER ||
-        userRole === UserRoles.PROJECT_OFFICER;
+        userRole === UserRoles.ADMIN || userRole === UserRoles.APPROVER;
       const userCheck = {
         userIsAdmin,
         userIsReadOnly:
           userRole === UserRoles.HELP_DESK || userRole === UserRoles.INTERNAL,
-        // TODO: For the first year, Admins will be entering data manually for the states
-        // Switch the adminCanEditReport flag when we want to stop allowing Admins to create/edit reports.
-        userIsEndUser:
-          userRole === UserRoles.STATE_USER ||
-          (adminCanEditReport && userIsAdmin),
+        userIsEndUser: userRole === UserRoles.STATE_USER,
       };
       const currentUser: User = {
         email,
@@ -130,7 +122,7 @@ export const UserProvider = ({ children }: Props) => {
         setShowLocalLogins(true);
       }
     }
-  }, [isProduction, location, flags]);
+  }, [isProduction, location]);
 
   // re-render on auth state change, checking router location
   useEffect(() => {

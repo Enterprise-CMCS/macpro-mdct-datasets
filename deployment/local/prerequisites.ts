@@ -44,7 +44,7 @@ export class LocalPrerequisiteStack extends Stack {
       }
     }
 
-    new secretsmanager.Secret(this, "RhtpDefaultSecret", {
+    new secretsmanager.Secret(this, "DatasetsDefaultSecret", {
       secretName: `${process.env.PROJECT}-default`, // pragma: allowlist secret
       secretObjectValue: {
         vpcName: SecretValue.unsafePlainText("localstack-dev"),

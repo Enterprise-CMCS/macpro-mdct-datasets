@@ -14,12 +14,12 @@ class AuthManager {
 
   constructor() {
     // Force users with stale tokens > then the timeout to log in for a fresh session
-    const expiration = localStorage.getItem("mdctrhtp_session_exp");
+    const expiration = localStorage.getItem("mdctdatasets_session_exp");
     const isExpired =
       expiration &&
       isBefore(new Date(expiration).valueOf(), Date.now().valueOf());
     if (isExpired) {
-      localStorage.removeItem("mdctrhtp_session_exp");
+      localStorage.removeItem("mdctdatasets_session_exp");
       signOut().then(() => {
         window.location.href = "/";
       });
@@ -58,7 +58,7 @@ class AuthManager {
    */
   setTimer = () => {
     const expiration = addMilliseconds(new Date(), IDLE_WINDOW).toString();
-    localStorage.setItem("mdctrhtp_session_exp", expiration);
+    localStorage.setItem("mdctdatasets_session_exp", expiration);
   };
 }
 
@@ -79,7 +79,7 @@ export const initAuthManager = () => {
 
 export const refreshCredentials = async () => {
   await authManager.refreshCredentials();
-  return localStorage.getItem("mdctrhtp_session_exp");
+  return localStorage.getItem("mdctdatasets_session_exp");
 };
 
 export const updateTimeout = async () => {
@@ -87,5 +87,5 @@ export const updateTimeout = async () => {
 };
 
 export const getExpiration = () => {
-  return localStorage.getItem("mdctrhtp_session_exp") || "";
+  return localStorage.getItem("mdctdatasets_session_exp") || "";
 };

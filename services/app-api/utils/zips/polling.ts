@@ -4,16 +4,26 @@ import { fixLocalstackUrl } from "../../libs/localstack";
 import JSZip from "jszip";
 import { Readable } from "node:stream";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
-import { ZipRequestBody, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, ZipRequestBody, ZipRequestTypes } from "@datasets/shared";
 import KSUID from "ksuid";
 import { formatS3ZipKey } from "./buildZip";
 
 const lambdaClient = new LambdaClient({ region: "us-east-1" });
 
+const getFileName = async (key: string) => {
+  const { TagSet } = await s3.getObjectTagging({
+    Bucket: process.env.uploadsBucketName,
+    Key: key,
+  });
+  if (!TagSet) return "MDCT_DATASETS.zip";
+  const state = TagSet.find((tag) => tag.Key === "state")?.Value as StateAbbr;
+  return `MDCT_DATASETS_${state ?? "ALL_STATES"}.zip`;
+};
+
 export const getPSURL = async (zipId: string) => {
   const key = formatS3ZipKey(zipId);
   const exists = await s3
-    .headObject({ Bucket: process.env.datasetBucketName, Key: key })
+    .headObject({ Bucket: process.env.uploadsBucketName, Key: key })
     .then(() => true)
     .catch(() => false);
 
@@ -21,9 +31,9 @@ export const getPSURL = async (zipId: string) => {
     return ok({ status: "pending" });
   }
 
-  const fileName = `MCDT_ALL_STATES.zip`;
+  const fileName = await getFileName(key);
   let psurl = await s3.getSignedDownloadUrl({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: key,
     ResponseContentDisposition: `attachment; filename=${fileName}`,
   });
@@ -35,7 +45,7 @@ export const getPSURL = async (zipId: string) => {
 export const zipBuffer = async (zipId: string, tags: string, zip: JSZip) => {
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
   await s3.putObject({
-    Bucket: process.env.datasetBucketName,
+    Bucket: process.env.uploadsBucketName,
     Key: formatS3ZipKey(zipId),
     Body: Readable.from(zipBuffer),
     ContentLength: zipBuffer.byteLength,
@@ -48,12 +58,9 @@ export const startZipWorker = async (body: ZipRequestBody) => {
   const { type } = body;
   const zipId = KSUID.randomSync().string;
   let payload: any = { type, zipId };
-  if (type === ZipRequestTypes.REPORT && body.report) {
-    const { reportType, state, id } = body.report;
-    payload = { ...payload, reportType, state, id };
-  } else if (type === ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS) {
-    const { state, reportSubTypeKeys } = body;
-    payload = { ...payload, state, reportSubTypeKeys };
+  if (type === ZipRequestTypes.DATA_SET) {
+    const { state, datasets } = body;
+    payload = { ...payload, state, datasets };
   } else {
     throw new Error("Type not recognized");
   }

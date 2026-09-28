@@ -1,8 +1,5 @@
-import { ReportType } from "./reports";
-
 export const BannerAreas = {
-  ...ReportType,
-  Home: "home",
+  Dashboard: "dashboard",
 } as const;
 
 /** A banner may be shown on the home page, or any report type's dashboard. */
@@ -29,8 +26,7 @@ export interface BannerShape extends BannerFormData {
 
 /** Determines the display names _and order_ on the Banner Editor page. */
 export const bannerAreaLabels: Record<BannerArea, string> = {
-  [BannerAreas.Home]: "Home page",
-  [BannerAreas.RHTP]: "RHTP report dashboard",
+  [BannerAreas.Dashboard]: "Dashboard page",
 };
 export const bannerAreaOptions = Object.entries(bannerAreaLabels).map(
   ([key, value]) => ({

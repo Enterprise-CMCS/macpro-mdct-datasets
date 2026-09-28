@@ -8,7 +8,7 @@ import { error } from "../../utils/constants";
 import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 import { authenticatedUser } from "../../utils/authentication";
-import { BannerAreas, BannerShape, UserRoles } from "@rhtp/shared";
+import { BannerAreas, BannerShape, UserRoles } from "@datasets/shared";
 
 const dynamoClientMock = mockClient(DynamoDBDocumentClient);
 
@@ -25,7 +25,7 @@ vi.mock("../../utils/authorization", () => ({
 
 const mockBanner: BannerShape = {
   key: "889c059a-54fe-4331-8d31-3d8e91665806", // #gitleaks:allow
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   title: "mock title",
   description: "mock description",
   link: "https://example.com",

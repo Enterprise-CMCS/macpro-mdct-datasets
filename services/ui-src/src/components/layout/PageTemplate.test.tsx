@@ -9,7 +9,7 @@ const standardPageComponent = (
 );
 
 const reportPageComponent = (
-  <PageTemplate type="report">
+  <PageTemplate>
     <p>Report Test Text</p>
   </PageTemplate>
 );

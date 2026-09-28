@@ -1,7 +1,7 @@
 import { Mock } from "vitest";
 import { isValidBanner } from "../bannerValidation";
 import { logger } from "../../libs/debug-lib";
-import { BannerAreas, BannerFormData } from "@rhtp/shared";
+import { BannerAreas, BannerFormData } from "@datasets/shared";
 
 vi.mock("../../libs/debug-lib", () => ({
   logger: {
@@ -12,7 +12,7 @@ const warn = logger.warn as Mock;
 
 const validPayload: BannerFormData = {
   title: "mock title",
-  area: BannerAreas.RHTP,
+  area: BannerAreas.Dashboard,
   description: "mock description",
   link: "https://example.com",
   startDate: new Date().toISOString().slice(0, 10),

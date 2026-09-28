@@ -18,7 +18,7 @@ export const ErrorMessages = {
   mustBeALink: "Response must be a valid url",
 } as const;
 
-export const PRODUCTION_HOST_DOMAIN = "mdctrhtp.cms.gov";
+export const PRODUCTION_HOST_DOMAIN = "mdct.cms.gov";
 
 export const notAnsweredText = "Not answered";
 export const autoPopulatedText = "Auto-populates from previous response";

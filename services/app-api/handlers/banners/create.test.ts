@@ -1,7 +1,7 @@
 import { Mock } from "vitest";
 import { StatusCodes } from "../../libs/response-lib";
 import { APIGatewayProxyEvent } from "../../types/types";
-import { BannerAreas, BannerFormData, UserRoles } from "@rhtp/shared";
+import { BannerAreas, BannerFormData, UserRoles } from "@datasets/shared";
 import { canWriteBanner } from "../../utils/authorization";
 import { createBanner } from "./create";
 import { error } from "../../utils/constants";
@@ -25,7 +25,7 @@ const mockPutBanner = vi.mocked(putBanner);
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 
 const mockBannerFormData: BannerFormData = {
-  area: BannerAreas.Home,
+  area: BannerAreas.Dashboard,
   title: "mock title",
   description: "mock description",
   link: "https://example.com",

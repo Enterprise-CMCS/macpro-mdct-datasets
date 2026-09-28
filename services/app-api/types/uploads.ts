@@ -2,10 +2,11 @@ export type UploadFileData = {
   uploadedFileName: string;
   uploadedFileType: string;
   uploadedFileSize: number;
+  datasetId: string;
 };
 
 export interface UploadData {
-  uploadedState: string;
+  state: string;
   filename: string;
   uploadedDate: string;
   uploadedUsername: string;

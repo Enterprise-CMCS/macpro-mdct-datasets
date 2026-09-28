@@ -5,10 +5,10 @@ import {
   aws_wafv2 as wafv2,
   aws_s3 as s3,
   aws_ec2 as ec2,
-  aws_ses as ses,
-  aws_sns as sns,
-  aws_iam as iam,
-  Aws,
+  // aws_ses as ses,
+  // aws_sns as sns,
+  // aws_iam as iam,
+  // Aws,
   CfnOutput,
   Duration,
   RemovalPolicy,
@@ -28,7 +28,7 @@ interface CreateApiComponentsProps {
   vpc: ec2.IVpc;
   kafkaAuthorizedSubnets: ec2.ISubnet[];
   brokerString: string;
-  datasetBucket: s3.IBucket;
+  uploadsBucket: s3.IBucket;
   launchDarklyServer: string;
   launchDarklyLocalFlags?: string;
 }
@@ -39,36 +39,36 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     stage,
     project,
     isDev,
-    vpc,
-    kafkaAuthorizedSubnets,
+    // vpc,
+    // kafkaAuthorizedSubnets,
     brokerString,
     tables,
-    datasetBucket,
+    uploadsBucket,
     launchDarklyServer,
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
   } = props;
 
-  const isProduction = stage === "production";
+  // const isProduction = stage === "production";
 
   const service = "app-api";
 
-  const kafkaSecurityGroup = new ec2.SecurityGroup(
-    scope,
-    "KafkaSecurityGroup",
-    {
-      vpc,
-      description:
-        "Security Group for streaming functions. Egress all is set by default.",
-      allowAllOutbound: true,
-    }
-  );
+  // const kafkaSecurityGroup = new ec2.SecurityGroup(
+  //   scope,
+  //   "KafkaSecurityGroup",
+  //   {
+  //     vpc,
+  //     description:
+  //       "Security Group for streaming functions. Egress all is set by default.",
+  //     allowAllOutbound: true,
+  //   }
+  // );
 
-  // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
-  let sesPolicy = new iam.PolicyStatement({
-    effect: iam.Effect.DENY,
-    actions: ["ses:SendEmail", "ses:SendRawEmail"],
-    resources: ["*"],
-  });
+  // // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
+  // let sesPolicy = new iam.PolicyStatement({
+  //   effect: iam.Effect.DENY,
+  //   actions: ["ses:SendEmail", "ses:SendRawEmail"],
+  //   resources: ["*"],
+  // });
   /* if (!isDev) {
     const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
@@ -179,7 +179,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     STAGE: stage,
     launchDarklyServer,
     launchDarklyLocalFlags,
-    datasetBucketName: datasetBucket.bucketName,
+    uploadsBucketName: uploadsBucket.bucketName,
     ...Object.fromEntries(
       tables.map((table) => [`${table.node.id}Table`, table.table.tableName])
     ),
@@ -194,7 +194,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     environment,
     isDev,
     tables,
-    buckets: [datasetBucket],
+    buckets: [uploadsBucket],
   };
 
   // Banner handlers
@@ -264,73 +264,73 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "createDataSetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/create.ts",
-    handler: "createDataSetUpload",
-    path: "/dataset/{state}/{id}",
+  new Lambda(scope, "createUpload", {
+    entry: "services/app-api/handlers/uploads/create.ts",
+    handler: "createUpload",
+    path: "/uploads/{state}/",
     method: "POST",
     ...commonProps,
   });
 
   new Lambda(scope, "getUploadsByState", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
+    entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploadsByState",
-    path: "/dataset/{state}",
+    path: "/uploads/{state}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSetUploadsByFileId", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDataSetUploadsByFileId",
-    path: "/dataset/{state}/{id}/files/{fileId}",
+  new Lambda(scope, "getUploadByFileId", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploadByFileId",
+    path: "/uploads/{state}/{id}",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSetUploads", {
-    entry: "services/app-api/handlers/datasetUpload/get.ts",
-    handler: "getDataSetUploads",
-    path: "dataset",
+  new Lambda(scope, "getUploads", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploads",
+    path: "uploads",
     method: "GET",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDataSetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/update.ts",
-    handler: "updateDataSetUpload",
-    path: "/dataset/{state}/{id}/files/{fileId}",
+  new Lambda(scope, "updateUpload", {
+    entry: "services/app-api/handlers/uploads/update.ts",
+    handler: "updateUploadHandler",
+    path: "/uploads/{state}/{id}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "deleteDataSetUpload", {
-    entry: "services/app-api/handlers/datasetUpload/delete.ts",
-    handler: "deleteDataSetUpload",
-    path: "/dataset/{state}/{id}/files/{fileId}",
+  new Lambda(scope, "deleteUpload", {
+    entry: "services/app-api/handlers/uploads/delete.ts",
+    handler: "deleteUploadHandler",
+    path: "/uploads/{state}/{id}",
     method: "DELETE",
     ...commonProps,
   });
 
-  new Lambda(scope, "createDataSet", {
-    entry: "services/app-api/handlers/dataset/create.ts",
-    handler: "createDataSet",
+  new Lambda(scope, "createDataset", {
+    entry: "services/app-api/handlers/datasets/create.ts",
+    handler: "createDataset",
     path: "datasets",
     method: "POST",
     ...commonProps,
   });
 
-  new Lambda(scope, "updateDataSet", {
-    entry: "services/app-api/handlers/dataset/update.ts",
-    handler: "updateDataSet",
+  new Lambda(scope, "updateDataset", {
+    entry: "services/app-api/handlers/datasets/update.ts",
+    handler: "updateDataset",
     path: "datasets/{id}",
     method: "PUT",
     ...commonProps,
   });
 
-  new Lambda(scope, "getDataSets", {
-    entry: "services/app-api/handlers/dataset/get.ts",
-    handler: "getDataSets",
+  new Lambda(scope, "getDatasets", {
+    entry: "services/app-api/handlers/datasets/get.ts",
+    handler: "getDatasets",
     path: "datasets",
     method: "GET",
     ...commonProps,
