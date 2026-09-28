@@ -36,6 +36,10 @@ export const canWriteBanner = (user: User) => {
   return user.role == UserRoles.ADMIN;
 };
 
+export const canWriteDataset = (user: User) => {
+  return adminRoles.includes(user.role);
+};
+
 export const canRequestZip = (user: User) => {
-  return user.role === UserRoles.ADMIN;
+  return statelessRoles.includes(user.role);
 };

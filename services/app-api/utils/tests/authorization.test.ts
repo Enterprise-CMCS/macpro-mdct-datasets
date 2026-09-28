@@ -2,6 +2,7 @@ import {
   canReadState,
   canRequestZip,
   canWriteBanner,
+  canWriteDataset,
   canWriteState,
 } from "../authorization";
 import { User } from "../../types/types";
@@ -74,15 +75,28 @@ describe("Authorization functions", () => {
     });
   });
 
-  describe("canRequestZip", () => {
-    test("admin user can get zip", () => {
-      expect(canRequestZip(adminUser)).toBe(true);
+  describe("canWriteDataset", () => {
+    test("should allow admin and approver users", () => {
+      expect(canWriteDataset(adminUser)).toBe(true);
+      expect(canWriteDataset(approverUser)).toBe(true);
     });
-    test("all other users cannot get zip", () => {
+
+    test("should forbid others", () => {
+      expect(canWriteDataset(stateUser)).toBe(false);
+      expect(canWriteDataset(helpDeskUser)).toBe(false);
+      expect(canWriteDataset(internalUser)).toBe(false);
+    });
+  });
+
+  describe("canRequestZip", () => {
+    test("stateless users can get zip", () => {
+      expect(canRequestZip(adminUser)).toBe(true);
+      expect(canRequestZip(helpDeskUser)).toBe(true);
+      expect(canRequestZip(approverUser)).toBe(true);
+      expect(canRequestZip(internalUser)).toBe(true);
+    });
+    test("state users cannot get zip", () => {
       expect(canRequestZip(stateUser)).toBe(false);
-      expect(canRequestZip(helpDeskUser)).toBe(false);
-      expect(canRequestZip(approverUser)).toBe(false);
-      expect(canRequestZip(internalUser)).toBe(false);
     });
   });
 });

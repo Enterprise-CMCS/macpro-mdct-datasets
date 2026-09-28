@@ -93,7 +93,8 @@ export const UserProvider = ({ children }: Props) => {
         .split(",")
         .find((r) => r.includes("mdctdatasets"));
       const full_name = [given_name, " ", family_name].join("");
-      const userIsAdmin = userRole === UserRoles.ADMIN;
+      const userIsAdmin =
+        userRole === UserRoles.ADMIN || userRole === UserRoles.APPROVER;
       const userCheck = {
         userIsAdmin,
         userIsReadOnly:
