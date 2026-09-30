@@ -2,7 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import { AdminBannerDrawer } from "components";
 import userEvent from "@testing-library/user-event";
 import { testA11yAct } from "utils/testing/commonTests";
-import { BannerShape } from "@rhtp/shared";
+import { BannerShape } from "@datasets/shared";
 import { useStore } from "utils";
 
 const mockCreateBanner = vi.fn();
@@ -27,9 +27,6 @@ describe("<AdminBannerDrawer />", () => {
   });
 
   test("AdminBannerDrawer can be filled and submitted without error", async () => {
-    const siteAreaDropdown = screen.getAllByLabelText("Site area")[0];
-    await userEvent.selectOptions(siteAreaDropdown, "RHTP");
-
     const titleInput = screen.getByLabelText("Title");
     await userEvent.click(titleInput);
     await userEvent.paste("mock title");
@@ -54,7 +51,7 @@ describe("<AdminBannerDrawer />", () => {
     await userEvent.click(submitButton);
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "RHTP",
+      area: "dashboard",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",
@@ -87,7 +84,7 @@ describe("AdminBannerDrawer validation", () => {
   test("Display errors when date range conflicts with existing banners", async () => {
     const existingBanner = {
       title: "alpha",
-      area: "home",
+      area: "dashboard",
       startDate: "2026-01-10",
       endDate: "2026-01-20",
       key: "123456",
@@ -129,13 +126,6 @@ describe("AdminBannerDrawer validation", () => {
     expect(screen.queryByText(startDateConflict)).not.toBeInTheDocument();
     expect(screen.queryByText(endDateConflict)).not.toBeInTheDocument();
     expect(screen.getByText(rangeConflict)).toBeVisible();
-
-    // Move the banner to a different area, so no conflict
-    await userEvent.click(screen.getByRole("button", { name: /Site area/ }));
-    await userEvent.click(screen.getByRole("option", { name: /RHTP report/ }));
-    expect(screen.queryByText(startDateConflict)).not.toBeInTheDocument();
-    expect(screen.queryByText(endDateConflict)).not.toBeInTheDocument();
-    expect(screen.queryByText(rangeConflict)).not.toBeInTheDocument();
   });
 
   test("User has form errors but then fills out the form and errors go away", async () => {
@@ -175,7 +165,7 @@ describe("AdminBannerDrawer validation", () => {
     ).not.toBeInTheDocument();
 
     expect(mockCreateBanner).toHaveBeenCalledWith({
-      area: "home",
+      area: "dashboard",
       title: "mock title",
       description: "mock description",
       link: "http://example.com",

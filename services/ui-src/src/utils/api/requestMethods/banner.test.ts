@@ -1,12 +1,12 @@
 import { getBanners, createBanner, deleteBanner, updateBanner } from "./banner";
-import { BannerAreas, BannerFormData } from "@rhtp/shared";
+import { BannerAreas, BannerFormData } from "@datasets/shared";
 import { initAuthManager } from "utils/auth/authLifecycle";
 
 const mockBanner: BannerFormData = {
-  title: "RHTP Alert",
-  area: BannerAreas.RHTP,
+  title: "Datasets Alert",
+  area: BannerAreas.Dashboard,
   description: "mock description",
-  link: "https://example.com/rhtp-alert",
+  link: "https://example.com/datasets-alert",
   startDate: "2026-01-01",
   endDate: "2027-01-01",
 };

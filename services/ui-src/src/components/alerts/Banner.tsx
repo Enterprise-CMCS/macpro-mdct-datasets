@@ -1,5 +1,5 @@
 import { Alert } from "components";
-import { BannerFormData } from "@rhtp/shared";
+import { BannerFormData } from "@datasets/shared";
 import { parseHtml } from "utils";
 
 export const Banner = ({ title, description, link }: Props) => {

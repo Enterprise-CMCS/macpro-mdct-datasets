@@ -23,7 +23,6 @@ interface DeployFrontendProps {
   userPoolClientDomain: string;
   launchDarklyClient: string;
   redirectSignout: string;
-  attachmentsBucketName: string;
 }
 
 export function deployFrontend(props: DeployFrontendProps) {
@@ -41,7 +40,6 @@ export function deployFrontend(props: DeployFrontendProps) {
     uiBucket,
     launchDarklyClient,
     redirectSignout,
-    attachmentsBucketName,
   } = props;
 
   const reactAppPath = "./services/ui-src/";
@@ -103,7 +101,6 @@ export function deployFrontend(props: DeployFrontendProps) {
         stage,
         apiGatewayRestApiUrl,
         applicationEndpointUrl,
-        attachmentsBucketName,
         identityPoolId,
         userPoolId,
         userPoolClientId,

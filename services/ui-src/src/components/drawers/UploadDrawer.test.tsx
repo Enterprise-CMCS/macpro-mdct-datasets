@@ -8,7 +8,7 @@ const mockChangedExpanded = vi.fn();
 const mockSaveToReport = vi.fn();
 const mockDeleteFromReport = vi.fn();
 
-vi.mock("utils/api/requestMethods/fileMethods", async (importOriginal) => ({
+vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
   ...(await importOriginal()),
   uploadFileToS3: vi.fn(),
   recordFileInDatabaseAndGetUploadUrl: vi
@@ -19,17 +19,6 @@ vi.mock("utils/api/requestMethods/fileMethods", async (importOriginal) => ({
     .mockReturnValue([
       { filename: "mock-name", fileSize: 100, fileId: "mock-id" },
     ]),
-}));
-
-vi.mock("utils", async (importOriginal) => ({
-  ...(await importOriginal()),
-  useStore: vi.fn().mockReturnValue({
-    report: {
-      id: "mock-report-id",
-      type: "RHTP",
-      state: "PA",
-    },
-  }),
 }));
 
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
@@ -58,6 +47,7 @@ const modalComponent = (
     saveToReport={mockSaveToReport}
     deleteFromReport={mockDeleteFromReport}
     modalHeading={"Upload Attachments"}
+    datasetId={""}
   />
 );
 

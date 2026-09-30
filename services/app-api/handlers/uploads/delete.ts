@@ -1,12 +1,19 @@
 import { handler } from "../../libs/handler-lib";
-import { parseUploadParameters } from "../../libs/param-lib";
-import { ok } from "../../libs/response-lib";
-import { deleteUpload, queryUpload } from "../../storage/upload";
+import { parseFileDownloadParameters } from "../../libs/param-lib";
+import { forbidden, ok } from "../../libs/response-lib";
+import { deleteUpload, queryUpload } from "../../storage/uploads";
+import { canWriteState } from "../../utils/authorization";
+import { error } from "../../utils/constants";
 
-export const deleteUploadedFile = handler(
-  parseUploadParameters,
+export const deleteUploadHandler = handler(
+  parseFileDownloadParameters,
   async (request) => {
-    const { state, reportType, id, fileId } = request.parameters;
+    const { user } = request;
+    const { state, id: fileId } = request.parameters;
+
+    if (!canWriteState(user, state)) {
+      return forbidden(error.UNAUTHORIZED);
+    }
 
     // Get file, check aws filename before deleting
     const results = await queryUpload(fileId, state);
@@ -15,7 +22,7 @@ export const deleteUploadedFile = handler(
     }
     const document = results.Items[0];
 
-    await deleteUpload(fileId, state, reportType, id, document);
+    await deleteUpload(fileId, state, document);
     return ok();
   }
 );

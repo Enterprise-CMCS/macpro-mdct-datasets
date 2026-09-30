@@ -1,19 +1,31 @@
 import s3 from "../../libs/s3-lib";
 import { handler } from "../../libs/handler-lib";
-import { parseUploadParameters } from "../../libs/param-lib";
-import { queryUpload } from "../../storage/upload";
+import {
+  parseFileUploadParameters,
+  parseFileDownloadParameters,
+  emptyParser,
+} from "../../libs/param-lib";
+import {
+  queryUpload,
+  queryStateUpload,
+  queryViewUploads,
+} from "../../storage/uploads";
 import { forbidden, ok } from "../../libs/response-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { error } from "../../utils/constants";
-import { getExtension, isAllowedFileExtension } from "@rhtp/shared";
+import { getExtension, isAllowedFileExtension } from "@datasets/shared";
 import { validateFileContentMatchesExtension } from "../../utils/fileContentValidation";
+import { canReadState } from "../../utils/authorization";
 
 const FILE_HEADER_BYTE_RANGE = "bytes=0-4100";
 
-export const getUploadsByFileId = handler(
-  parseUploadParameters,
+/**
+ * This is for downloading the file stored in S3 bucket
+ */
+export const getUploadByFileId = handler(
+  parseFileDownloadParameters,
   async (request) => {
-    const { state, reportType, id, fileId } = request.parameters;
+    const { state, id: fileId } = request.parameters;
 
     const results = await queryUpload(fileId, state);
     if (!results.Items || results.Items.length === 0) {
@@ -26,11 +38,11 @@ export const getUploadsByFileId = handler(
       return forbidden(error.UNAUTHORIZED);
     }
 
-    const objectKey = `${reportType}/${state}/${id}/${document.fileId}`;
+    const objectKey = `${state}/${document.fileId}`;
     let fileHeader: Uint8Array;
     try {
       const object = await s3.getObject({
-        Bucket: process.env.attachmentsBucketName,
+        Bucket: process.env.uploadsBucketName,
         Key: objectKey,
         Range: FILE_HEADER_BYTE_RANGE,
       });
@@ -48,7 +60,7 @@ export const getUploadsByFileId = handler(
     }
 
     let psurl = await s3.getSignedDownloadUrl({
-      Bucket: process.env.attachmentsBucketName,
+      Bucket: process.env.uploadsBucketName,
       Key: objectKey,
       ResponseContentDisposition: `attachment; filename = ${document.filename}`,
     });
@@ -57,3 +69,36 @@ export const getUploadsByFileId = handler(
     return ok({ psurl: psurl });
   }
 );
+
+/**
+ * get file uploaded by state
+ */
+export const getUploadsByState = handler(
+  parseFileUploadParameters,
+  async (request) => {
+    const { state } = request.parameters;
+    const { user } = request;
+
+    if (!canReadState(user, state)) {
+      return forbidden(error.UNAUTHORIZED);
+    }
+
+    const uploads = await queryStateUpload(state);
+
+    return ok(uploads);
+  }
+);
+
+/**
+ * get all file uploaded, used for admin dashboard
+ */
+export const getUploads = handler(emptyParser, async (request) => {
+  const { user } = request;
+
+  if (!canReadState(user, user.state!)) {
+    return forbidden(error.UNAUTHORIZED);
+  }
+
+  const uploads = await queryViewUploads();
+  return ok(uploads);
+});

@@ -111,12 +111,12 @@ describe("<UserProvider />", () => {
 
   describe("Test UserProvider with production path", () => {
     test("production authenticates with idm when current authenticated user throws an error", async () => {
-      setWindowOrigin("mdctrhtp.cms.gov");
+      setWindowOrigin("mdct.cms.gov");
       await breakCheckAuthState();
       await act(async () => {
         render(testComponent);
       });
-      expect(window.location.origin).toContain("mdctrhtp.cms.gov");
+      expect(window.location.origin).toContain("mdct.cms.gov");
       expect(screen.getByText("User Test")).toBeVisible();
     });
   });

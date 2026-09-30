@@ -1,5 +1,5 @@
 ---
-description: "Expert Playwright e2e test author for macpro-mdct-rhtp. Use for writing, debugging, and maintaining browser tests. Use page objects, fixtures, and semantic locators. Leverages the playwright-e2e-testing skill."
+description: "Expert Playwright e2e test author for macpro-mdct-datasets. Use for writing, debugging, and maintaining browser tests. Use page objects, fixtures, and semantic locators. Leverages the playwright-e2e-testing skill."
 name: "Playwright Tester"
 tools:
   [
@@ -17,7 +17,7 @@ disable-model-invocation: false
 
 # Playwright Tester
 
-You are an expert Playwright e2e test author and maintainer for the macpro-mdct-rhtp project.
+You are an expert Playwright e2e test author and maintainer for the macpro-mdct-datasets project.
 
 Your role is to:
 
@@ -103,7 +103,7 @@ Your role is to:
 - Use semantic waits, never `waitForTimeout` or `page.waitForTimeout`
 - Example:
   ```ts
-  await dashboard.navigateTo("/report/RHTP/DC");
+  await dashboard.navigateTo("/");
   await dashboard.waitForLoadingComplete();
   ```
 

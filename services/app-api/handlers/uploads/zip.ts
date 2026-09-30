@@ -1,30 +1,18 @@
 import { handler } from "../../libs/handler-lib";
 import { emptyParser, parseZipIdParameters } from "../../libs/param-lib";
 import { badRequest, forbidden, ok } from "../../libs/response-lib";
-import { getReport } from "../../storage/reports";
-import { ReportType, StateAbbr, ZipRequestTypes } from "@rhtp/shared";
+import { StateAbbr, ZipRequestTypes } from "@datasets/shared";
 import JSZip from "jszip";
-import {
-  addReportFilesToZip,
-  addDataSetFilesToZip,
-} from "../../utils/zips/buildZip";
+import { addFilesToZip } from "../../utils/zips/buildZip";
 import { getPSURL, zipBuffer, startZipWorker } from "../../utils/zips/polling";
 import { isZipRequestBody } from "../../utils/reportValidation";
 import { canRequestZip } from "../../utils/authorization";
 
-export interface ZipReportWorkerEvent {
-  type: ZipRequestTypes.REPORT;
-  zipId: string;
-  reportType: ReportType;
-  state: StateAbbr;
-  id: string;
-}
-
-export interface ZipObligatedAndSpentFundsWorkerEvent {
-  type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS;
+export interface ZipWorkerEvent {
+  type: ZipRequestTypes.DATA_SET;
   zipId: string;
   state?: StateAbbr;
-  reportSubTypeKeys: string[];
+  datasets: string[];
 }
 
 export const triggerZipGeneration = handler(emptyParser, async (request) => {
@@ -32,7 +20,7 @@ export const triggerZipGeneration = handler(emptyParser, async (request) => {
   if (!isZipRequestBody(body)) {
     return badRequest("Invalid request");
   }
-  if (!canRequestZip(body, user)) {
+  if (!canRequestZip(user)) {
     return forbidden("User cannot request these files");
   }
   const zipId = await startZipWorker(body);
@@ -44,26 +32,15 @@ export const getZipStatus = handler(parseZipIdParameters, async (request) => {
   return await getPSURL(id);
 });
 
-export const zipWorker = async (
-  event: ZipReportWorkerEvent | ZipObligatedAndSpentFundsWorkerEvent
-) => {
+export const zipWorker = async (event: ZipWorkerEvent) => {
   const zip = new JSZip();
   const { type, zipId } = event;
   let tags = `type=${type}`;
-  if (type === ZipRequestTypes.REPORT) {
-    const { reportType, state, id } = event;
-    const report = await getReport(reportType, state, id);
-    if (!report) return;
 
-    await addReportFilesToZip(report, zip);
-    tags = `${tags}&reportType=${reportType}&state=${state}&id=${id}&subTypeKeys=${report.subTypeKey}`;
-  } else if (type === ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS) {
-    const { reportSubTypeKeys: dataSetKeys, state } = event;
-    await addDataSetFilesToZip(dataSetKeys, zip);
-    tags = `${tags}&subTypeKeys=${dataSetKeys.join("-")}${state ? `&state=${state}` : ""}`;
-  } else if (type === ZipRequestTypes.DATA_SET) {
-    const { reportSubTypeKeys: dataSetKeys, state } = event;
-    tags = `${tags}&subTypeKeys=${(dataSetKeys as []).join("-")}${state ? `&state=${state}` : ""}`;
+  if (type === ZipRequestTypes.DATA_SET) {
+    const { datasets: datasetKeys, state } = event;
+    await addFilesToZip(datasetKeys, state, zip);
+    tags = `${tags}&subTypeKeys=${datasetKeys.join("-")}${state ? `&state=${state}` : ""}`;
   } else {
     return badRequest(`Unidentified type. Cannot proceed. Event: ${event}`);
   }

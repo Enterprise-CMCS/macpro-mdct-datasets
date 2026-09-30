@@ -1,6 +1,6 @@
 import { DeleteCommand, paginateScan, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { createClient } from "./dynamo/dynamodb-lib";
-import { BannerFormData, BannerShape } from "@rhtp/shared";
+import { BannerFormData, BannerShape } from "@datasets/shared";
 
 const bannerTableName = process.env.BannersTable;
 const client = createClient();

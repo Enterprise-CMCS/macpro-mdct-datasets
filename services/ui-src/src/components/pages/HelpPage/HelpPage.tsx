@@ -5,7 +5,6 @@ import { useBreakpoint } from "utils";
 
 export const HelpPage = () => {
   const { isDesktop } = useBreakpoint();
-  const helpfile = "RHTP_State Reporting Expectations_Guide V7_6.12.26.pdf";
   return (
     <PageTemplate>
       <Box>
@@ -24,20 +23,6 @@ export const HelpPage = () => {
             Email {!isDesktop && <br />}
             <Link href={`mailto:${HELP_DESK_EMAIL_ADDRESS}`} target="_blank">
               {HELP_DESK_EMAIL_ADDRESS}
-            </Link>
-          </Text>
-        </HelpCard>
-        <HelpCard icon="spreadsheet">
-          <Text sx={sx.bodyText}>For questions about the online form:</Text>
-          <Text sx={sx.emailText}>
-            Contact your Project Officer or refer to the{" "}
-            <Link
-              href={`${window.location.origin}/${helpfile}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              fontWeight="bold"
-            >
-              State Reporting Guide
             </Link>
           </Text>
         </HelpCard>

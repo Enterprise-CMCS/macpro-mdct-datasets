@@ -34,17 +34,16 @@ describe("<App />", () => {
       screen.getByRole("button", { name: "Here's how you know" })
     ).toBeVisible();
     // Unable to run assertions on collections
-    expect(screen.getAllByAltText("RHTP logo")).toBeTruthy();
+    expect(screen.getAllByAltText("MDCT logo")).toBeTruthy();
     expect(screen.getAllByAltText("Help")).toBeTruthy();
     expect(screen.getAllByAltText("Account")).toBeTruthy();
-    expect(screen.getAllByAltText("Expand")).toBeTruthy();
     expect(
       screen.getAllByAltText("Department of Health and Human Services, USA")
     ).toBeTruthy();
     expect(
       screen.getAllByAltText("Medicaid.gov: Keeping America Healthy")
     ).toBeTruthy();
-    expect(screen.getAllByRole("button").length).toBe(3);
+    expect(screen.getAllByRole("button").length).toBe(4);
   });
 
   test("App renders local logins if there is no user", async () => {

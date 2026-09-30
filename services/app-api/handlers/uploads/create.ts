@@ -1,21 +1,28 @@
 import { handler } from "../../libs/handler-lib";
 import s3 from "../../libs/s3-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
-import { parseFileUploadDownloadParameters } from "../../libs/param-lib";
-import { ok } from "../../libs/response-lib";
-import { updateUpload } from "../../storage/upload";
+import { parseFileUpdateParameters } from "../../libs/param-lib";
+import { forbidden, ok } from "../../libs/response-lib";
+import { updateUpload } from "../../storage/uploads";
 import { UploadFileData } from "../../types/uploads";
 import KSUID from "ksuid";
+import { canWriteState } from "../../utils/authorization";
+import { error } from "../../utils/constants";
 
 export const createUpload = handler(
-  parseFileUploadDownloadParameters,
+  parseFileUpdateParameters,
   async (request) => {
     const { user, body } = request;
-    const { state, reportType, id: reportId } = request.parameters;
+    const { state } = request.parameters;
     // Format Info
-    const { uploadedFileName, uploadedFileSize } = body as UploadFileData;
+    const { uploadedFileName, uploadedFileSize, datasetId } =
+      body as UploadFileData;
 
-    const username = user.email ?? "";
+    if (!canWriteState(user, state)) {
+      return forbidden(error.UNAUTHORIZED);
+    }
+
+    const username = user.fullName ?? "";
     const fileId = `${KSUID.randomSync().string}_${uploadedFileName}`;
 
     await updateUpload(
@@ -23,13 +30,14 @@ export const createUpload = handler(
       username,
       uploadedFileName,
       fileId,
+      datasetId,
       uploadedFileSize
     );
 
     // Pre-sign url
     let psurl = await s3.createPresignedPost({
-      Bucket: process.env.attachmentsBucketName,
-      Key: `${reportType}/${state}/${reportId}/${fileId}`,
+      Bucket: process.env.uploadsBucketName,
+      Key: `${state}/${fileId}`,
     });
     psurl = fixLocalstackUrl(psurl);
     return ok({ psurl, fileId });

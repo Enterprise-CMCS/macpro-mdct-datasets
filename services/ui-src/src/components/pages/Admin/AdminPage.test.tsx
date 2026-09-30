@@ -3,7 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { AdminPage } from "components";
 import { useStore } from "utils";
 import { testA11yAct } from "utils/testing/commonTests";
-import { BannerShape, BannerAreas } from "@rhtp/shared";
+import { BannerShape, BannerAreas } from "@datasets/shared";
+
+vi.mock("react-router");
 
 const daysFromToday = (offset: number) => {
   const date = new Date();
@@ -23,19 +25,9 @@ const reformatDate = (isoString: string) => {
   return `${month}/${day}/${year}`;
 };
 
-const mockBannerRhtp = {
-  title: "RHTP Alert",
-  area: BannerAreas.RHTP,
-  description: "mock description",
-  link: "https://example.com/rhtp-alert",
-  startDate: "2026-03-01",
-  endDate: "2026-03-05",
-  key: "a8618482-5f61-4bfc-91ba-9f1d25609986", // #gitleaks:allow
-} as BannerShape;
-
 const mockBannerHome1 = {
-  title: "Home Alert - past",
-  area: BannerAreas.Home,
+  title: "Dashboard Alert - past",
+  area: BannerAreas.Dashboard,
   description: "mock description",
   startDate: daysFromToday(-5),
   endDate: daysFromToday(-2),
@@ -43,8 +35,8 @@ const mockBannerHome1 = {
 } as BannerShape;
 
 const mockBannerHome2 = {
-  title: "Home Alert - present",
-  area: BannerAreas.Home,
+  title: "Dashboard Alert - present",
+  area: BannerAreas.Dashboard,
   description: "mock description",
   startDate: daysFromToday(-5),
   endDate: daysFromToday(1),
@@ -52,8 +44,8 @@ const mockBannerHome2 = {
 } as BannerShape;
 
 const mockBannerHome3 = {
-  title: "Home Alert - future",
-  area: BannerAreas.Home,
+  title: "Dashboard Alert - future",
+  area: BannerAreas.Dashboard,
   description: "mock description",
   startDate: daysFromToday(3),
   endDate: daysFromToday(4),
@@ -78,12 +70,7 @@ describe("<AdminPage />", () => {
 
   it("should render the current banners under subheaders", async () => {
     useStore.setState({
-      allBanners: [
-        mockBannerRhtp,
-        mockBannerHome3,
-        mockBannerHome1,
-        mockBannerHome2,
-      ],
+      allBanners: [mockBannerHome3, mockBannerHome1, mockBannerHome2],
       ...bannerMethods,
     });
 
@@ -96,22 +83,13 @@ describe("<AdminPage />", () => {
       screen.getByRole("heading", { name: "Current Banners", level: 2 })
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: "Home page", level: 3 })
-    ).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: "RHTP report dashboard", level: 3 })
+      screen.getByRole("heading", { name: "Dashboard page", level: 3 })
     ).toBeVisible();
 
     const bannerPreviews = screen.getAllByRole("alert");
-    expect(bannerPreviews[0]).toHaveTextContent("Home Alert - past");
-    expect(bannerPreviews[1]).toHaveTextContent("Home Alert - present");
-    expect(bannerPreviews[2]).toHaveTextContent("Home Alert - future");
-
-    expect(bannerPreviews[3]).toHaveTextContent("RHTP Alert");
-    expect(bannerPreviews[3]).toHaveTextContent("mock description");
-    expect(
-      screen.getByRole("link", { name: "https://example.com/rhtp-alert" })
-    ).toBeVisible();
+    expect(bannerPreviews[0]).toHaveTextContent("Dashboard Alert - past");
+    expect(bannerPreviews[1]).toHaveTextContent("Dashboard Alert - present");
+    expect(bannerPreviews[2]).toHaveTextContent("Dashboard Alert - future");
   });
 
   it("should delete banners on button click", async () => {
@@ -126,7 +104,7 @@ describe("<AdminPage />", () => {
     });
 
     const deleteButton = screen.getByRole("button", {
-      name: "Delete banner titled Home Alert - present",
+      name: "Delete banner titled Dashboard Alert - present",
     });
     await userEvent.click(deleteButton);
 
@@ -182,7 +160,7 @@ describe("<AdminPage />", () => {
       })
     );
     const siteAreaDropdown = screen.getAllByLabelText("Site area")[0];
-    await userEvent.selectOptions(siteAreaDropdown, "RHTP");
+    await userEvent.selectOptions(siteAreaDropdown, "dashboard");
 
     const titleInput = screen.getByLabelText("Title");
     await userEvent.click(titleInput);
@@ -215,19 +193,14 @@ describe("<AdminPage />", () => {
     render(<AdminPage />);
     await screen.findByText("Expired");
     await userEvent.click(screen.getByText("Edit"));
-    expect(screen.getByDisplayValue("Home Alert - past")).toBeVisible();
+    expect(screen.getByDisplayValue("Dashboard Alert - past")).toBeVisible();
     expect(screen.getByDisplayValue("mock description")).toBeVisible();
     await userEvent.click(screen.getByText("Edit banner"));
   });
 
   testA11yAct(<AdminPage />, () => {
     useStore.setState({
-      allBanners: [
-        mockBannerRhtp,
-        mockBannerHome1,
-        mockBannerHome2,
-        mockBannerHome3,
-      ],
+      allBanners: [mockBannerHome1, mockBannerHome2, mockBannerHome3],
     });
   });
 

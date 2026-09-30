@@ -5,7 +5,7 @@
 // NOTE: this is the thing we would need to remove to allow a ZZ IDM user to exist if it is requested
 const isProdEnv =
   (typeof window !== "undefined" &&
-    window.location.hostname === "mdctrhtp.cms.gov") ||
+    window.location.hostname === "mdct.cms.gov") ||
   (typeof process !== "undefined" && process.env.STAGE === "production");
 
 export const StateNames = {
@@ -71,27 +71,6 @@ export const StateDropdownOptions = Object.entries(StateNames).map(
   })
 );
 
-//for fields that are required but only when it's an annual report and it needs to mutate to not required in optional.
-//This also clears the answer when copied, assuming it's a string, see reports/copyReport.ts
-export const optionalInQuarterly = [
-  "initiative-narrative",
-  "success-stories",
-  "metrics-table",
-];
-
-export const cmsStatusThatLocksSPAC = [
-  "Commitment abandoned",
-  "Implemented",
-  "Commitment fulfilled",
-];
-
-export const SPACItemsThatLock = [
-  "commitment-status",
-  "commitment-support-paragraph",
-  "commitment-links",
-  "commitment-attachments",
-];
-
 export const acceptedFileTypes = [
   ".bmp",
   ".txt",
@@ -119,13 +98,13 @@ export const acceptedFileTypes = [
 ];
 
 export const tabTitleMap = {
-  "/": "Medicaid Data Collection Tool", //TO DO: TEMPORARY
-  "/help": "How can we help you? - RHTP",
-  "/profile": "My Account - RHTP",
-  "/export": "Export Files - MDCT", //TO DO: TEMPORARY
-  "/admin": "Banner Admin - RHTP",
+  "/": "Medicaid Data Collection Tool",
+  "/help": "How can we help you? - Datasets",
+  "/profile": "My Account - Datasets",
+  "/export": "Export Files - Datasets",
+  "/admin": "Banner Admin - Datasets",
   "/403": "Access Denied",
-  "/data-sets": "Manage Data Sets - MDCT", //TO DO: TEMPORARY
+  "/datasets": "Manage Datasets - Datasets",
 };
 
 export const getExtension = (filename: string): string | undefined => {

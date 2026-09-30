@@ -1,5 +1,5 @@
 import { HttpResponse } from "../libs/response-lib";
-import { StateAbbr, UserRoles } from "@rhtp/shared";
+import { StateAbbr, UserRoles } from "@datasets/shared";
 
 export interface User {
   role: UserRoles;

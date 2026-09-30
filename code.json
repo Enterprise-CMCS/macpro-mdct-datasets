@@ -1,7 +1,7 @@
 {
   "name": "macpro-mdct-datasets",
   "version": "",
-  "description": "The Rural Health Transformation Program (RHTP) is a major initiative established by the Centers for Medicare & Medicaid Services (CMS) to modernize, strengthen, and sustain healthcare delivery across rural America.",
+  "description": "The MDCT Datasets app.",
   "longDescription": "",
   "permissions": {
     "licenses": [
@@ -14,14 +14,14 @@
     "exemptionText": ""
   },
   "organization": "Centers for Medicare & Medicaid Services",
-  "repositoryURL": "https://github.com/Enterprise-CMCS/macpro-mdct-rhtp",
+  "repositoryURL": "https://github.com/Enterprise-CMCS/macpro-mdct-datasets",
   "repositoryVisibility": "public",
   "homepageURL": "",
   "downloadURL": "",
   "disclaimerURL": "",
   "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 13126,
+  "laborHours": 100,
   "reuseFrequency": {
     "forks": 0,
     "clones": 0
@@ -39,11 +39,11 @@
   "contractNumber": [
     "47QTCA20D000W"
   ],
-  "SBOM": "https://github.com/Enterprise-CMCS/macpro-mdct-rhtp/network/dependencies",
+  "SBOM": "https://github.com/Enterprise-CMCS/macpro-mdct-datasets/network/dependencies",
   "relatedCode": [
     {
-      "name": "macpro-mdct-rhtp",
-      "URL": "https://github.com/Enterprise-CMCS/macpro-mdct-rhtp",
+      "name": "macpro-mdct-datasets",
+      "URL": "https://github.com/Enterprise-CMCS/macpro-mdct-datasets",
       "isGovernmentRepo": true
     }
   ],
@@ -61,7 +61,7 @@
     "email": "brendan.myers@coforma.com",
     "name": "Brendan Myers"
   },
-  "feedbackMechanism": "https://github.com/Enterprise-CMCS/macpro-mdct-rhtp/issues",
+  "feedbackMechanism": "https://github.com/Enterprise-CMCS/macpro-mdct-datasets/issues",
   "AIUseCaseID": "0",
   "localisation": false,
   "userInput": false,

@@ -3,7 +3,7 @@ import { Box, Container, Flex, Image, Link, Text } from "@chakra-ui/react";
 import { useBreakpoint } from "utils";
 import hhsLogo from "assets/logos/logo_hhs.svg";
 import medicaidLogo from "assets/logos/logo_medicaid.svg";
-import appLogo from "assets/logos/logo_mdct_rhtp_footer.svg";
+import appLogo from "assets/logos/logo_mdct_footer.svg";
 
 export const Footer = () => {
   const { isDesktop } = useBreakpoint();
@@ -13,7 +13,7 @@ export const Footer = () => {
         <Container sx={sx.footerTopContainer}>
           <Flex sx={sx.footerTopFlex}>
             <Box sx={sx.footerTopLeftContainer}>
-              <Image src={appLogo} alt="RHTP logo" sx={sx.appLogo} />
+              <Image src={appLogo} alt="MDCT logo" sx={sx.appLogo} />
             </Box>
             <Box sx={sx.footerTopRightContainer}>
               <Flex sx={sx.footerTopRightTopFlex}>

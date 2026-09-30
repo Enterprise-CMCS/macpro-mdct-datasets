@@ -6,13 +6,13 @@ import {
   PutCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { BannerAreas, BannerShape } from "@rhtp/shared";
+import { BannerAreas, BannerShape } from "@datasets/shared";
 
 const mockDynamo = mockClient(DynamoDBDocumentClient);
 
 const mockBanner: BannerShape = {
   title: "mock title",
-  area: BannerAreas.RHTP,
+  area: BannerAreas.Dashboard,
   description: "mock description",
   link: "https://example.com",
   startDate: new Date().toISOString().slice(0, 10),

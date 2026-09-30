@@ -5,7 +5,7 @@ import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { StatusCodes } from "../../libs/response-lib";
 import s3Lib from "../../libs/s3-lib";
 import { getPSURL, startZipWorker, zipBuffer } from "./polling";
-import { ReportType, StateAbbr, ZipRequestTypes } from "@rhtp/shared";
+import { ZipRequestTypes } from "@datasets/shared";
 
 const lambdaMock = mockClient(LambdaClient);
 const mockInvoke = vi.fn();
@@ -20,18 +20,9 @@ vi.mock("../../libs/s3-lib", () => ({
   },
 }));
 
-const mockReportZipBody = {
-  type: ZipRequestTypes.REPORT,
-  report: {
-    state: "NJ" as StateAbbr,
-    reportType: ReportType.RHTP,
-    id: "mock-report-id",
-  },
-};
-
-const mockObligatedAndSpentFundsZipBody = {
-  type: ZipRequestTypes.OBLIGATED_AND_SPENT_FUNDS,
-  reportSubTypeKeys: ["A1"],
+const mockZipBody = {
+  type: ZipRequestTypes.DATA_SET,
+  datasets: ["Set1"],
 };
 
 describe("polling utils", () => {
@@ -44,20 +35,6 @@ describe("polling utils", () => {
       const result = await getPSURL("zip-id-123");
       expect(result.statusCode).toBe(StatusCodes.Ok);
       expect(result.body).toEqual(JSON.stringify({ status: "pending" }));
-    });
-
-    test("getPSURL returns ready when complete", async () => {
-      (s3Lib.headObject as Mock).mockResolvedValue({});
-      const result = await getPSURL("zip-id-123");
-      expect(result.statusCode).toBe(StatusCodes.Ok);
-      expect(result.body).toEqual(
-        JSON.stringify({ status: "ready", psurl: "https://s3.file.mock" })
-      );
-      expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=RHTP.zip",
-        })
-      );
     });
 
     test("getPSURL returns ready and assigns proper name when tagged", async () => {
@@ -81,7 +58,8 @@ describe("polling utils", () => {
       );
       expect(s3Lib.getSignedDownloadUrl).toHaveBeenCalledWith(
         expect.objectContaining({
-          ResponseContentDisposition: "attachment; filename=RHTP_NJ_A1.zip",
+          ResponseContentDisposition:
+            "attachment; filename=MDCT_DATASETS_NJ.zip",
         })
       );
     });
@@ -96,14 +74,8 @@ describe("polling utils", () => {
   });
 
   describe("startZipWorker", () => {
-    test("startZipWorker works for report type", async () => {
-      const result = await startZipWorker(mockReportZipBody);
-      expect(mockInvoke).toHaveBeenCalled();
-      expect(result).toBeTypeOf("string");
-    });
-
-    test("startZipWorker works for obligated and spent funds type", async () => {
-      const result = await startZipWorker(mockObligatedAndSpentFundsZipBody);
+    test("startZipWorker works for dataset type", async () => {
+      const result = await startZipWorker(mockZipBody);
       expect(mockInvoke).toHaveBeenCalled();
       expect(result).toBeTypeOf("string");
     });
