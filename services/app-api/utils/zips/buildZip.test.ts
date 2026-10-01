@@ -37,7 +37,7 @@ describe("buildZip util", () => {
     vi.clearAllMocks();
     (scanAllDatasets as Mock).mockReturnValueOnce([
       {
-        key: "123",
+        key: "abc123",
         name: "Dataset A",
         status: DatasetStatusType.ACTIVE,
       },
