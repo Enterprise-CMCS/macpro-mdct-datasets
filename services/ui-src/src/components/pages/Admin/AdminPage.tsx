@@ -106,9 +106,7 @@ export const AdminPage = () => {
   };
 
   return (
-    <PageTemplate
-      returnTo={{ label: "Return to admin dashboard", path: "/" }}
-    >
+    <PageTemplate returnTo={{ label: "Return to admin dashboard", path: "/" }}>
       <Box>
         <Heading as="h1" id="AdminHeader" tabIndex={-1} sx={sx.headerText}>
           Banner Editor
