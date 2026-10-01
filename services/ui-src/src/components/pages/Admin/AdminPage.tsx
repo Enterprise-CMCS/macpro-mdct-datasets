@@ -107,7 +107,6 @@ export const AdminPage = () => {
 
   return (
     <PageTemplate
-      data-testid="admin-view"
       returnTo={{ label: "Return to admin dashboard", path: "/" }}
     >
       <Box>
