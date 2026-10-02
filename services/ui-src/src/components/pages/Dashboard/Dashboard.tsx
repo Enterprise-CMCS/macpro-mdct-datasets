@@ -25,6 +25,7 @@ import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
   getFilesByState,
+  getFilesByState2,
   updateUploadedFile,
 } from "../../../utils/api/requestMethods/uploads";
 import { downloadFile, removeFile } from "../../../utils/other/fileUtils";
@@ -63,6 +64,11 @@ export const Dashboard = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFile, setDeleteFile] = useState<UploadType | undefined>();
+  const [metadata, setMetaData] = useState<{
+    done: boolean;
+    nextToken?: any;
+    pageSize: number;
+  }>({ pageSize: 50, done: false });
 
   const setDatasetHandler = (dataset: string[]) => {
     setFilterDataset(dataset);
@@ -73,7 +79,7 @@ export const Dashboard = () => {
 
     const [datasets, files] = await Promise.all([
       getDatasets(),
-      getFilesByState(state!),
+      getFilesByState2(state!, metadata),
     ]);
 
     if (datasets && datasets.length > 0) {
@@ -82,14 +88,20 @@ export const Dashboard = () => {
       );
       setDatasetOptions(
         datasets
-        .filter((set) => set.status === DatasetStatusType.ACTIVE)
-        .map((set) => ({ label: set.name, value: set.key! })),
+          .filter((set) => set.status === DatasetStatusType.ACTIVE)
+          .map((set) => ({ label: set.name, value: set.key! })),
       );
     }
-    console.log("files", files)
-    if (files && files.length > 0) {
+
+    if (files.metadata) {
+      setMetaData(files.metadata);
+    }
+
+    if (files.items && files.items.length > 0) {
       setFiles(
-        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1)),
+        files.items.toSorted((a, b) =>
+          b.uploadedDate! < a.uploadedDate! ? -1 : 1,
+        ),
       );
     }
 
@@ -267,6 +279,19 @@ export const Dashboard = () => {
     setModalLoading(false);
   };
 
+  const onNextPage = async(
+    evt: React.MouseEvent<Element, MouseEvent>,
+    page: number,
+  ) => {
+    evt.preventDefault();
+    console.log("next page");
+
+    const test = await getFilesByState2(state!, metadata);
+    setFiles(test.items);
+    setMetaData(test.metadata);
+    console.log("test", test);
+  };
+
   return (
     <>
       {banner ? (
@@ -332,6 +357,7 @@ export const Dashboard = () => {
               sortRows,
               undefined,
               "No files uploaded yet. Select Upload Files above to submit documents for an active data request.",
+              onNextPage,
             )
           )}
         </Stack>

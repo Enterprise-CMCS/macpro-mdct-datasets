@@ -6,10 +6,12 @@ import {
   paginateQuery,
   QueryCommand,
   paginateScan,
+  DynamoDBDocumentPaginationConfiguration,
 } from "@aws-sdk/lib-dynamodb";
 import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
 import { UploadType } from "@datasets/shared";
+import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 
 const uploadTableName = process.env.UploadsTable!;
 const client = createClient();
@@ -17,7 +19,7 @@ const client = createClient();
 export const deleteUpload = async (
   decodedFileId: string,
   state: string,
-  document: Record<string, any>
+  document: Record<string, any>,
 ) => {
   var params = {
     Bucket: process.env.uploadsBucketName,
@@ -32,7 +34,7 @@ export const deleteUpload = async (
         state,
         fileId: decodedFileId,
       },
-    })
+    }),
   );
 };
 
@@ -42,7 +44,7 @@ export const updateUpload = async (
   filename: string,
   fileId: string,
   datasetId: string,
-  filesize: number
+  filesize: number,
 ) => {
   const params = {
     TableName: uploadTableName,
@@ -75,7 +77,7 @@ export const batchPutUploads = async (uploads: UploadType[]) => {
             PutRequest: { Item: upload },
           })),
         },
-      })
+      }),
     );
   }
 };
@@ -92,19 +94,30 @@ export const queryUpload = async (fileId: string, state: string) => {
       ":state": state,
       ":fileId": fileId,
     },
-    Limit: 1
+    Limit: 25,
   };
 
   return await client.send(new QueryCommand(documentParams));
 };
 
 export const queryViewUploads = async () => {
-  const pages = paginateScan({ client, pageSize: 1 }, { TableName: uploadTableName });
+  const pages = paginateScan(
+    { client, pageSize: 1 },
+    { TableName: uploadTableName },
+  );
   const items: Record<string, any>[] = [];
   for await (const page of pages) {
     items.push(...(page.Items ?? []));
   }
   return items as UploadType[];
+};
+
+export const queryUploadDescribe = async () => {
+  const param = new DescribeTableCommand({
+    TableName: uploadTableName,
+  });
+
+  return await client.send(param);
 };
 
 export const queryStateUpload = async (state: string) => {
@@ -117,11 +130,88 @@ export const queryStateUpload = async (state: string) => {
     ExpressionAttributeValues: {
       ":state": state,
     },
-    Limit: 1
+    Limit: 25,
   };
 
-  const response = paginateQuery({ client, pageSize: 1 }, params);
-  const uploads = await collectPageItems(response);
+  const paginator = paginateQuery({ client }, params);
+  const page = await paginator.next();
 
-  return uploads as UploadType[];
+  type ScanResult = {
+    items: Record<string, any>[];
+    metadata?: {};
+  };
+
+  const result: ScanResult = {
+    items: [...(page.value?.Items ?? [])],
+  };
+
+  if (page?.value?.LastEvaluatedKey) {
+    result.metadata = {
+      nextToken: Buffer.from(
+        JSON.stringify(page.value.LastEvaluatedKey),
+        "binary",
+      ).toString("base64"),
+      // pageSize:,
+      done: page.done,
+    };
+  }
+
+  return result;
+};
+
+export const paginateUploads = async(
+  state: string,
+  metadata: {
+    pageSize?: number;
+    startingToken?: string;
+  },
+) => {
+  let startingToken: string | undefined = undefined;
+  let pageSize = metadata.pageSize || 50;
+
+  const paginatorConfig: DynamoDBDocumentPaginationConfiguration = {
+    client: client,
+    pageSize,
+  };
+
+  if (metadata && metadata.startingToken) {
+    startingToken = metadata.startingToken;
+    pageSize ??= metadata?.pageSize!;
+    paginatorConfig.startingToken = startingToken;
+  }
+
+  const params: QueryCommandInput = {
+    TableName: uploadTableName,
+    KeyConditionExpression: "#state = :state",
+    ExpressionAttributeNames: {
+      "#state": "state",
+    },
+    ExpressionAttributeValues: {
+      ":state": state,
+    },
+    Limit: 25,
+  };
+
+  const paginator = paginateQuery({ client }, params);
+
+  const page = await paginator.next();
+
+  type ScanResult = {
+    items: Record<string, any>[];
+    metadata?: {};
+  };
+
+  const result: ScanResult = {
+    items: [...(page.value?.Items ?? [])],
+  };
+
+  if (page?.value?.LastEvaluatedKey) {
+    result.metadata = {
+      nextToken: page.value.LastEvaluatedKey,
+      pageSize,
+      done: page.done,
+    };
+  }
+
+  return result;
 };
