@@ -68,6 +68,5 @@ const sx = {
   returnBtn: {
     position: "absolute",
     top: "1.25rem",
-    // marginTop: "1.5rem",
   },
 };

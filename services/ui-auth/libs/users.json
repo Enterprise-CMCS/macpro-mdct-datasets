@@ -25,6 +25,31 @@
     ]
   },
   {
+    "username": "boruser@test.com",
+    "attributes": [
+      {
+        "Name": "email",
+        "Value": "boruser@test.com"
+      },
+      {
+        "Name": "given_name",
+        "Value": "Adam"
+      },
+      {
+        "Name": "family_name",
+        "Value": "Admins"
+      },
+      {
+        "Name": "email_verified",
+        "Value": "true"
+      },
+      {
+        "Name": "custom:cms_roles",
+        "Value": "mdctdatasets-bor"
+      }
+    ]
+  },
+  {
     "username": "helpdeskuser@test.com",
     "attributes": [
       {
