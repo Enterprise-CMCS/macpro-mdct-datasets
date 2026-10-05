@@ -5,11 +5,12 @@ import { StateAbbr, UserRoles } from "@datasets/shared";
 const statelessRoles = [
   UserRoles.ADMIN,
   UserRoles.APPROVER,
+  UserRoles.BOR,
   UserRoles.HELP_DESK,
   UserRoles.INTERNAL,
 ];
 
-const adminRoles = [UserRoles.ADMIN, UserRoles.APPROVER];
+const adminRoles = [UserRoles.ADMIN, UserRoles.APPROVER, UserRoles.BOR];
 
 export const isAdminUser = (user: User) => {
   return adminRoles.includes(user.role);
@@ -33,7 +34,7 @@ export const canWriteState = (user: User, state: StateAbbr) => {
 };
 
 export const canWriteBanner = (user: User) => {
-  return user.role == UserRoles.ADMIN;
+  return user.role == UserRoles.ADMIN || user.role == UserRoles.BOR;
 };
 
 export const canWriteDataset = (user: User) => {
