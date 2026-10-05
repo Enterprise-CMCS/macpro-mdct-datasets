@@ -2,6 +2,7 @@ import { UploadListProp, UploadType } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import JSZip from "jszip";
 import { queryViewUploads } from "../../storage/uploads";
+import { scanAllDatasets } from "../../storage/datasets";
 
 export const formatS3ZipKey = (zipId: string) => `zips/${zipId}.zip`;
 
@@ -16,11 +17,13 @@ export const addFilesToZip = async (
     subType: string;
     file: UploadListProp;
   }[] = [];
+  const datasets = await scanAllDatasets();
+
   const getUploads = (file: UploadType) => {
     uploads.push({
       id: file.datasetId,
       state: file.state,
-      subType: "",
+      subType: datasets.find((set) => set.key === file.datasetId)?.name ?? "",
       file: { name: file.filename, fileId: file.fileId, size: 0 },
     });
   };
