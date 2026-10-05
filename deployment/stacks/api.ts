@@ -280,6 +280,14 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
+  new Lambda(scope, "getUploadsByState2", {
+    entry: "services/app-api/handlers/uploads/get.ts",
+    handler: "getUploadsByState2",
+    path: "/uploads/{state}/test",
+    method: "POST",
+    ...commonProps,
+  });
+
   new Lambda(scope, "getUploadByFileId", {
     entry: "services/app-api/handlers/uploads/get.ts",
     handler: "getUploadByFileId",

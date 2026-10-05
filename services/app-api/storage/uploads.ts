@@ -6,6 +6,7 @@ import {
   paginateQuery,
   QueryCommand,
   paginateScan,
+  DynamoDBDocumentPaginationConfiguration,
 } from "@aws-sdk/lib-dynamodb";
 import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
@@ -92,6 +93,7 @@ export const queryUpload = async (fileId: string, state: string) => {
       ":state": state,
       ":fileId": fileId,
     },
+    Limit: 25,
   };
 
   return await client.send(new QueryCommand(documentParams));
@@ -116,10 +118,93 @@ export const queryStateUpload = async (state: string) => {
     ExpressionAttributeValues: {
       ":state": state,
     },
+    Limit: 25,
   };
 
   const response = paginateQuery({ client }, params);
   const uploads = await collectPageItems(response);
-
   return uploads as UploadType[];
+};
+
+export const paginateUploads = async (
+  state: string,
+  metadata: {
+    pageSize?: number;
+    nextToken?: string;
+  },
+  filters: {
+    state: string[];
+    dataset: string[];
+  }
+) => {
+  let startingToken: string | undefined = undefined;
+  let pageSize = metadata.pageSize || 25;
+
+  const paginatorConfig: DynamoDBDocumentPaginationConfiguration = {
+    client: client,
+    pageSize,
+  };
+
+  if (metadata && metadata.nextToken) {
+    startingToken = metadata.nextToken;
+    pageSize ??= metadata?.pageSize!;
+    paginatorConfig.startingToken = startingToken;
+  }
+
+  let attributeValues: any = {};
+  for (var i = 0; i < filters.dataset.length; i++) {
+    const name = `:datasetId${i}`;
+    attributeValues[name] = filters.dataset[i];
+  }
+
+  const params: QueryCommandInput = {
+    TableName: uploadTableName,
+    KeyConditionExpression: "#state = :state",
+    ExpressionAttributeNames: {
+      "#state": "state",
+    },
+    ExpressionAttributeValues: {
+      ":state": state,
+    },
+    ExclusiveStartKey: metadata.nextToken as any,
+    ScanIndexForward: false,
+  };
+
+  if (attributeValues.length > 0) {
+    params.ExpressionAttributeNames = {
+      ...params.ExpressionAttributeNames,
+      "#datasetId": "datasetId",
+    };
+    params.ExpressionAttributeValues = {
+      ...params.ExpressionAttributeValues,
+      ...attributeValues,
+    };
+    params.FilterExpression = "#datasetId IN (:datasetId1)";
+  }
+
+  const paginator = paginateQuery(
+    { client, pageSize: metadata.pageSize },
+    params
+  );
+
+  const page = await paginator.next();
+
+  type ScanResult = {
+    items: Record<string, any>[];
+    metadata?: {};
+  };
+
+  const result: ScanResult = {
+    items: [...(page.value?.Items ?? [])],
+  };
+
+  if (page?.value?.LastEvaluatedKey) {
+    result.metadata = {
+      nextToken: page.value.LastEvaluatedKey,
+      pageSize,
+      done: page.done,
+    };
+  }
+
+  return result;
 };

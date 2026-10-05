@@ -9,6 +9,7 @@ import {
   queryUpload,
   queryStateUpload,
   queryViewUploads,
+  paginateUploads,
 } from "../../storage/uploads";
 import { forbidden, ok } from "../../libs/response-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
@@ -102,3 +103,20 @@ export const getUploads = handler(emptyParser, async (request) => {
   const uploads = await queryViewUploads();
   return ok(uploads);
 });
+
+export const getUploadsByState2 = handler(
+  parseFileUploadParameters,
+  async (request) => {
+    const { state } = request.parameters;
+    const { user } = request;
+    const { metadata, filters } = request.body as any;
+
+    if (!canReadState(user, state)) {
+      return forbidden(error.UNAUTHORIZED);
+    }
+
+    const uploads = await paginateUploads(state, metadata, filters);
+
+    return ok(uploads);
+  }
+);
