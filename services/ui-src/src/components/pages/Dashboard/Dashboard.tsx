@@ -24,7 +24,6 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
-  getFilesByState,
   getFilesByState2,
   updateUploadedFile,
 } from "../../../utils/api/requestMethods/uploads";
@@ -64,11 +63,20 @@ export const Dashboard = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFile, setDeleteFile] = useState<UploadType | undefined>();
-  const [metadata, setMetaData] = useState<{
-    done: boolean;
-    nextToken?: any;
-    pageSize: number;
-  }>({ pageSize: 10, done: false });
+
+  //TEMPORARY TEST VARIABLES
+  const [storedResults, setStoredResults] = useState<UploadType[]>([]);
+  const [lastEvaluatedKeys, setLastEvaluatedKeys] = useState<
+    Map<
+      number,
+      {
+        done: boolean;
+        nextToken?: any;
+        pageSize: number;
+      }
+    >
+  >(new Map().set(1, { pageSize: 10, done: false }));
+  const [page, setPage] = useState<number>(1);
 
   const setDatasetHandler = (dataset: string[]) => {
     setFilterDataset(dataset);
@@ -79,7 +87,7 @@ export const Dashboard = () => {
 
     const [datasets, files] = await Promise.all([
       getDatasets(),
-      getFilesByState2(state!, metadata),
+      getFilesByState2(state!, lastEvaluatedKeys.get(page)),
     ]);
 
     if (datasets && datasets.length > 0) {
@@ -93,16 +101,12 @@ export const Dashboard = () => {
       );
     }
 
-    if (files.metadata) {
-      setMetaData(files.metadata);
-    }
-
     if (files.items && files.items.length > 0) {
-      setFiles(
-        files.items.toSorted((a, b) =>
-          b.uploadedDate! < a.uploadedDate! ? -1 : 1
-        )
-      );
+      setFiles(files.items);
+      setStoredResults(files.items);
+
+      if (files.metadata)
+        setLastEvaluatedKeys(lastEvaluatedKeys.set(2, files.metadata));
     }
 
     setIsLoading(false);
@@ -156,7 +160,7 @@ export const Dashboard = () => {
   };
 
   const buildRows = (data: UploadType[]) => {
-    return data.map((file, index) => {
+    return data.map((file) => {
       const columnAction = (
         <HStack>
           <Button
@@ -284,15 +288,18 @@ export const Dashboard = () => {
     page: number
   ) => {
     evt.preventDefault();
-    const test = await getFilesByState2(state!, metadata);
 
-    setFiles(
-      test.items.toSorted((a, b) =>
-        b.uploadedDate! < a.uploadedDate! ? -1 : 1
-      )
-    );
+    setPage(page);
+    setIsLoading(true);
+    const files = await getFilesByState2(state!, lastEvaluatedKeys.get(page));
 
-    if (test.metadata) setMetaData(test.metadata);
+    setFiles(files.items);
+    setStoredResults([...storedResults, ...files.items]);
+
+    if (!lastEvaluatedKeys.has(page + 1) && files.metadata) {
+      setLastEvaluatedKeys(lastEvaluatedKeys.set(page + 1, files.metadata));
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -360,7 +367,7 @@ export const Dashboard = () => {
               sortRows,
               undefined,
               "No files uploaded yet. Select Upload Files above to submit documents for an active data request.",
-              onNextPage
+              { currentPage: page, onPageChange: onNextPage }
             )
           )}
         </Stack>

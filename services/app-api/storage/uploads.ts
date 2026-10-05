@@ -8,7 +8,7 @@ import {
   paginateScan,
   DynamoDBDocumentPaginationConfiguration,
 } from "@aws-sdk/lib-dynamodb";
-import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
+import { createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
 import { UploadType } from "@datasets/shared";
 import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
@@ -191,6 +191,7 @@ export const paginateUploads = async (
     },
     ExclusiveStartKey: metadata.nextToken as any,
     Limit: metadata.pageSize,
+    ScanIndexForward: false,
   };
 
   const paginator = paginateQuery({ client }, params);

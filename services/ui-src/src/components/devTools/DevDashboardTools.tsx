@@ -26,7 +26,10 @@ export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
   const runUpload = async () => {
     setLoading(true);
     for (var i = 0; i < amount; i++) {
-      const newName = file[0].name.replace(/(\.[\w\d_-]+)$/i, "_" + i + "$1");
+      const newName = file[0].name.replace(
+        /(\.[\w\d_-]+)$/i,
+        "_" + i.toString().padStart(2, "0") + "$1"
+      );
       const copyFile = new File([file[0]], newName, {
         type: file[0].type,
         lastModified: file[0].lastModified,

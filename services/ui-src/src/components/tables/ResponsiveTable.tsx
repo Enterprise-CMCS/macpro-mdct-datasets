@@ -166,7 +166,13 @@ export const ResponsiveTable = (
   sorting: (header: string, type: SORT_TYPE) => void = () => {},
   styleOverride?: string[],
   emptyMessage?: string,
-  paginate?: (evt: React.MouseEvent<Element, MouseEvent>, page: number) => {}
+  paginate?: {
+    currentPage: number;
+    onPageChange: (
+      evt: React.MouseEvent<Element, MouseEvent>,
+      page: number
+    ) => {};
+  }
 ) => {
   return (
     <>
@@ -186,8 +192,8 @@ export const ResponsiveTable = (
       </Show>
       {paginate && (
         <Pagination
-          currentPage={0}
-          onPageChange={paginate}
+          currentPage={paginate.currentPage ?? 0}
+          onPageChange={paginate.onPageChange}
           totalPages={10}
           renderHref={() => "/"}
         ></Pagination>
