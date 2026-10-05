@@ -109,13 +109,13 @@ export const getUploadsByState2 = handler(
   async (request) => {
     const { state } = request.parameters;
     const { user } = request;
-    const { metadata } = request.body as any;
+    const { metadata, filters } = request.body as any;
 
     if (!canReadState(user, state)) {
       return forbidden(error.UNAUTHORIZED);
     }
 
-    const uploads = await paginateUploads(state, metadata);
+    const uploads = await paginateUploads(state, metadata, filters);
 
     return ok(uploads);
   }

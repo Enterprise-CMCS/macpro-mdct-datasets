@@ -7,12 +7,17 @@ interface PathURL {
   fileId: string;
 }
 
-export async function getFilesByState2(state: string, metadata?: any) {
+export async function getFilesByState2(
+  state: string,
+  metadata?: any,
+  filters?: { state: string[]; dataset: [] }
+) {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
     body: {
       metadata: metadata,
+      filters,
     },
   };
 

@@ -77,8 +77,7 @@ export const Dashboard = () => {
     >
   >(new Map().set(1, { pageSize: 10, done: false }));
   const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-
+  const [totalPages, setTotalPages] = useState<number>(0);
   /////////////////////////////////////
 
   const setDatasetHandler = (dataset: string[]) => {
@@ -108,9 +107,10 @@ export const Dashboard = () => {
       setFiles(files.items);
       setStoredResults(files.items);
 
-      if (files.metadata)
+      if (files.metadata) {
         setLastEvaluatedKeys(lastEvaluatedKeys.set(2, files.metadata));
-      setTotalPages(2);
+        setTotalPages(lastEvaluatedKeys.size);
+      }
     }
 
     setIsLoading(false);
@@ -300,9 +300,12 @@ export const Dashboard = () => {
     setFiles(files.items);
     setStoredResults([...storedResults, ...files.items]);
 
-    if (!lastEvaluatedKeys.has(page + 1) && files.metadata) {
-      setLastEvaluatedKeys(lastEvaluatedKeys.set(page + 1, files.metadata));
-      setTotalPages(page + 1);
+    const nextPageIndex = page + 1;
+    if (!lastEvaluatedKeys.has(nextPageIndex) && files.metadata) {
+      setLastEvaluatedKeys(
+        lastEvaluatedKeys.set(nextPageIndex, files.metadata)
+      );
+      setTotalPages(lastEvaluatedKeys.size);
     }
     setIsLoading(false);
   };

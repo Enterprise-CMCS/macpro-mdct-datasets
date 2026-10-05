@@ -8,10 +8,9 @@ import {
   paginateScan,
   DynamoDBDocumentPaginationConfiguration,
 } from "@aws-sdk/lib-dynamodb";
-import { createClient } from "./dynamo/dynamodb-lib";
+import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
 import { UploadType } from "@datasets/shared";
-import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 
 const uploadTableName = process.env.UploadsTable!;
 const client = createClient();
@@ -101,23 +100,12 @@ export const queryUpload = async (fileId: string, state: string) => {
 };
 
 export const queryViewUploads = async () => {
-  const pages = paginateScan(
-    { client, pageSize: 1 },
-    { TableName: uploadTableName }
-  );
+  const pages = paginateScan({ client }, { TableName: uploadTableName });
   const items: Record<string, any>[] = [];
   for await (const page of pages) {
     items.push(...(page.Items ?? []));
   }
   return items as UploadType[];
-};
-
-export const queryUploadDescribe = async () => {
-  const param = new DescribeTableCommand({
-    TableName: uploadTableName,
-  });
-
-  return await client.send(param);
 };
 
 export const queryStateUpload = async (state: string) => {
@@ -133,30 +121,9 @@ export const queryStateUpload = async (state: string) => {
     Limit: 25,
   };
 
-  const paginator = paginateQuery({ client }, params);
-  const page = await paginator.next();
-
-  type ScanResult = {
-    items: Record<string, any>[];
-    metadata?: {};
-  };
-
-  const result: ScanResult = {
-    items: [...(page.value?.Items ?? [])],
-  };
-
-  if (page?.value?.LastEvaluatedKey) {
-    result.metadata = {
-      nextToken: Buffer.from(
-        JSON.stringify(page.value.LastEvaluatedKey),
-        "binary"
-      ).toString("base64"),
-      // pageSize:,
-      done: page.done,
-    };
-  }
-
-  return result;
+  const response = paginateQuery({ client }, params);
+  const uploads = await collectPageItems(response);
+  return uploads as UploadType[];
 };
 
 export const paginateUploads = async (
@@ -164,6 +131,10 @@ export const paginateUploads = async (
   metadata: {
     pageSize?: number;
     nextToken?: string;
+  },
+  filters: {
+    state: string[];
+    dataset: string[];
   }
 ) => {
   let startingToken: string | undefined = undefined;
@@ -180,6 +151,12 @@ export const paginateUploads = async (
     paginatorConfig.startingToken = startingToken;
   }
 
+  let attributeValues: any = {};
+  for (var i = 0; i < filters.dataset.length; i++) {
+    const name = `:datasetId${i}`;
+    attributeValues[name] = filters.dataset[i];
+  }
+
   const params: QueryCommandInput = {
     TableName: uploadTableName,
     KeyConditionExpression: "#state = :state",
@@ -190,11 +167,25 @@ export const paginateUploads = async (
       ":state": state,
     },
     ExclusiveStartKey: metadata.nextToken as any,
-    Limit: metadata.pageSize,
     ScanIndexForward: false,
   };
 
-  const paginator = paginateQuery({ client }, params);
+  if (attributeValues.length > 0) {
+    params.ExpressionAttributeNames = {
+      ...params.ExpressionAttributeNames,
+      "#datasetId": "datasetId",
+    };
+    params.ExpressionAttributeValues = {
+      ...params.ExpressionAttributeValues,
+      ...attributeValues,
+    };
+    params.FilterExpression = "#datasetId IN (:datasetId1)";
+  }
+
+  const paginator = paginateQuery(
+    { client, pageSize: metadata.pageSize },
+    params
+  );
 
   const page = await paginator.next();
 
