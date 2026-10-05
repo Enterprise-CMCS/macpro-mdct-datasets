@@ -77,6 +77,9 @@ export const Dashboard = () => {
     >
   >(new Map().set(1, { pageSize: 10, done: false }));
   const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  /////////////////////////////////////
 
   const setDatasetHandler = (dataset: string[]) => {
     setFilterDataset(dataset);
@@ -107,6 +110,7 @@ export const Dashboard = () => {
 
       if (files.metadata)
         setLastEvaluatedKeys(lastEvaluatedKeys.set(2, files.metadata));
+      setTotalPages(2);
     }
 
     setIsLoading(false);
@@ -298,6 +302,7 @@ export const Dashboard = () => {
 
     if (!lastEvaluatedKeys.has(page + 1) && files.metadata) {
       setLastEvaluatedKeys(lastEvaluatedKeys.set(page + 1, files.metadata));
+      setTotalPages(page + 1);
     }
     setIsLoading(false);
   };
@@ -367,7 +372,7 @@ export const Dashboard = () => {
               sortRows,
               undefined,
               "No files uploaded yet. Select Upload Files above to submit documents for an active data request.",
-              { currentPage: page, onPageChange: onNextPage }
+              { currentPage: page, totalPages, onPageChange: onNextPage }
             )
           )}
         </Stack>
