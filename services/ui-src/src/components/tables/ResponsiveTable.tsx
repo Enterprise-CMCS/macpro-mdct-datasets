@@ -70,7 +70,7 @@ const HorizontalTable = (
   rows: TableRowType[][],
   sorting: (header: string, type: SORT_TYPE) => void,
   variant: string,
-  styleOverride?: string[],
+  styleOverride?: string[]
 ) => {
   const onSort = (sortName: string) => {
     const type =
@@ -168,7 +168,6 @@ export const ResponsiveTable = (
   emptyMessage?: string,
   paginate?: (evt: React.MouseEvent<Element, MouseEvent>, page: number) => {}
 ) => {
-
   return (
     <>
       <Hide below="md" key="table">
@@ -182,15 +181,17 @@ export const ResponsiveTable = (
       <Show below="md" key="table-mobile">
         {VerticalTable(
           headers.map((header) => header.label),
-          rows,
+          rows
         )}
       </Show>
-      {paginate && <Pagination
-        currentPage={0}
-        onPageChange={paginate}
-        totalPages={10}
-        renderHref={() => "/"}
-      ></Pagination>}
+      {paginate && (
+        <Pagination
+          currentPage={0}
+          onPageChange={paginate}
+          totalPages={10}
+          renderHref={() => "/"}
+        ></Pagination>
+      )}
     </>
   );
 };

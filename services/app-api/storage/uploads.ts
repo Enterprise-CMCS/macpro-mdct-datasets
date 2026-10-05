@@ -19,7 +19,7 @@ const client = createClient();
 export const deleteUpload = async (
   decodedFileId: string,
   state: string,
-  document: Record<string, any>,
+  document: Record<string, any>
 ) => {
   var params = {
     Bucket: process.env.uploadsBucketName,
@@ -34,7 +34,7 @@ export const deleteUpload = async (
         state,
         fileId: decodedFileId,
       },
-    }),
+    })
   );
 };
 
@@ -44,7 +44,7 @@ export const updateUpload = async (
   filename: string,
   fileId: string,
   datasetId: string,
-  filesize: number,
+  filesize: number
 ) => {
   const params = {
     TableName: uploadTableName,
@@ -77,7 +77,7 @@ export const batchPutUploads = async (uploads: UploadType[]) => {
             PutRequest: { Item: upload },
           })),
         },
-      }),
+      })
     );
   }
 };
@@ -103,7 +103,7 @@ export const queryUpload = async (fileId: string, state: string) => {
 export const queryViewUploads = async () => {
   const pages = paginateScan(
     { client, pageSize: 1 },
-    { TableName: uploadTableName },
+    { TableName: uploadTableName }
   );
   const items: Record<string, any>[] = [];
   for await (const page of pages) {
@@ -149,7 +149,7 @@ export const queryStateUpload = async (state: string) => {
     result.metadata = {
       nextToken: Buffer.from(
         JSON.stringify(page.value.LastEvaluatedKey),
-        "binary",
+        "binary"
       ).toString("base64"),
       // pageSize:,
       done: page.done,
@@ -159,23 +159,23 @@ export const queryStateUpload = async (state: string) => {
   return result;
 };
 
-export const paginateUploads = async(
+export const paginateUploads = async (
   state: string,
   metadata: {
     pageSize?: number;
-    startingToken?: string;
-  },
+    nextToken?: string;
+  }
 ) => {
   let startingToken: string | undefined = undefined;
-  let pageSize = metadata.pageSize || 50;
+  let pageSize = metadata.pageSize || 25;
 
   const paginatorConfig: DynamoDBDocumentPaginationConfiguration = {
     client: client,
     pageSize,
   };
 
-  if (metadata && metadata.startingToken) {
-    startingToken = metadata.startingToken;
+  if (metadata && metadata.nextToken) {
+    startingToken = metadata.nextToken;
     pageSize ??= metadata?.pageSize!;
     paginatorConfig.startingToken = startingToken;
   }
@@ -189,7 +189,8 @@ export const paginateUploads = async(
     ExpressionAttributeValues: {
       ":state": state,
     },
-    Limit: 25,
+    ExclusiveStartKey: metadata.nextToken as any,
+    Limit: metadata.pageSize,
   };
 
   const paginator = paginateQuery({ client }, params);

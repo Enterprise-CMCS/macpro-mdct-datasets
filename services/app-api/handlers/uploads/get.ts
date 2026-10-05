@@ -104,7 +104,6 @@ export const getUploads = handler(emptyParser, async (request) => {
   return ok(uploads);
 });
 
-
 export const getUploadsByState2 = handler(
   parseFileUploadParameters,
   async (request) => {
@@ -119,5 +118,5 @@ export const getUploadsByState2 = handler(
     const uploads = await paginateUploads(state, metadata);
 
     return ok(uploads);
-  },
+  }
 );

@@ -14,14 +14,9 @@ export enum ToolType {
   DASHBOARD = "dashboard",
 }
 
-export const DevTools = ({
-  type,
-  reload,
-  state,
-  datasetId
-}: Props) => {
+export const DevTools = ({ type, reload, state, datasetId }: Props) => {
   const devTools = useFlags()?.devTools;
-  if (!devTools ) return;
+  if (!devTools) return;
 
   const [showOptions, setShowOptions] = useState<boolean>();
 

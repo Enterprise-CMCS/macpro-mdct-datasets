@@ -7,7 +7,7 @@ interface PathURL {
   fileId: string;
 }
 
-export async function getFilesByState2(state: string, metadata?:any) {
+export async function getFilesByState2(state: string, metadata?: any) {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
@@ -43,7 +43,7 @@ export async function getFiles() {
 export const recordFileInDatabaseAndGetUploadUrl = async (
   state: string,
   id: string,
-  uploadedFile: File,
+  uploadedFile: File
 ) => {
   const requestHeaders = await getRequestHeaders();
   const body = {
@@ -60,7 +60,7 @@ export const recordFileInDatabaseAndGetUploadUrl = async (
 
   const { psurl, fileId } = await apiLib.post<PathURL>(
     `/uploads/${state}/`,
-    options,
+    options
   );
 
   return { presignedUploadUrl: psurl, fileId };
@@ -82,7 +82,7 @@ export const getZipPresignedUrl = async (body: ZipRequestBody) => {
     {
       headers: { ...requestHeaders },
       body,
-    },
+    }
   );
 
   for (let i = 0; i < MAX_POLLS; i++) {
@@ -103,7 +103,7 @@ export const getZipPresignedUrl = async (body: ZipRequestBody) => {
 
 export const uploadFileToS3 = async (
   { presignedUploadUrl }: { presignedUploadUrl: string },
-  file: File,
+  file: File
 ) => {
   return await fetch(presignedUploadUrl, {
     method: "PUT",
@@ -119,7 +119,7 @@ export const getFileDownloadUrl = async (state: string, fileId: string) => {
 
   const response = await apiLib.get<PathURL>(
     `/uploads/${state}/${fileId}`,
-    options,
+    options
   );
   return response.psurl;
 };

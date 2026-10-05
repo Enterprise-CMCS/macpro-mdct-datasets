@@ -68,7 +68,7 @@ export const Dashboard = () => {
     done: boolean;
     nextToken?: any;
     pageSize: number;
-  }>({ pageSize: 50, done: false });
+  }>({ pageSize: 10, done: false });
 
   const setDatasetHandler = (dataset: string[]) => {
     setFilterDataset(dataset);
@@ -84,12 +84,12 @@ export const Dashboard = () => {
 
     if (datasets && datasets.length > 0) {
       setDatasetFilterOptions(
-        datasets.map((set) => ({ label: set.name, value: set.key! })),
+        datasets.map((set) => ({ label: set.name, value: set.key! }))
       );
       setDatasetOptions(
         datasets
           .filter((set) => set.status === DatasetStatusType.ACTIVE)
-          .map((set) => ({ label: set.name, value: set.key! })),
+          .map((set) => ({ label: set.name, value: set.key! }))
       );
     }
 
@@ -100,8 +100,8 @@ export const Dashboard = () => {
     if (files.items && files.items.length > 0) {
       setFiles(
         files.items.toSorted((a, b) =>
-          b.uploadedDate! < a.uploadedDate! ? -1 : 1,
-        ),
+          b.uploadedDate! < a.uploadedDate! ? -1 : 1
+        )
       );
     }
 
@@ -115,7 +115,7 @@ export const Dashboard = () => {
   useEffect(() => {
     if (filterDataset.length > 0) {
       setSortedFiles(
-        files.filter((file) => filterDataset.includes(file.datasetId)),
+        files.filter((file) => filterDataset.includes(file.datasetId))
       );
     } else setSortedFiles(files);
   }, [files, filterDataset]);
@@ -195,7 +195,7 @@ export const Dashboard = () => {
       });
 
       return [
-        index + "- " + file.filename,
+        file.filename,
         datasetFilterOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
@@ -238,14 +238,14 @@ export const Dashboard = () => {
   };
 
   const setDatasetDropdown = (
-    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject,
+    event: React.ChangeEvent<HTMLInputElement> | DropdownChangeObject
   ) => {
     setDisplayValue({ ...displayValue, datasetId: event.target.value });
   };
 
   const getNotification = () => {
     const set = datasetOptions.find(
-      (opt) => opt.value === displayValue?.datasetId,
+      (opt) => opt.value === displayValue?.datasetId
     )?.label;
     const instruction =
       !displayValue || displayValue.fileId === ""
@@ -279,17 +279,20 @@ export const Dashboard = () => {
     setModalLoading(false);
   };
 
-  const onNextPage = async(
+  const onNextPage = async (
     evt: React.MouseEvent<Element, MouseEvent>,
-    page: number,
+    page: number
   ) => {
     evt.preventDefault();
-    console.log("next page");
-
     const test = await getFilesByState2(state!, metadata);
-    setFiles(test.items);
-    setMetaData(test.metadata);
-    console.log("test", test);
+
+    setFiles(
+      test.items.toSorted((a, b) =>
+        b.uploadedDate! < a.uploadedDate! ? -1 : 1
+      )
+    );
+
+    if (test.metadata) setMetaData(test.metadata);
   };
 
   return (
@@ -357,7 +360,7 @@ export const Dashboard = () => {
               sortRows,
               undefined,
               "No files uploaded yet. Select Upload Files above to submit documents for an active data request.",
-              onNextPage,
+              onNextPage
             )
           )}
         </Stack>

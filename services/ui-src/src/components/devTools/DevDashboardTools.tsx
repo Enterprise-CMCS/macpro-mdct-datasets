@@ -1,8 +1,7 @@
-import { Button, Select, Text, Divider, Box } from "@chakra-ui/react";
+import { Button, Text, Divider, Box } from "@chakra-ui/react";
 import { TextField } from "@cmsgov/design-system";
-import { acceptedFileTypes, UploadListProp } from "@datasets/shared";
-import { UploadArea } from "components/fields/UploadArea";
-import { ChangeEvent, useState } from "react";
+import { acceptedFileTypes } from "@datasets/shared";
+import { useState } from "react";
 import {
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
@@ -27,12 +26,17 @@ export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
   const runUpload = async () => {
     setLoading(true);
     for (var i = 0; i < amount; i++) {
+      const newName = file[0].name.replace(/(\.[\w\d_-]+)$/i, "_" + i + "$1");
+      const copyFile = new File([file[0]], newName, {
+        type: file[0].type,
+        lastModified: file[0].lastModified,
+      });
       const { presignedUploadUrl } = await recordFileInDatabaseAndGetUploadUrl(
         state!,
         datasetId!,
-        file[0],
+        copyFile
       );
-      await uploadFileToS3({ presignedUploadUrl }, file[0]);
+      await uploadFileToS3({ presignedUploadUrl }, copyFile);
     }
     if (reload) reload();
     setLoading(false);
@@ -55,6 +59,8 @@ export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
   };
 
   const onDeletFile = () => {};
+
+  const onDeleteAll = () => {};
 
   return (
     <>
@@ -95,7 +101,13 @@ export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
         ></TextField>
         <Divider />
       </>
-      <Button onClick={onGenerateUploads} disabled={loading}>Generate Uploads</Button>
+      <Button onClick={onDeleteAll} disabled={loading}>
+        Delete All Uploads
+      </Button>
+      <Divider />
+      <Button onClick={onGenerateUploads} disabled={loading}>
+        Generate Uploads
+      </Button>
     </>
   );
 };
