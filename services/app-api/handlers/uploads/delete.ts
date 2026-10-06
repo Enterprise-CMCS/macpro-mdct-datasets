@@ -35,6 +35,7 @@ export const deleteUploadHandler = handler(
   }
 );
 
+//Used with devTools for deleting all files in a stateuser's dashboard
 export const deleteUploadsForState = handler(
   parseFileUpdateParameters,
   async (request) => {

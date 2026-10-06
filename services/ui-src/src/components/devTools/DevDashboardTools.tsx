@@ -1,4 +1,4 @@
-import { Button, Text, Divider, Box } from "@chakra-ui/react";
+import { Button, Text, Divider, Box, Image } from "@chakra-ui/react";
 import { TextField } from "@cmsgov/design-system";
 import { acceptedFileTypes } from "@datasets/shared";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import {
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
 } from "utils/api/requestMethods/uploads";
+import cancelIcon from "assets/icons/cancel/icon_cancel_primary.svg";
 
 interface Props {
   reload?: Function;
@@ -64,9 +65,13 @@ export const DevDashboardTools = ({ reload, state, datasets }: Props) => {
 
   const onGenerateUploads = () => {
     runUpload();
+    setFile([]);
+    setAmount(0);
   };
 
-  const onRemoveFile = () => {};
+  const onRemoveFile = () => {
+    setFile([]);
+  };
 
   const onDeleteAll = async () => {
     setLoading(true);
@@ -87,9 +92,13 @@ export const DevDashboardTools = ({ reload, state, datasets }: Props) => {
           aria-label="file drop area"
         >
           {file.length > 0 ? (
-            <Box>
-              <Text>{file[0].name}</Text>{" "}
-              <Button onClick={onRemoveFile}> Delete </Button>
+            <Box sx={sx.row}>
+              <Text>{file[0].name}</Text>
+              <Button
+                onClick={onRemoveFile}
+                variant="link"
+                rightIcon={<Image src={cancelIcon} alt="Remove" />}
+              ></Button>
             </Box>
           ) : (
             <span>
@@ -126,6 +135,10 @@ export const DevDashboardTools = ({ reload, state, datasets }: Props) => {
 };
 
 const sx = {
+  row: {
+    display: "flex",
+    flexDir: "row",
+  },
   container: {
     h2: {
       margin: "1.5rem 0",
@@ -158,11 +171,10 @@ const sx = {
 
     span: {
       display: "flex",
-      margin: ".50rem",
+      flexDir: "column",
     },
 
     label: {
-      paddingLeft: ".25rem",
       marginBlock: 0,
       color: "primary",
       textDecoration: "underline",
