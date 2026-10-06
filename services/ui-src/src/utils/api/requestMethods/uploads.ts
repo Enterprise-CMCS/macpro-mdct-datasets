@@ -125,3 +125,11 @@ export const deleteUploadedFile = async (state: string, fileId: string) => {
   };
   await apiLib.del(`/uploads/${state}/${fileId}`, options);
 };
+
+export const deleteUploadsForState = async (state: string) => {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+  await apiLib.del(`/uploads/${state}`, options);
+};
