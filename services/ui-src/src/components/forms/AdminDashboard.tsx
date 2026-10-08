@@ -25,6 +25,7 @@ import { getDatasets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { useNavigate } from "react-router";
 import { activeBannerSelector } from "utils/state/selectors";
+import { DevTools, ToolType } from "components/devTools/DevTools";
 
 export const AdminDashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
@@ -167,6 +168,11 @@ export const AdminDashboard = () => {
         </Box>
       ) : null}
       <PageTemplate type="report" sxOverride={sx.layout}>
+        <DevTools
+          type={ToolType.ADMIN_DASHBOARD}
+          datasets={datasetOptions}
+          reload={reloadData}
+        ></DevTools>
         <Stack sx={sx.box} gap="2rem">
           <Heading as="h1" variant="h1">
             File Upload Admin Dashboard

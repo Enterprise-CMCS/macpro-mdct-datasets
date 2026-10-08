@@ -321,6 +321,13 @@ export function createApiComponents(props: CreateApiComponentsProps) {
       method: "DELETE",
       ...commonProps,
     });
+    new Lambda(scope, "createUploadDev", {
+      entry: "services/app-api/handlers/uploads/delete.ts",
+      handler: "createUploadDev",
+      path: "dev/uploads/{state}",
+      method: "POST",
+      ...commonProps,
+    });
   }
 
   new Lambda(scope, "createDataset", {

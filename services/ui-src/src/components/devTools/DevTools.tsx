@@ -3,6 +3,7 @@ import { useFlags } from "launchdarkly-react-client-sdk";
 import { DevDashboardTools } from "./DevDashboardTools";
 import { useState } from "react";
 import { DropdownOptions } from "types";
+import { DevAdminDashboardTools } from "./DevAdminDashboardTools";
 
 interface Props {
   type: ToolType;
@@ -13,6 +14,7 @@ interface Props {
 
 export enum ToolType {
   DASHBOARD = "dashboard",
+  ADMIN_DASHBOARD = "adminDashboard",
 }
 
 export const DevTools = ({ type, reload, state, datasets }: Props) => {
@@ -36,6 +38,9 @@ export const DevTools = ({ type, reload, state, datasets }: Props) => {
               reload={reload}
               datasets={datasets}
             />
+          )}
+          {type === ToolType.ADMIN_DASHBOARD && (
+            <DevAdminDashboardTools reload={reload} datasets={datasets} />
           )}
         </Stack>
       )}

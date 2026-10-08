@@ -17,7 +17,7 @@ describe("datasets api", () => {
     vi.clearAllMocks();
   });
   test("createDataset", async () => {
-    await createDataset({ name: "name", status: true });
+    await createDataset({ name: "name", status: DatasetStatusType.ACTIVE });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
