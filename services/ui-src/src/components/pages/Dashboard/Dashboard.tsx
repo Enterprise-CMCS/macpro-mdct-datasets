@@ -291,8 +291,8 @@ export const Dashboard = () => {
           <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
             Upload File(s)
           </Button>
-          <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
-            {datasetFilterOptions.length > 0 && (
+          {datasetFilterOptions.length > 0 && (
+            <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
               <MultiSelect
                 label="Filter by Dataset:"
                 placeholder="Search dataset"
@@ -301,17 +301,18 @@ export const Dashboard = () => {
                 values={filterDataset}
                 onChange={(selected) => setDatasetHandler(selected)}
               />
-            )}
-            <Button
-              onClick={clearFilter}
-              variant="link"
-              height="40px"
-              fontWeight="bold"
-              aria-label="Clear All Filters"
-            >
-              Clear Filters
-            </Button>
-          </Flex>
+
+              <Button
+                onClick={clearFilter}
+                variant="link"
+                height="40px"
+                fontWeight="bold"
+                aria-label="Clear All Filters"
+              >
+                Clear Filters
+              </Button>
+            </Flex>
+          )}
           {isLoading ? (
             <Flex justify="center">
               <Spinner size="md" />
