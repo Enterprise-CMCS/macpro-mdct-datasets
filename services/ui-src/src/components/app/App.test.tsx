@@ -43,7 +43,7 @@ describe("<App />", () => {
     expect(
       screen.getAllByAltText("Medicaid.gov: Keeping America Healthy")
     ).toBeTruthy();
-    expect(screen.getAllByRole("button").length).toBe(4);
+    expect(screen.getAllByRole("button").length).toBe(3);
   });
 
   test("App renders local logins if there is no user", async () => {
