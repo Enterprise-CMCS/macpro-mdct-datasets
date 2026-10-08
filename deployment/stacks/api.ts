@@ -48,7 +48,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
   } = props;
 
-  // const isProduction = stage === "production";
+  const isProduction = stage === "production";
 
   const service = "app-api";
 
@@ -311,6 +311,24 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     method: "DELETE",
     ...commonProps,
   });
+
+  //paths made only for dev tool, not to be used on real data
+  if (!isProduction) {
+    new Lambda(scope, "deleteUploadsForState", {
+      entry: "services/app-api/handlers/uploads/delete.ts",
+      handler: "deleteUploadsForState",
+      path: "uploads/{state}",
+      method: "DELETE",
+      ...commonProps,
+    });
+    new Lambda(scope, "createUploadDev", {
+      entry: "services/app-api/handlers/uploads/create.ts",
+      handler: "createUploadDev",
+      path: "/uploads/dev",
+      method: "POST",
+      ...commonProps,
+    });
+  }
 
   new Lambda(scope, "createDataset", {
     entry: "services/app-api/handlers/datasets/create.ts",
