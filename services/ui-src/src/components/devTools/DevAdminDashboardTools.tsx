@@ -4,6 +4,10 @@ import { useState } from "react";
 import { DropdownOptions } from "types";
 import { createDataset } from "utils/api/requestMethods/datasets";
 import { DevDragDrop } from "./DevDragDrop";
+import {
+  devCreateUpload,
+  uploadFileToS3,
+} from "utils/api/requestMethods/uploads";
 
 interface Props {
   reload?: Function;
@@ -32,7 +36,20 @@ export const DevAdminDashboardTools = ({ reload, datasets }: Props) => {
     setLoading(false);
   };
 
-  const uploadFilesToAllStates = () => {};
+  const uploadFilesToAllStates = async () => {
+    if (file) {
+      setLoading(true);
+      const dataset =
+        datasets[Math.floor(Math.random() * datasets?.length)].value;
+      const { items } = await devCreateUpload(dataset, file);
+      const urls = items.map((item: { psurl: string; fileId: string }) =>
+        uploadFileToS3({ presignedUploadUrl: item.psurl }, file)
+      );
+      await Promise.all(urls);
+      if (reload) reload();
+      setLoading(false);
+    }
+  };
 
   return (
     <>

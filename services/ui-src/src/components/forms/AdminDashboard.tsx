@@ -264,9 +264,4 @@ const sx = {
       zIndex: "1001",
     },
   },
-  accordionPanel: {
-    ".mobile &": {
-      paddingTop: "spacer2",
-    },
-  },
 };

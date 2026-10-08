@@ -322,9 +322,9 @@ export function createApiComponents(props: CreateApiComponentsProps) {
       ...commonProps,
     });
     new Lambda(scope, "createUploadDev", {
-      entry: "services/app-api/handlers/uploads/delete.ts",
+      entry: "services/app-api/handlers/uploads/create.ts",
       handler: "createUploadDev",
-      path: "dev/uploads/{state}",
+      path: "/uploads/dev",
       method: "POST",
       ...commonProps,
     });

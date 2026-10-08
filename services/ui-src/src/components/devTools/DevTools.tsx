@@ -24,7 +24,7 @@ export const DevTools = ({ type, reload, state, datasets }: Props) => {
   const [showOptions, setShowOptions] = useState<boolean>();
 
   return (
-    <Box sx={sx.container} top={type === ToolType.DASHBOARD ? "96px" : "156px"}>
+    <Box sx={sx.container} top="96px">
       <Button sx={sx.primaryBtn} onClick={() => setShowOptions(!showOptions)}>
         <Text transform="rotate(-90deg)" color="white">
           Dev Tools
