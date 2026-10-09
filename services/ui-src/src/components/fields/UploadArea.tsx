@@ -6,6 +6,7 @@ import {
   UploadListProp,
 } from "@datasets/shared";
 import {
+  deleteUploadedFile,
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
 } from "../../utils/api/requestMethods/uploads";
@@ -153,19 +154,29 @@ export const UploadArea = ({
     for (var i = 0; i < files.length; i++) {
       const displayName = files[i].name;
       const file = getFileWithSafeName(files[i]);
+      let createdFileId: string | undefined;
       try {
         const { presignedUploadUrl, fileId } =
           await recordFileInDatabaseAndGetUploadUrl(state!, datasetId, file);
-        savedFiles.push({ name: displayName, fileId: fileId, size: file.size });
+        createdFileId = fileId;
         await uploadFileToS3({ presignedUploadUrl }, file);
+        savedFiles.push({
+          name: displayName,
+          fileId: createdFileId,
+          size: file.size,
+        });
       } catch (error) {
         console.error("File upload error", error);
         setUploadErrors((prevErrors) => [
           ...(prevErrors ?? []),
           `File ${file.name} failed to upload`,
         ]);
+        if (createdFileId) {
+          deleteUploadedFile(state!, createdFileId);
+        }
       }
     }
+
     return savedFiles;
   };
 
