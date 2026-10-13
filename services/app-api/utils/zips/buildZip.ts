@@ -42,13 +42,18 @@ export const addFilesToZip = async (
   for (const upload of uploads) {
     const { file, state, subType } = upload;
     if (!file?.fileId || !file?.name) continue;
-    const item = await s3Lib.getObject({
-      Bucket: process.env.uploadsBucketName,
-      Key: `${state}/${file.fileId}`,
-    });
-    const bytes = await item.Body?.transformToByteArray();
-    if (bytes) {
-      zip.file(`${state}/${subType.toUpperCase()}/${file.name}`, bytes);
+    try {
+      const item = await s3Lib.getObject({
+        Bucket: process.env.uploadsBucketName,
+        Key: `${state}/${file.fileId}`,
+      });
+      const bytes = await item.Body?.transformToByteArray();
+      if (bytes) {
+        zip.file(`${state}/${subType.toUpperCase()}/${file.name}`, bytes);
+      }
+    } catch {
+      //skip if the file failed to be retrieved
+      continue;
     }
   }
 };
