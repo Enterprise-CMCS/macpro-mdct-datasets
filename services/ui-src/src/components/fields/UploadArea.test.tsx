@@ -9,8 +9,10 @@ import {
 import userEvent from "@testing-library/user-event";
 import { UploadArea } from "./UploadArea";
 import {
+  deleteUploadedFile,
   getFileDownloadUrl,
   recordFileInDatabaseAndGetUploadUrl,
+  uploadFileToS3,
 } from "utils/api/requestMethods/uploads";
 import { testA11y } from "utils/testing/commonTests";
 
@@ -27,6 +29,10 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
     .mockReturnValue([
       { filename: "mock-name", fileSize: 100, fileId: "mock-id" },
     ]),
+}));
+vi.mock("utils", async (importOriginal) => ({
+  ...(await importOriginal()),
+  useStore: vi.fn().mockReturnValue({ user: { state: "PA" } }),
 }));
 
 const mockDeleteFromReport = vi.fn();
@@ -70,6 +76,44 @@ describe("<Upload />", () => {
     const input = screen.getByLabelText("Choose from folder");
     await userEvent.upload(input, [mockPng]);
     expect(recordFileInDatabaseAndGetUploadUrl).toHaveBeenCalled();
+    await waitFor(() => expect(props.saveToReport).toHaveBeenCalled());
+    expect(deleteUploadedFile).not.toHaveBeenCalled();
+  });
+  test("cleans up the upload record when S3 upload fails", async () => {
+    vi.mocked(recordFileInDatabaseAndGetUploadUrl).mockResolvedValueOnce({
+      presignedUploadUrl: "mock.s3/url",
+      fileId: "failed-file-id",
+    });
+    vi.mocked(uploadFileToS3).mockRejectedValueOnce(new Error("Upload failed"));
+    render(<UploadArea {...props} />);
+
+    await userEvent.upload(
+      screen.getByLabelText("Choose from folder"),
+      mockPng
+    );
+
+    await waitFor(() => {
+      expect(deleteUploadedFile).toHaveBeenCalledWith("PA", "failed-file-id");
+      expect(props.saveToReport).toHaveBeenCalledWith([]);
+    });
+    expect(
+      screen.getByText("File bar.png failed to upload")
+    ).toBeInTheDocument();
+  });
+  test("does not attempt cleanup when upload record creation fails", async () => {
+    vi.mocked(recordFileInDatabaseAndGetUploadUrl).mockRejectedValueOnce(
+      new Error("Record creation failed")
+    );
+    render(<UploadArea {...props} />);
+
+    await userEvent.upload(
+      screen.getByLabelText("Choose from folder"),
+      mockPng
+    );
+
+    await waitFor(() => expect(props.saveToReport).toHaveBeenCalledWith([]));
+    expect(deleteUploadedFile).not.toHaveBeenCalled();
+    expect(uploadFileToS3).not.toHaveBeenCalled();
   });
   test("uploading a file by drag and drop", async () => {
     await act(async () => {
