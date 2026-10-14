@@ -1,12 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { UploadDrawer } from "./UploadDrawer";
 import userEvent from "@testing-library/user-event";
 import { Dropdown } from "@cmsgov/design-system";
 
 const mockCloseHandler = vi.fn();
 const mockChangedExpanded = vi.fn();
-const mockSaveToReport = vi.fn();
-const mockDeleteFromReport = vi.fn();
 
 vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
   ...(await importOriginal()),
@@ -21,32 +19,24 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
     ]),
 }));
 
-const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
-
 const modalComponent = (
   <UploadDrawer
     modalDisclosure={{
       isOpen: true,
       onClose: mockCloseHandler,
     }}
-    answer={[]}
     selections={
-      <>
-        <Dropdown
-          name={"mock label"}
-          label={"mock label"}
-          options={[
-            { label: "option 1", value: "opt1" },
-            { label: "option 2", value: "opt2" },
-          ]}
-          value={""}
-          onChange={mockChangedExpanded}
-        ></Dropdown>
-      </>
+      <Dropdown
+        name={"mock label"}
+        label={"mock label"}
+        options={[
+          { label: "option 1", value: "opt1" },
+          { label: "option 2", value: "opt2" },
+        ]}
+        value={""}
+        onChange={mockChangedExpanded}
+      />
     }
-    saveToReport={mockSaveToReport}
-    deleteFromReport={mockDeleteFromReport}
-    modalHeading={"Upload Attachments"}
     datasetId={""}
   />
 );
@@ -58,7 +48,7 @@ describe("Test Modal", () => {
   });
 
   test("Modal shows the contents", () => {
-    expect(screen.getByText("Upload Attachments")).toBeInTheDocument();
+    expect(screen.getByText("Upload File(s)")).toBeInTheDocument();
   });
 
   test("Modals action button can be clicked", async () => {
@@ -70,16 +60,6 @@ describe("Test Modal", () => {
     const dropdown = screen.getAllByLabelText("mock label")[0];
     await userEvent.selectOptions(dropdown, "option 2");
     expect(mockChangedExpanded).toHaveBeenCalledTimes(1);
-  });
-
-  test("Modal will run saveToReport function when a file is uploaded", async () => {
-    const dropArea = screen.getByLabelText("file drop area");
-    fireEvent.drop(dropArea, {
-      dataTransfer: { items: [{ getAsFile: () => mockPng }] },
-    });
-    await waitFor(() => {
-      expect(mockSaveToReport).toHaveBeenCalledTimes(1);
-    });
   });
 
   test("Modals close button can be clicked", async () => {

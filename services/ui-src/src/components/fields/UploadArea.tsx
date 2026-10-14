@@ -6,6 +6,7 @@ import {
   UploadListProp,
 } from "@datasets/shared";
 import {
+  deleteUploadedFile,
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
 } from "../../utils/api/requestMethods/uploads";
@@ -19,9 +20,6 @@ import { Alert } from "components/alerts/Alert";
 import alert from "assets/icons/status/icon_status_alert.svg";
 
 interface Props {
-  answer: UploadListProp[];
-  saveToReport: (uploads: UploadListProp[]) => void;
-  deleteFromReport?: (file: UploadListProp) => void;
   multiple?: boolean;
   disabled?: boolean;
   notification?: {
@@ -32,9 +30,6 @@ interface Props {
 }
 
 export const UploadArea = ({
-  answer,
-  saveToReport,
-  deleteFromReport,
   multiple = true,
   disabled,
   notification,
@@ -44,10 +39,7 @@ export const UploadArea = ({
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [uploadSuccess, setUploadSuccess] = useState<
-    {
-      fileId: string;
-      message: string;
-    }[]
+    (UploadListProp & { message: string })[]
   >([]);
 
   const { state } = useStore().user ?? {};
@@ -59,22 +51,17 @@ export const UploadArea = ({
           setUploadSuccess([
             ...uploadSuccess,
             ...response.map((file) => ({
-              fileId: file.fileId,
+              ...file,
               message: notification?.success ?? "",
             })),
           ]);
           setFilesToUpload([]);
-          saveToReport(response);
         });
       fetchData();
     }
   }, [filesToUpload]);
 
-  const disableUploadArea = () => {
-    return (
-      (!multiple && (answer.length > 0 || filesToUpload.length > 0)) || disabled
-    );
-  };
+  const disableUploadArea = () => disabled;
 
   const handleFileKeyboardEvent = (
     e: React.KeyboardEvent<HTMLLabelElement>
@@ -153,32 +140,34 @@ export const UploadArea = ({
     for (var i = 0; i < files.length; i++) {
       const displayName = files[i].name;
       const file = getFileWithSafeName(files[i]);
+      let createdFileId: string | undefined;
       try {
         const { presignedUploadUrl, fileId } =
           await recordFileInDatabaseAndGetUploadUrl(state!, datasetId, file);
-        savedFiles.push({ name: displayName, fileId: fileId, size: file.size });
+        createdFileId = fileId;
         await uploadFileToS3({ presignedUploadUrl }, file);
+        savedFiles.push({
+          name: displayName,
+          fileId: createdFileId,
+          size: file.size,
+        });
       } catch (error) {
         console.error("File upload error", error);
         setUploadErrors((prevErrors) => [
           ...(prevErrors ?? []),
           `File ${file.name} failed to upload`,
         ]);
+        if (createdFileId) {
+          deleteUploadedFile(state!, createdFileId);
+        }
       }
     }
+
     return savedFiles;
   };
 
-  const modifiedAnswer = (answer: UploadListProp[]) => {
-    return answer.map((item) => ({
-      ...item,
-      message: uploadSuccess.find((success) => success.fileId === item.fileId)
-        ?.message,
-    }));
-  };
-
   const displayUploadStatus = () => {
-    return filesToUpload.length > 0 || answer.length > 0;
+    return filesToUpload.length > 0 || uploadSuccess.length > 0;
   };
 
   return (
@@ -259,18 +248,13 @@ export const UploadArea = ({
             </Heading>
           </div>
           {filesToUpload.length > 0 &&
+            uploadListRender(state!, datasetId, filesToUpload ?? [])}
+          {uploadSuccess.length > 0 &&
             uploadListRender(
               state!,
               datasetId,
-              filesToUpload ?? [],
-              deleteFromReport
-            )}
-          {answer.length > 0 &&
-            uploadListRender(
-              state!,
-              datasetId,
-              modifiedAnswer(answer ?? []),
-              deleteFromReport,
+              uploadSuccess,
+              undefined,
               downloadFile
             )}
         </>
