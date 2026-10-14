@@ -35,14 +35,8 @@ vi.mock("utils", async (importOriginal) => ({
   useStore: vi.fn().mockReturnValue({ user: { state: "PA" } }),
 }));
 
-const mockDeleteFromReport = vi.fn();
-
 const props = {
   datasetId: "mock-id",
-  answer: [{ name: "mock-name", size: 100, fileId: "mock-id" }],
-  saveToReport: vi.fn(),
-  updateElement: vi.fn(),
-  deleteFromReport: mockDeleteFromReport,
   disabled: false,
 };
 
@@ -55,6 +49,8 @@ const mockInvalidType = new File(["0xMockEpubData"], "bar.epub", {
 });
 
 window.open = vi.fn();
+
+console.error = vi.fn();
 
 describe("<Upload />", () => {
   beforeEach(() => {
@@ -76,7 +72,6 @@ describe("<Upload />", () => {
     const input = screen.getByLabelText("Choose from folder");
     await userEvent.upload(input, [mockPng]);
     expect(recordFileInDatabaseAndGetUploadUrl).toHaveBeenCalled();
-    await waitFor(() => expect(props.saveToReport).toHaveBeenCalled());
     expect(deleteUploadedFile).not.toHaveBeenCalled();
   });
   test("cleans up the upload record when S3 upload fails", async () => {
@@ -93,8 +88,8 @@ describe("<Upload />", () => {
     );
 
     await waitFor(() => {
+      expect(recordFileInDatabaseAndGetUploadUrl).toHaveBeenCalled();
       expect(deleteUploadedFile).toHaveBeenCalledWith("PA", "failed-file-id");
-      expect(props.saveToReport).toHaveBeenCalledWith([]);
     });
     expect(
       screen.getByText("File bar.png failed to upload")
@@ -111,7 +106,7 @@ describe("<Upload />", () => {
       mockPng
     );
 
-    await waitFor(() => expect(props.saveToReport).toHaveBeenCalledWith([]));
+    expect(recordFileInDatabaseAndGetUploadUrl).toHaveBeenCalled();
     expect(deleteUploadedFile).not.toHaveBeenCalled();
     expect(uploadFileToS3).not.toHaveBeenCalled();
   });
@@ -127,6 +122,7 @@ describe("<Upload />", () => {
       });
     });
     expect(recordFileInDatabaseAndGetUploadUrl).toHaveBeenCalled();
+    expect(uploadFileToS3).toHaveBeenCalled();
   });
 
   test("an error displays when trying to upload multiples to a single file upload", async () => {
@@ -148,12 +144,18 @@ describe("<Upload />", () => {
   test("test file download", async () => {
     (getFileDownloadUrl as Mock).mockResolvedValueOnce("");
     render(<UploadArea {...props} />);
+    const dropArea = screen.getByLabelText("file drop area");
+    await act(async () => {
+      fireEvent.drop(dropArea, {
+        dataTransfer: { items: [{ getAsFile: () => mockPng }] },
+      });
+    });
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "mock-name" })
+        screen.getByRole("button", { name: mockPng.name })
       ).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole("button", { name: "mock-name" }));
+    await userEvent.click(screen.getByRole("button", { name: mockPng.name }));
     expect(getFileDownloadUrl).toHaveBeenCalled();
   });
 
@@ -191,19 +193,6 @@ describe("<Upload />", () => {
         "File bar.epub has unsupported file type and was not uploaded"
       )
     ).toBeInTheDocument();
-  });
-
-  test("test deleting a file", async () => {
-    render(<UploadArea {...props} />);
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "delete mock-name" })
-      ).toBeInTheDocument();
-    });
-    await userEvent.click(
-      screen.getByRole("button", { name: "delete mock-name" })
-    );
-    expect(mockDeleteFromReport).toHaveBeenCalled();
   });
   testA11y(<UploadArea {...props} />);
 });

@@ -129,6 +129,7 @@ export const Dashboard = () => {
   };
 
   const onModalClose = () => {
+    uploadFileSave();
     setDisplayValue(undefined);
     setEditDrawerOpen(false);
     setUploadDrawerOpen(false);
@@ -343,8 +344,6 @@ export const Dashboard = () => {
               value={displayValue?.datasetId}
             />
           }
-          answer={[]}
-          saveToReport={uploadFileSave}
           notification={getNotification()}
           disabled={!displayValue?.datasetId}
           datasetId={displayValue?.datasetId ?? ""}
