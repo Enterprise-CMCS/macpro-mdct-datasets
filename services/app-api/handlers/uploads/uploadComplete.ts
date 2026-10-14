@@ -13,7 +13,7 @@ const s3EventHandler = () => {
 
     const updates: FileInfo[] = [];
     for (const record of event.Records ?? []) {
-      const fileInfo = await handleEvent(record);
+      const fileInfo = await handleRecord(record);
       if (fileInfo) {
         updates.push(fileInfo);
       }
@@ -23,19 +23,23 @@ const s3EventHandler = () => {
       let status;
 
       switch (fileInfo.scanStatus) {
+        case ScanStatus.NO_THREATS_FOUND:
+          status = UploadStatus.COMPLETE;
+          break;
         case ScanStatus.THREATS_FOUND:
-          console.info("Quarantined File Identified", fileInfo);
+          console.warn("Quarantined File Identified", fileInfo);
           status = UploadStatus.ERROR;
           break;
-        case ScanStatus.RUNNING:
-          status = UploadStatus.WORKING;
+        case ScanStatus.FAILED:
+        case ScanStatus.COMPLETED_WITH_ISSUES:
+          status = UploadStatus.ERROR;
           break;
         default:
-          status = UploadStatus.COMPLETE;
+          status = UploadStatus.WORKING;
       }
 
       console.info(`Marking ${fileInfo.state} ${fileInfo.fileId}: ${status}`);
-      await updateUploadStatus(fileInfo.state, fileInfo.fileId, status);
+      await updateUploadStatus(fileInfo.state, fileInfo.fileId, status); // This would be best as a batch in the future
     }
   };
 };
@@ -43,7 +47,7 @@ const s3EventHandler = () => {
 /**
  * Translate an AWS stream event record into tags we care about
  */
-const handleEvent = async (
+const handleRecord = async (
   record: NonNullable<AwsStreamEvent["Records"]>[number]
 ) => {
   if ("s3" in record) {
@@ -53,9 +57,6 @@ const handleEvent = async (
 
     // Skip zips, they are not tracked in db
     if (key.includes("zips/")) return;
-
-    // May be s3:ObjectRemoved:Delete or s3:ObjectRemoved:DeleteMarkerCreated
-    if (record.eventName.includes("ObjectRemoved")) return;
     const object = await getFileInfo!(bucket, key);
 
     return object;
@@ -72,7 +73,7 @@ const getFileInfo = async (bucket: string, key: string) => {
   });
 
   // Virus Scan status
-  let scanStatus = ScanStatus.RUNNING; // This may be nonexistant until completion. Default to Running for our own handling
+  let scanStatus = ScanStatus.RUNNING; // This may be nonexistent until completion. Default to Running for our own handling
   const scanTag = TagSet?.find(
     (tag) => tag.Key === "GuardDutyMalwareScanStatus"
   )?.Value;
@@ -97,21 +98,7 @@ const getFileInfo = async (bucket: string, key: string) => {
 
 export const handler = s3EventHandler();
 
-type AwsStreamEvent = DynamoDbStreamEvent | S3StreamEvent;
-
-type DynamoDbStreamEvent = {
-  Records?: DynamoDbStreamRecord[];
-};
-export type DynamoDbStreamRecord = {
-  eventSourceARN: string;
-  eventID: string;
-  eventName: string;
-  dynamodb: {
-    Keys: Record<string, any>;
-    OldImage?: Record<string, any>;
-    NewImage: Record<string, any>;
-  };
-};
+type AwsStreamEvent = S3StreamEvent;
 
 type S3StreamEvent = {
   Records?: S3StreamRecord[];
@@ -148,4 +135,6 @@ enum ScanStatus {
   NO_THREATS_FOUND = "NO_THREATS_FOUND",
   THREATS_FOUND = "THREATS_FOUND",
   RUNNING = "RUNNING",
+  FAILED = "FAILED",
+  COMPLETED_WITH_ISSUES = "COMPLETED_WITH_ISSUES",
 }
