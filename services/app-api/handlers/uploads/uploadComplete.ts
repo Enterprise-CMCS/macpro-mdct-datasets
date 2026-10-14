@@ -34,6 +34,7 @@ const s3EventHandler = () => {
           status = UploadStatus.COMPLETE;
       }
 
+      console.info(`Marking ${fileInfo.state} ${fileInfo.fileId}: ${status}`);
       updateUploadStatus(fileInfo.state, fileInfo.fileId, status);
     }
   };
@@ -54,8 +55,7 @@ const handleEvent = async (
     if (key.includes("zips/")) return;
 
     // May be s3:ObjectRemoved:Delete or s3:ObjectRemoved:DeleteMarkerCreated
-    const removeEvent = !record.eventName.includes("ObjectRemoved");
-    if (removeEvent) return;
+    if (record.eventName.includes("ObjectRemoved")) return;
     const object = await getFileInfo!(bucket, key);
 
     return object;
@@ -80,12 +80,16 @@ const getFileInfo = async (bucket: string, key: string) => {
     scanStatus = scanTag as ScanStatus;
   }
 
-  // RHTP/AK/reportId/fileId
+  /**
+   *   NOTE: RHTP & Datasets differ here. RHTP Prefixed: RHTP/AK/reportId/fileId
+   *     RHTP - RHTP/AK/reportId/fileId
+   *     Datasets - AK/reportId/fileId
+   */
   const fragments = key.split("/");
   const fileInfo: FileInfo = {
-    state: fragments[1] as StateAbbr,
-    reportId: fragments[2],
-    fileId: fragments[3],
+    state: fragments[0] as StateAbbr,
+    reportId: fragments[1],
+    fileId: fragments[2],
     scanStatus,
   };
   console.log(`File Info: ${fileInfo}`);
