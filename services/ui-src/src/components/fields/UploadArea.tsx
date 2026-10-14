@@ -305,6 +305,11 @@ const sx = {
       color: "primary",
       textDecoration: "underline",
       fontWeight: "700",
+      cursor: "pointer",
+
+      "&:hover": {
+        textDecoration: "none",
+      },
     },
 
     "#file-input": {
@@ -313,6 +318,10 @@ const sx = {
 
     "&.disabled": {
       opacity: "0.4",
+
+      "&, label": {
+        cursor: "not-allowed",
+      },
     },
   },
 };
