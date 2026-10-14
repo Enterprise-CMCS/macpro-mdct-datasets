@@ -3,7 +3,7 @@ import s3 from "../../libs/s3-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { parseFileUpdateParameters } from "../../libs/param-lib";
 import { forbidden, ok } from "../../libs/response-lib";
-import { updateUpload } from "../../storage/uploads";
+import { createUpload as createUploadS3 } from "../../storage/uploads";
 import { UploadFileData } from "../../types/uploads";
 import KSUID from "ksuid";
 import { canWriteState } from "../../utils/authorization";
@@ -25,7 +25,7 @@ export const createUpload = handler(
     const username = user.fullName ?? "";
     const fileId = `${KSUID.randomSync().string}_${uploadedFileName}`;
 
-    await updateUpload(
+    await createUploadS3(
       state,
       username,
       uploadedFileName,

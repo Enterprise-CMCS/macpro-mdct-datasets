@@ -1,4 +1,4 @@
-import { UploadType, ZipRequestTypes } from "@datasets/shared";
+import { UploadStatus, UploadType, ZipRequestTypes } from "@datasets/shared";
 import {
   deleteUploadedFile,
   getFileDownloadUrl,
@@ -30,6 +30,7 @@ const mockDatasetUpload: UploadType = {
   uploadedUsername: "user",
   uploadedDate: "date",
   state: "AL",
+  uploadStatus: UploadStatus.COMPLETE,
 };
 
 const originalFetch = window.fetch;
