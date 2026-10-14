@@ -35,7 +35,7 @@ const s3EventHandler = () => {
       }
 
       console.info(`Marking ${fileInfo.state} ${fileInfo.fileId}: ${status}`);
-      updateUploadStatus(fileInfo.state, fileInfo.fileId, status);
+      await updateUploadStatus(fileInfo.state, fileInfo.fileId, status);
     }
   };
 };
@@ -83,13 +83,12 @@ const getFileInfo = async (bucket: string, key: string) => {
   /**
    *   NOTE: RHTP & Datasets differ here. RHTP Prefixed: RHTP/AK/reportId/fileId
    *     RHTP - RHTP/AK/reportId/fileId
-   *     Datasets - AK/reportId/fileId
+   *     Datasets - AK/fileId
    */
   const fragments = key.split("/");
   const fileInfo: FileInfo = {
     state: fragments[0] as StateAbbr,
-    reportId: fragments[1],
-    fileId: fragments[2],
+    fileId: fragments[1],
     scanStatus,
   };
   console.log(`File Info: ${fileInfo}`);
@@ -135,7 +134,6 @@ type S3StreamRecord = {
 
 type FileInfo = {
   state: StateAbbr;
-  reportId: string;
   fileId: string;
   scanStatus: ScanStatus;
 };
