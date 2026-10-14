@@ -9,7 +9,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { collectPageItems, createClient } from "./dynamo/dynamodb-lib";
 import s3 from "../libs/s3-lib";
-import { UploadType } from "@datasets/shared";
+import { UploadStatus, UploadType } from "@datasets/shared";
 
 const uploadTableName = process.env.UploadsTable!;
 const client = createClient();
@@ -36,6 +36,7 @@ export const deleteUpload = async (
   );
 };
 
+// Notably does NOT allow update of upload status
 export const updateUpload = async (
   state: string,
   username: string,
@@ -58,6 +59,55 @@ export const updateUpload = async (
       ":filename": filename,
       ":filesize": filesize,
       ":datasetId": datasetId,
+    },
+  };
+
+  await client.send(new UpdateCommand(params));
+};
+
+export const createUpload = async (
+  state: string,
+  username: string,
+  filename: string,
+  fileId: string,
+  datasetId: string,
+  filesize: number
+) => {
+  const params = {
+    TableName: uploadTableName,
+    Key: {
+      state,
+      fileId,
+    },
+    UpdateExpression:
+      "SET uploadedUsername = :uploadedUsername, uploadedDate = :uploadedDate, filename = :filename, filesize = :filesize, datasetId = :datasetId, uploadStatus = :uploadStatus",
+    ExpressionAttributeValues: {
+      ":uploadedUsername": username,
+      ":uploadedDate": new Date().toISOString(),
+      ":filename": filename,
+      ":filesize": filesize,
+      ":datasetId": datasetId,
+      ":uploadStatus": UploadStatus.PENDING,
+    },
+  };
+
+  await client.send(new UpdateCommand(params));
+};
+
+export const updateUploadStatus = async (
+  state: string,
+  fileId: string,
+  uploadStatus: string
+) => {
+  const params = {
+    TableName: uploadTableName,
+    Key: {
+      state,
+      fileId,
+    },
+    UpdateExpression: "SET uploadStatus = :uploadStatus",
+    ExpressionAttributeValues: {
+      ":uploadStatus": uploadStatus,
     },
   };
 
