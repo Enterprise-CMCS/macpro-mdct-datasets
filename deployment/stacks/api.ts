@@ -366,18 +366,12 @@ export function createApiComponents(props: CreateApiComponentsProps) {
 
   uploadsBucket.addEventNotification(
     s3.EventType.OBJECT_CREATED,
-    new aws_s3_notifications.LambdaDestination(uploadComplete.lambda),
-    {
-      suffix: ".json",
-    }
+    new aws_s3_notifications.LambdaDestination(uploadComplete.lambda)
   );
 
   uploadsBucket.addEventNotification(
     s3.EventType.OBJECT_TAGGING_PUT,
-    new aws_s3_notifications.LambdaDestination(uploadComplete.lambda),
-    {
-      suffix: ".json",
-    }
+    new aws_s3_notifications.LambdaDestination(uploadComplete.lambda)
   );
 
   if (!isLocalStack) {
