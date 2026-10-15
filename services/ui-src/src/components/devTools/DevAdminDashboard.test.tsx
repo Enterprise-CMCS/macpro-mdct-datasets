@@ -36,7 +36,7 @@ describe("Test DevAdminDashboard component", () => {
     render(<DevAdminDashboardTools reload={mockReload} datasets={[]} />);
     expect(
       screen.getByText(
-        "Click here to generate a random amount of datasets if no datasets exist."
+        "If no datasets exist, click here to generate a set of 5 datasets."
       )
     ).toBeVisible();
     expect(
