@@ -15,11 +15,6 @@ export const createDataset = handler(emptyParser, async (request) => {
     return forbidden(error.UNAUTHORIZED);
   }
 
-  //TODO: Revisit whether to use this or not
-  // if (!isValidDataset(request.body)) {
-  //   return badRequest("Invalid request");
-  // }
-
   const currentTime = new Date().toISOString();
 
   const newDataset = {
