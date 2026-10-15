@@ -7,6 +7,26 @@ interface PathURL {
   fileId: string;
 }
 
+export async function getFilesByState2(
+  state: string,
+  metadata?: any,
+  filters?: { state: string[]; dataset: [] }
+) {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+    body: {
+      metadata: metadata,
+      filters,
+    },
+  };
+
+  return await apiLib.post<{
+    items: UploadType[];
+    metadata?: { done: boolean; nextToken?: any; pageSize: number };
+  }>(`/uploads/${state}/test`, options)!;
+}
+
 export async function getFilesByState(state: string) {
   const requestHeaders = await getRequestHeaders();
   const options = {

@@ -20,6 +20,7 @@ import { JSX } from "react";
 import sortIcon from "assets/icons/sort/icon_sort.svg";
 import sortAscIcon from "assets/icons/sort/icon_sort_asc.svg";
 import sortDescIcon from "assets/icons/sort/icon_sort_desc.svg";
+import { Pagination } from "@cmsgov/design-system";
 
 export type TableRowType = string | number | JSX.Element | undefined | boolean;
 
@@ -164,7 +165,15 @@ export const ResponsiveTable = (
   variant?: string,
   sorting: (header: string, type: SORT_TYPE) => void = () => {},
   styleOverride?: string[],
-  emptyMessage?: string
+  emptyMessage?: string,
+  paginate?: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (
+      evt: React.MouseEvent<Element, MouseEvent>,
+      page: number
+    ) => {};
+  }
 ) => {
   return (
     <>
@@ -182,6 +191,14 @@ export const ResponsiveTable = (
           rows
         )}
       </Show>
+      {paginate && (
+        <Pagination
+          currentPage={paginate.currentPage ?? 0}
+          onPageChange={paginate.onPageChange}
+          totalPages={paginate.totalPages}
+          renderHref={() => "/"}
+        ></Pagination>
+      )}
     </>
   );
 };
