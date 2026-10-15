@@ -64,7 +64,8 @@ export const DevAdminDashboardTools = ({ reload, datasets }: Props) => {
       </Button>
       <Divider />
       <Text>
-        Click here to upload a file to each state. Option is disabled until datasets have been added.
+        Click here to upload a file to each state. Option is disabled until
+        datasets have been added.
       </Text>
       <DevDragDrop file={file} setFile={setFile}></DevDragDrop>
       <Button
