@@ -1,0 +1,78 @@
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { DevAdminDashboardTools } from "./DevAdminDashboardTools";
+import userEvent from "@testing-library/user-event";
+
+const mockReload = vi.fn();
+const mockGenerateDatasets = vi.fn();
+const mockUpload = vi.fn();
+const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
+
+vi.mock("utils/api/requestMethods/datasets", () => ({
+  createDataset: () => {
+    mockGenerateDatasets();
+  },
+}));
+
+vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
+  ...(await importOriginal()),
+  uploadFileToS3: () => {
+    mockUpload();
+  },
+  recordFileInDatabaseAndGetUploadUrl: vi
+    .fn()
+    .mockReturnValue({ presignedUploadUrl: "1234", fileId: "" }),
+  getUploadedFiles: vi
+    .fn()
+    .mockReturnValue([
+      { filename: "mock-name", fileSize: 100, fileId: "mock-id" },
+    ]),
+  devCreateUpload: vi
+    .fn()
+    .mockReturnValue({ items: [{ presignedUploadUrl: "1234", fileId: "" }] }),
+}));
+
+describe("Test DevAdminDashboard component", () => {
+  test("DevAdminDashboard renders", () => {
+    render(<DevAdminDashboardTools reload={mockReload} datasets={[]} />);
+    expect(
+      screen.getByText(
+        "Click here to generate a random amount of datasets if no datasets exist."
+      )
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Generate Datasets" })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Upload File to ALL States" })
+    ).toBeVisible();
+  });
+  test("Test generate datasets", async () => {
+    render(<DevAdminDashboardTools reload={mockReload} datasets={[]} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Generate Datasets" })
+    );
+    expect(mockGenerateDatasets).toHaveBeenCalled();
+  });
+  test("Test upload files to all states", async () => {
+    render(
+      <DevAdminDashboardTools
+        reload={mockReload}
+        datasets={[{ label: "Flowers", value: "1234" }]}
+      />
+    );
+
+    const dropArea = screen.getByLabelText("file drop area");
+    await act(async () => {
+      fireEvent.drop(dropArea, {
+        dataTransfer: { items: [{ getAsFile: () => mockPng }] },
+      });
+    });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Upload File to ALL States" })
+    );
+
+    expect(mockUpload).toHaveBeenCalled();
+  });
+});

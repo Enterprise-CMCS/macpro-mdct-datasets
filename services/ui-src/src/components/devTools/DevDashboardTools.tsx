@@ -75,7 +75,7 @@ export const DevDashboardTools = ({ reload, state, datasets }: Props) => {
         label="Amount To Generate:"
         onChange={onTextChange}
         value={amount}
-        type="number"
+        numeric
       ></TextField>
       <Button onClick={onGenerateUploads} disabled={loading}>
         Generate Uploads
