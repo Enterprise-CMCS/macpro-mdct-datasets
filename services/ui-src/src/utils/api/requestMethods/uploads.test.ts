@@ -1,6 +1,8 @@
 import { UploadType, ZipRequestTypes } from "@datasets/shared";
 import {
   deleteUploadedFile,
+  deleteUploadsForState,
+  devCreateUpload,
   getFileDownloadUrl,
   getFiles,
   getFilesByState,
@@ -113,5 +115,22 @@ describe("upload apis", () => {
         headers: { "x-api-key": undefined },
       }
     );
+  });
+
+  test("deleteUploadsForState", async () => {
+    (apiLib.del as Mock).mockReturnValue(Promise.resolve());
+    await deleteUploadsForState("PA");
+    expect(apiLib.del as Mock).toHaveBeenCalledWith("/uploads/PA", {
+      headers: { "x-api-key": undefined },
+    });
+  });
+
+  test("devCreateUpload", async () => {
+    (apiLib.post as Mock).mockReturnValue({
+      items: [{ psurl: "https://mock.url" }],
+    });
+
+    const result = await devCreateUpload("mock-id", mockPng);
+    expect(result).toEqual({ items: [{ psurl: "https://mock.url" }] });
   });
 });
