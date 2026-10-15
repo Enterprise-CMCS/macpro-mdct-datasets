@@ -54,7 +54,7 @@ export const DevAdminDashboardTools = ({ reload, datasets }: Props) => {
   return (
     <>
       <Text>
-        Click here to generate a random amount of datasets if no datasets exist.
+        If no datasets exist, click here to generate a set of 5 datasets.
       </Text>
       <Button
         onClick={onGenerateDatasets}
@@ -64,8 +64,7 @@ export const DevAdminDashboardTools = ({ reload, datasets }: Props) => {
       </Button>
       <Divider />
       <Text>
-        Click here to generate updates for states. If no datasets have been
-        created, this option will be disabled.
+        Click here to upload a file to each state. Option is disabled until datasets have been added.
       </Text>
       <DevDragDrop file={file} setFile={setFile}></DevDragDrop>
       <Button
