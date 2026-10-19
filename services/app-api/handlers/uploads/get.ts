@@ -13,8 +13,11 @@ import {
 import { forbidden, ok } from "../../libs/response-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { error } from "../../utils/constants";
-import { getExtension, isAllowedFileExtension } from "@datasets/shared";
-import { validateFileContentMatchesExtension } from "../../utils/fileContentValidation";
+import {
+  getExtension,
+  isAllowedFileExtension,
+  validateFileContentMatchesExtension,
+} from "@datasets/shared";
 import { canReadState } from "../../utils/authorization";
 
 const FILE_HEADER_BYTE_RANGE = "bytes=0-4100";

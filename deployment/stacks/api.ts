@@ -12,6 +12,7 @@ import {
   CfnOutput,
   Duration,
   RemovalPolicy,
+  aws_s3_notifications,
 } from "aws-cdk-lib";
 import { Lambda } from "../constructs/lambda.ts";
 import { WafConstruct } from "../constructs/waf.ts";
@@ -374,6 +375,22 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ),
   });
   */
+
+  const uploadComplete = new Lambda(scope, "uploadComplete", {
+    entry: "services/app-api/handlers/uploads/uploadComplete.ts",
+    handler: "handler",
+    ...commonProps,
+  });
+
+  uploadsBucket.addEventNotification(
+    s3.EventType.OBJECT_CREATED,
+    new aws_s3_notifications.LambdaDestination(uploadComplete.lambda)
+  );
+
+  uploadsBucket.addEventNotification(
+    s3.EventType.OBJECT_TAGGING_PUT,
+    new aws_s3_notifications.LambdaDestination(uploadComplete.lambda)
+  );
 
   if (!isLocalStack) {
     const waf = new WafConstruct(
