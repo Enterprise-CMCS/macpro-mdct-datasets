@@ -86,9 +86,7 @@ export const Dashboard = () => {
     }
     if (files) {
       setFiles(
-        files?.toSorted((a, b) =>
-          b.uploadedDate! < a.uploadedDate! ? -1 : 1
-        ) ?? []
+        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );
     }
 
