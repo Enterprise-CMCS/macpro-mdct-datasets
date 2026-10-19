@@ -34,7 +34,7 @@ export const canWriteState = (user: User, state: StateAbbr) => {
 };
 
 export const canWriteBanner = (user: User) => {
-  return user.role == UserRoles.ADMIN || user.role == UserRoles.BOR;
+  return user.role == UserRoles.BOR;
 };
 
 export const canWriteDataset = (user: User) => {

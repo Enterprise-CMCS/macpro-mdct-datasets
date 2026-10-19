@@ -12,9 +12,11 @@ import {
 } from "components";
 import { useStore, focusHeading } from "utils";
 import { useEffect, useRef } from "react";
+import { UserRoles } from "@datasets/shared";
 
 export const AppRoutes = () => {
-  const { userIsAdmin, userIsEndUser, userIsReadOnly } = useStore().user ?? {};
+  const { userIsAdmin, userIsEndUser, userIsReadOnly, userRole } =
+    useStore().user ?? {};
 
   const { pathname } = useLocation();
   const firstRouteRender = useRef(true);
@@ -40,7 +42,9 @@ export const AppRoutes = () => {
         />
         <Route
           path="/admin"
-          element={userIsAdmin ? <AdminPage /> : <Navigate to="/403" />}
+          element={
+            userRole === UserRoles.BOR ? <AdminPage /> : <Navigate to="/403" />
+          }
         />
         <Route
           path="/export"
