@@ -11,6 +11,7 @@ import {
 import { getDatasets } from "utils/api/requestMethods/datasets";
 import { testA11yAct } from "utils/testing/commonTests";
 import { mockDatasetsData, mockFileData } from "utils/testing/mockDatasets";
+import { validateFileContentMatchesExtension } from "@datasets/shared";
 
 vi.mock("utils/state/useStore", () => ({
   useStore: vi.fn().mockImplementation(() => {
@@ -24,7 +25,15 @@ const mockedGetDatasets = getDatasets as unknown as MockedFunction<any>;
 vi.mock("utils/api/requestMethods/uploads");
 const mockedGetFilesByState = getFilesByState as unknown as MockedFunction<any>;
 
+vi.mock("@datasets/shared", async (importOriginal) => ({
+  ...(await importOriginal()),
+  validateFileContentMatchesExtension: vi.fn(),
+}));
+const mockValidateFile = vi.mocked(validateFileContentMatchesExtension);
+
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
+
+console.error = vi.fn();
 
 describe("<Dashboard />", () => {
   beforeEach(async () => {
@@ -44,6 +53,7 @@ describe("<Dashboard />", () => {
     ).toBeVisible();
   });
   test("Upload a file", async () => {
+    mockValidateFile.mockResolvedValue(true);
     const uploadFileBtn = screen.getByRole("button", {
       name: "Upload File(s)",
     });
@@ -58,10 +68,8 @@ describe("<Dashboard />", () => {
       "Select the associated dataset for the file(s)."
     )[0];
     await userEvent.selectOptions(dropdown, "Flowers");
-    const dropArea = screen.getByLabelText("file drop area");
-    fireEvent.drop(dropArea, {
-      dataTransfer: { items: [{ getAsFile: () => mockPng }] },
-    });
+    const input = screen.getByLabelText("Choose from folder");
+    await userEvent.upload(input, [mockPng]);
     expect(recordFileInDatabaseAndGetUploadUrl).toHaveBeenCalled();
   });
   test("Edit upload file", async () => {
