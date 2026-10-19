@@ -3,12 +3,11 @@ import { Button, Heading, Link, Text } from "@chakra-ui/react";
 import { PageTemplate, Table } from "components";
 import { useStore } from "utils";
 import { HELP_DESK_EMAIL_ADDRESS } from "../../../constants";
-import { UserRoles } from "@datasets/shared";
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
 
-  const { email, given_name, family_name, userRole, state } =
+  const { email, given_name, family_name, userRole, state, userIsAdmin } =
     useStore().user ?? {};
 
   const tableContent = {
@@ -35,7 +34,7 @@ export const ProfilePage = () => {
         .
       </Text>
       <Table content={tableContent} variant="striped" />
-      {userRole === UserRoles.BOR && (
+      {userIsAdmin && (
         <Button onClick={() => navigate("/admin")}>Banner Editor</Button>
       )}
     </PageTemplate>
