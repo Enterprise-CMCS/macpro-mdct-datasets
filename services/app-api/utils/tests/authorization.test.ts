@@ -29,6 +29,10 @@ const stateUser = {
   state: "CO",
 } as User;
 
+const borUser = {
+  role: UserRoles.BOR,
+} as User;
+
 describe("Authorization functions", () => {
   describe("canReadState", () => {
     test("should allow all non-state-user roles", () => {
@@ -63,11 +67,12 @@ describe("Authorization functions", () => {
   });
 
   describe("canWriteBanner", () => {
-    test("should only allow admins", () => {
-      expect(canWriteBanner(adminUser)).toBe(true);
+    test("should only allow bor user", () => {
+      expect(canWriteBanner(borUser)).toBe(true);
     });
 
     test("should forbid others", () => {
+      expect(canWriteBanner(adminUser)).toBe(false);
       expect(canWriteBanner(approverUser)).toBe(false);
       expect(canWriteBanner(stateUser)).toBe(false);
       expect(canWriteBanner(helpDeskUser)).toBe(false);

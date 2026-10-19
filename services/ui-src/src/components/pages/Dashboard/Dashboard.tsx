@@ -84,7 +84,7 @@ export const Dashboard = () => {
           .map((set) => ({ label: set.name, value: set.key! }))
       );
     }
-    if (files && files.length > 0) {
+    if (files) {
       setFiles(
         files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );
@@ -233,6 +233,9 @@ export const Dashboard = () => {
     const set = datasetOptions.find(
       (opt) => opt.value === displayValue?.datasetId
     )?.label;
+
+    if (set === undefined) return;
+
     const instruction =
       !displayValue || displayValue.fileId === ""
         ? {
