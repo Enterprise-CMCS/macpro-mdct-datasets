@@ -84,7 +84,7 @@ export const Dashboard = () => {
           .map((set) => ({ label: set.name, value: set.key! }))
       );
     }
-    if (files) {
+    if (files && files != undefined) {
       setFiles(
         files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );
