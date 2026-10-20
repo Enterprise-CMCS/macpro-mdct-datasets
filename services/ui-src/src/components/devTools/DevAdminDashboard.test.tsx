@@ -72,6 +72,16 @@ describe("Test DevAdminDashboard component", () => {
       });
     });
 
+    const stateFilter = screen.getByRole("button", { name: "States select" });
+    fireEvent.click(stateFilter);
+
+    const search = screen.getByRole("searchbox", {
+      name: "Search States by name",
+    });
+    fireEvent.input(search, { target: { value: "New York" } });
+    const checkbox1 = screen.getByRole("checkbox", { name: "New York" });
+    await userEvent.click(checkbox1);
+
     await userEvent.click(screen.getByRole("button", { name: "Upload To" }));
 
     expect(mockUpload).toHaveBeenCalled();
