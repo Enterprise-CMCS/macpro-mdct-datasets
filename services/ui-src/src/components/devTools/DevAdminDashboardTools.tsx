@@ -66,7 +66,7 @@ export const DevAdminDashboardTools = ({ reload, datasets, files }: Props) => {
       setLoading(false);
     }
   };
-  const onDeleteAll = async () => {
+  const onDelete = async () => {
     setLoading(true);
     if (selectedStates.length === 0) return;
     //all the states from the files
@@ -130,11 +130,19 @@ export const DevAdminDashboardTools = ({ reload, datasets, files }: Props) => {
       <HStack>
         <Button
           onClick={uploadFilesToAllStates}
-          disabled={loading || datasets.length === 0}
+          disabled={
+            loading ||
+            datasets.length === 0 ||
+            !file ||
+            selectedStates.length === 0
+          }
         >
           Upload To
         </Button>
-        <Button onClick={onDeleteAll} disabled={loading}>
+        <Button
+          onClick={onDelete}
+          disabled={loading || selectedStates.length === 0}
+        >
           Delete From
         </Button>
       </HStack>
