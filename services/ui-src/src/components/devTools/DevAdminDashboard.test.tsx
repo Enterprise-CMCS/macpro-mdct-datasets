@@ -33,7 +33,9 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
 
 describe("Test DevAdminDashboard component", () => {
   test("DevAdminDashboard renders", () => {
-    render(<DevAdminDashboardTools reload={mockReload} datasets={[]} />);
+    render(
+      <DevAdminDashboardTools reload={mockReload} datasets={[]} files={[]} />
+    );
     expect(
       screen.getByText(
         "If no datasets exist, click here to generate a set of 5 datasets."
@@ -42,12 +44,12 @@ describe("Test DevAdminDashboard component", () => {
     expect(
       screen.getByRole("button", { name: "Generate Datasets" })
     ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: "Upload File to ALL States" })
-    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Upload To" })).toBeVisible();
   });
   test("Test generate datasets", async () => {
-    render(<DevAdminDashboardTools reload={mockReload} datasets={[]} />);
+    render(
+      <DevAdminDashboardTools reload={mockReload} datasets={[]} files={[]} />
+    );
 
     await userEvent.click(
       screen.getByRole("button", { name: "Generate Datasets" })
@@ -59,6 +61,7 @@ describe("Test DevAdminDashboard component", () => {
       <DevAdminDashboardTools
         reload={mockReload}
         datasets={[{ label: "Flowers", value: "1234" }]}
+        files={[]}
       />
     );
 
@@ -69,9 +72,7 @@ describe("Test DevAdminDashboard component", () => {
       });
     });
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Upload File to ALL States" })
-    );
+    await userEvent.click(screen.getByRole("button", { name: "Upload To" }));
 
     expect(mockUpload).toHaveBeenCalled();
   });

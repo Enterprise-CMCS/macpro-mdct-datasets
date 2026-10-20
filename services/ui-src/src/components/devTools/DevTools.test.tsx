@@ -22,6 +22,7 @@ const DevToolsDashboardType = (
     reload={() => {}}
     type={ToolType.DASHBOARD}
     datasets={[]}
+    files={[]}
   />
 );
 
@@ -31,6 +32,7 @@ const DevToolsAdminDashboardTool = (
     reload={undefined}
     type={ToolType.ADMIN_DASHBOARD}
     datasets={[]}
+    files={[]}
   />
 );
 

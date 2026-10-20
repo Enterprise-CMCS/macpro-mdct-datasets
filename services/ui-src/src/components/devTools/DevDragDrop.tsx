@@ -14,10 +14,17 @@ export const DevDragDrop = ({ file, setFile }: Props) => {
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const files = [...event.dataTransfer.items]
+    const file = [...event.dataTransfer.items]
       .map((item) => item.getAsFile())
-      .find((file) => file != null);
-    setFile(files);
+      .find((item) => item != null);
+    setFile(file);
+  };
+
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const file = [...event.target.files].find((item) => item != null);
+      setFile(file);
+    }
   };
 
   const onRemoveFile = () => {
@@ -50,6 +57,7 @@ export const DevDragDrop = ({ file, setFile }: Props) => {
               type="file"
               id="file-input"
               accept={acceptedFileTypes.join(",")}
+              onChange={onFileChange}
             />
           </label>
         </span>

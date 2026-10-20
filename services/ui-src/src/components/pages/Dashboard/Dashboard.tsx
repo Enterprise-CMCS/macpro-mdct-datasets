@@ -282,6 +282,7 @@ export const Dashboard = () => {
           type={ToolType.DASHBOARD}
           state={state}
           datasets={datasetOptions}
+          files={files}
           reload={reloadData}
         ></DevTools>
         <Stack sx={sx.box} gap="2rem">

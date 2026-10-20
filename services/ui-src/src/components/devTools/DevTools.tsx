@@ -4,12 +4,14 @@ import { DevDashboardTools } from "./DevDashboardTools";
 import { useState } from "react";
 import { DropdownOptions } from "types";
 import { DevAdminDashboardTools } from "./DevAdminDashboardTools";
+import { UploadType } from "@datasets/shared";
 
 interface Props {
   type: ToolType;
   reload?: Function;
   state?: string;
   datasets?: DropdownOptions[];
+  files: UploadType[];
 }
 
 export enum ToolType {
@@ -17,7 +19,7 @@ export enum ToolType {
   ADMIN_DASHBOARD = "adminDashboard",
 }
 
-export const DevTools = ({ type, reload, state, datasets }: Props) => {
+export const DevTools = ({ type, reload, state, datasets, files }: Props) => {
   const devTools = useFlags()?.devTools;
   if (!devTools || !datasets) return;
 
@@ -40,7 +42,11 @@ export const DevTools = ({ type, reload, state, datasets }: Props) => {
             />
           )}
           {type === ToolType.ADMIN_DASHBOARD && (
-            <DevAdminDashboardTools reload={reload} datasets={datasets} />
+            <DevAdminDashboardTools
+              reload={reload}
+              datasets={datasets}
+              files={files}
+            />
           )}
         </Stack>
       )}
@@ -66,7 +72,7 @@ const sx = {
     borderRadius: "0px 0px 0px 12px",
     boxShadow: "0px 3px 9px rgba(0, 0, 0, 0.1)",
     minHeight: "110px",
-    maxHeight: "500px",
+    maxHeight: "100%",
     overflowY: "auto",
     overflowX: "hidden",
   },

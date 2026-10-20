@@ -3,7 +3,10 @@ import s3 from "../../libs/s3-lib";
 import { fixLocalstackUrl } from "../../libs/localstack";
 import { emptyParser, parseFileUpdateParameters } from "../../libs/param-lib";
 import { forbidden, ok } from "../../libs/response-lib";
-import { createUpload as createUploadS3 } from "../../storage/uploads";
+import {
+  createUpload as createUploadS3,
+  updateUpload,
+} from "../../storage/uploads";
 import { UploadFileData } from "../../types/uploads";
 import KSUID from "ksuid";
 import { canWriteState } from "../../utils/authorization";

@@ -172,6 +172,7 @@ export const AdminDashboard = () => {
           type={ToolType.ADMIN_DASHBOARD}
           datasets={datasetOptions}
           reload={reloadData}
+          files={files}
         ></DevTools>
         <Stack sx={sx.box} gap="2rem">
           <Heading as="h1" variant="h1">
