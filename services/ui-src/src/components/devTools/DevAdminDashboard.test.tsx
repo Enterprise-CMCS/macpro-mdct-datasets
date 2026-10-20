@@ -1,11 +1,13 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { DevAdminDashboardTools } from "./DevAdminDashboardTools";
 import userEvent from "@testing-library/user-event";
+import { UploadStatus } from "@datasets/shared";
 
 const mockReload = vi.fn();
 const mockGenerateDatasets = vi.fn();
 const mockUpload = vi.fn();
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
+const mockDelete = vi.fn();
 
 vi.mock("utils/api/requestMethods/datasets", () => ({
   createDataset: () => {
@@ -29,6 +31,9 @@ vi.mock("utils/api/requestMethods/uploads", async (importOriginal) => ({
   devCreateUpload: vi
     .fn()
     .mockReturnValue({ items: [{ presignedUploadUrl: "1234", fileId: "" }] }),
+  deleteUploadsForState: () => {
+    mockDelete();
+  },
 }));
 
 describe("Test DevAdminDashboard component", () => {
@@ -56,7 +61,7 @@ describe("Test DevAdminDashboard component", () => {
     );
     expect(mockGenerateDatasets).toHaveBeenCalled();
   });
-  test("Test upload files to all states", async () => {
+  test("Test upload files to selected states", async () => {
     render(
       <DevAdminDashboardTools
         reload={mockReload}
@@ -65,12 +70,10 @@ describe("Test DevAdminDashboard component", () => {
       />
     );
 
-    const dropArea = screen.getByLabelText("file drop area");
-    await act(async () => {
-      fireEvent.drop(dropArea, {
-        dataTransfer: { items: [{ getAsFile: () => mockPng }] },
-      });
-    });
+    await userEvent.upload(
+      screen.getByLabelText("Choose from folder"),
+      mockPng
+    );
 
     const stateFilter = screen.getByRole("button", { name: "States select" });
     fireEvent.click(stateFilter);
@@ -85,5 +88,36 @@ describe("Test DevAdminDashboard component", () => {
     await userEvent.click(screen.getByRole("button", { name: "Upload To" }));
 
     expect(mockUpload).toHaveBeenCalled();
+  });
+  test("Test delete files from selected states", async () => {
+    render(
+      <DevAdminDashboardTools
+        reload={mockReload}
+        datasets={[{ label: "Flowers", value: "1234" }]}
+        files={[
+          {
+            filename: "mock name",
+            fileId: "mock-id",
+            datasetId: "1234",
+            uploadedUsername: "username",
+            uploadedDate: "2/2/2022",
+            state: "PA",
+            uploadStatus: UploadStatus.COMPLETE,
+          },
+        ]}
+      />
+    );
+    const stateFilter = screen.getByRole("button", { name: "States select" });
+    fireEvent.click(stateFilter);
+
+    const search = screen.getByRole("searchbox", {
+      name: "Search States by name",
+    });
+    fireEvent.input(search, { target: { value: "Pennsylvania" } });
+    const checkbox1 = screen.getByRole("checkbox", { name: "Pennsylvania" });
+    await userEvent.click(checkbox1);
+
+    await userEvent.click(screen.getByRole("button", { name: "Delete From" }));
+    expect(mockDelete).toHaveBeenCalled();
   });
 });
