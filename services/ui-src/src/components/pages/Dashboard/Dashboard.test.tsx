@@ -1,5 +1,12 @@
 import { MockedFunction } from "vitest";
-import { render, waitFor, screen, fireEvent } from "@testing-library/react";
+import {
+  act,
+  render,
+  waitFor,
+  screen,
+  fireEvent,
+  within,
+} from "@testing-library/react";
 import { Dashboard } from "./Dashboard";
 import userEvent from "@testing-library/user-event";
 import {
@@ -11,7 +18,10 @@ import {
 import { getDatasets } from "utils/api/requestMethods/datasets";
 import { testA11yAct } from "utils/testing/commonTests";
 import { mockDatasetsData, mockFileData } from "utils/testing/mockDatasets";
-import { validateFileContentMatchesExtension } from "@datasets/shared";
+import {
+  UploadStatus,
+  validateFileContentMatchesExtension,
+} from "@datasets/shared";
 
 vi.mock("utils/state/useStore", () => ({
   useStore: vi.fn().mockImplementation(() => {
@@ -93,23 +103,25 @@ describe("<Dashboard />", () => {
     await waitFor(() => {
       expect(screen.getByText("Delete file?")).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await userEvent.click(screen.getByRole("button", { name: "Delete File" }));
     expect(deleteUploadedFile).toHaveBeenCalled();
   });
+
   test("Test table sorts", async () => {
     const sortResult = async (
       sort: string,
       columns: number[],
       results: string[]
     ) => {
-      const content = screen.getAllByRole("cell");
       const sortBtn = screen.getByRole("button", { name: sort });
       await userEvent.click(sortBtn);
+      let content = screen.getAllByRole("cell");
       expect([
         content[columns[0]].textContent,
         content[columns[1]].textContent,
       ]).toStrictEqual(results);
       await userEvent.click(sortBtn);
+      content = screen.getAllByRole("cell");
       expect([
         content[columns[0]].textContent,
         content[columns[1]].textContent,
@@ -118,12 +130,12 @@ describe("<Dashboard />", () => {
 
     await sortResult(
       "File name",
-      [0, 5],
+      [0, 6],
       ["mock filename 1", "mock filename 2"]
     );
-    await sortResult("Dataset", [1, 6], ["Flowers", "Fruits"]);
-    await sortResult("Uploaded By", [2, 7], ["username 1", "username 2"]);
-    await sortResult("Upload Date", [3, 8], ["09/17/2026", "09/21/2026"]);
+    await sortResult("Dataset", [1, 7], ["Flowers", "Fruits"]);
+    await sortResult("Uploaded By", [2, 8], ["username 1", "username 2"]);
+    await sortResult("Upload Date", [3, 9], ["09/17/2026", "09/21/2026"]);
   });
   test("Set Dataset filter", async () => {
     const stateFilter = screen.getByRole("button", { name: "Dataset select" });
@@ -145,4 +157,79 @@ describe("<Dashboard />", () => {
     expect(screen.queryByRole("cell", { name: "Fruits" })).toBeInTheDocument();
   });
   testA11yAct(<Dashboard />);
+});
+
+describe("Dashboard deletion loading", () => {
+  test.each([UploadStatus.COMPLETE, UploadStatus.ERROR])(
+    "shows a spinner only for the deleting %s file",
+    async (uploadStatus) => {
+      vi.clearAllMocks();
+      const files = mockFileData.map((file) => ({ ...file, uploadStatus }));
+      mockedGetDatasets.mockResolvedValue(mockDatasetsData);
+      mockedGetFilesByState.mockResolvedValue(files);
+
+      let finishDelete!: () => void;
+      vi.mocked(deleteUploadedFile).mockImplementationOnce(
+        () =>
+          new Promise<void>((resolve) => {
+            finishDelete = resolve;
+          })
+      );
+
+      render(<Dashboard />);
+      const deleteButton = await screen.findByRole("button", {
+        name: "Delete mock filename 1",
+      });
+      const otherDeleteButton = screen.getByRole("button", {
+        name: "Delete mock filename 2",
+      });
+      await userEvent.click(deleteButton);
+
+      if (uploadStatus === UploadStatus.COMPLETE) {
+        expect(deleteButton).toHaveAttribute("aria-busy", "false");
+        await userEvent.click(
+          screen.getByRole("button", { name: "Delete File" })
+        );
+      }
+
+      await waitFor(() => {
+        expect(deleteButton).toHaveAttribute("aria-busy", "true");
+      });
+      expect(deleteButton).toBeDisabled();
+      expect(within(deleteButton).getByText("Loading...")).toBeInTheDocument();
+      expect(otherDeleteButton).toHaveAttribute("aria-busy", "false");
+      expect(otherDeleteButton).toBeEnabled();
+      expect(
+        within(otherDeleteButton).queryByText("Loading...")
+      ).not.toBeInTheDocument();
+
+      let finishRefresh!: (files: typeof mockFileData) => void;
+      mockedGetFilesByState.mockImplementationOnce(
+        () =>
+          new Promise<typeof mockFileData>((resolve) => {
+            finishRefresh = resolve;
+          })
+      );
+      await act(async () => {
+        finishDelete();
+      });
+      expect(deleteButton).toHaveAttribute("aria-busy", "true");
+      expect(deleteButton).toBeVisible();
+      await act(async () => {
+        finishRefresh([files[1]]);
+      });
+      await waitFor(() => {
+        expect(
+          screen.queryByRole("button", {
+            name: "Delete mock filename 1",
+          })
+        ).not.toBeInTheDocument();
+      });
+      expect(
+        screen.getByRole("button", {
+          name: "Delete mock filename 2",
+        })
+      ).toBeEnabled();
+    }
+  );
 });

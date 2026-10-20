@@ -1,4 +1,4 @@
-import { JSX, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Heading,
@@ -16,6 +16,7 @@ import {
   DatasetStatusType,
   UploadType,
   StateNames,
+  UploadStatus,
 } from "@datasets/shared";
 import { PageTemplate, Modal, Banner } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
@@ -33,15 +34,16 @@ import { EditDrawer } from "../../drawers/EditDrawer";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { activeBannerSelector } from "utils/state/selectors";
+import errorIcon from "assets/icons/alert/icon_error_red.svg";
 
 export const Dashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<UploadType[]>([]);
   const [sortedFiles, setSortedFiles] = useState<UploadType[]>([]);
-  const [tableRows, setTableRows] = useState<
-    (string | number | JSX.Element | undefined)[][]
-  >([]);
+  const [deletingFileIds, setDeletingFileIds] = useState<Set<string>>(
+    new Set()
+  );
   const [lastSorted, setLastSorted] = useState<{
     sort: string;
     type: SORT_TYPE;
@@ -67,8 +69,8 @@ export const Dashboard = () => {
     setFilterDataset(dataset);
   };
 
-  const reloadData = async () => {
-    setIsLoading(true);
+  const reloadData = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
 
     const [datasets, files] = await Promise.all([
       getDatasets(),
@@ -84,13 +86,13 @@ export const Dashboard = () => {
           .map((set) => ({ label: set.name, value: set.key! }))
       );
     }
-    if (files && files.length > 0) {
+    if (files) {
       setFiles(
         files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
       );
     }
 
-    setIsLoading(false);
+    if (showLoading) setIsLoading(false);
   };
 
   useEffect(() => {
@@ -105,10 +107,6 @@ export const Dashboard = () => {
     } else setSortedFiles(files);
   }, [files, filterDataset]);
 
-  useEffect(() => {
-    sortRows(lastSorted.sort, lastSorted.type);
-  }, [sortedFiles]);
-
   const clearFilter = () => {
     setDatasetHandler([]);
   };
@@ -118,13 +116,21 @@ export const Dashboard = () => {
     setEditDrawerOpen(true);
   };
 
-  const onDeleteHandler = async () => {
-    if (deleteFile) {
-      setModalLoading(true);
-      await removeFile(state!, deleteFile.fileId);
-      await reloadData();
-      setModalLoading(false);
-      setDeleteModal(false);
+  const onDeleteHandler = async (file?: UploadType) => {
+    const fileToDelete = file ?? deleteFile;
+    if (fileToDelete) {
+      setDeletingFileIds((ids) => new Set(ids).add(fileToDelete.fileId));
+      try {
+        await removeFile(state!, fileToDelete.fileId);
+        await reloadData(false);
+        setDeleteModal(false);
+      } finally {
+        setDeletingFileIds((ids) => {
+          const next = new Set(ids);
+          next.delete(fileToDelete.fileId);
+          return next;
+        });
+      }
     }
   };
 
@@ -141,8 +147,44 @@ export const Dashboard = () => {
     );
   };
 
+  const getFileStatus = (file: UploadType) => {
+    const isTooLongError =
+      Date.now() - new Date(file.uploadedDate).getTime() > 120000; // 120 seconds
+
+    // Return error if file has been uploading for over 2 minutes
+    // Can revisit this to make the timeout dynamic based on file size
+    if (file.uploadStatus === UploadStatus.PENDING && isTooLongError) {
+      return UploadStatus.ERROR;
+    }
+
+    return file.uploadStatus;
+  };
+
+  const getStatusElement = (status: UploadStatus) => {
+    switch (status) {
+      case UploadStatus.COMPLETE:
+        return "Complete";
+      case UploadStatus.WORKING:
+        return "Processing";
+      case UploadStatus.PENDING:
+        return "Uploading";
+      case UploadStatus.ERROR:
+        return (
+          <Flex alignItems="flex-start" gap="spacer1">
+            <Image src={errorIcon} alt="Alert" />
+            <Text color="error">Error</Text>
+          </Flex>
+        );
+      default:
+        return "Processing";
+    }
+  };
+
   const buildRows = (data: UploadType[]) => {
     return data.map((file) => {
+      const fileStatus = getFileStatus(file);
+      const isDeleting = deletingFileIds.has(file.fileId);
+
       const columnAction = (
         <HStack>
           <Button
@@ -163,12 +205,23 @@ export const Dashboard = () => {
             variant="link"
             fontWeight="bold"
             onClick={() => {
-              setDeleteModal(true);
-              setDeleteFile(file);
+              if (fileStatus === UploadStatus.ERROR) {
+                onDeleteHandler(file);
+              } else {
+                setDeleteFile(file);
+                setDeleteModal(true);
+              }
             }}
             aria-label={`Delete ${file.filename}`}
-            rightIcon={<Image src={cancelIcon} alt="Remove" />}
-            disabled={isDatasetInactive(file.datasetId)}
+            aria-busy={isDeleting}
+            rightIcon={
+              isDeleting ? (
+                <Spinner size="sm" />
+              ) : (
+                <Image src={cancelIcon} alt="Remove" />
+              )
+            }
+            disabled={isDeleting || isDatasetInactive(file.datasetId)}
           ></Button>
         </HStack>
       );
@@ -185,12 +238,13 @@ export const Dashboard = () => {
         datasetFilterOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
+        getStatusElement(fileStatus),
         columnAction,
       ];
     });
   };
 
-  const sortRows = (row: string, type: SORT_TYPE) => {
+  const getSortedFiles = (row: string, type: SORT_TYPE) => {
     const getValue = (answer: UploadType, type: string) => {
       switch (type) {
         case "File name":
@@ -219,8 +273,11 @@ export const Dashboard = () => {
             }
           });
     };
-    setLastSorted({ sort: row, type: type });
-    setTableRows(buildRows(runSort(sortedFiles)));
+    return runSort(sortedFiles);
+  };
+
+  const sortRows = (row: string, type: SORT_TYPE) => {
+    setLastSorted({ sort: row, type });
   };
 
   const setDatasetDropdown = (
@@ -317,9 +374,10 @@ export const Dashboard = () => {
                 { label: "Dataset", sortable: true },
                 { label: "Uploaded By", sortable: true },
                 { label: "Upload Date", sortable: true },
+                { label: "Status", sortable: true },
                 { label: "Actions" },
               ],
-              tableRows,
+              buildRows(getSortedFiles(lastSorted.sort, lastSorted.type)),
               "",
               sortRows,
               undefined,
@@ -378,13 +436,13 @@ export const Dashboard = () => {
           onConfirmHandler={onDeleteHandler}
           content={{
             heading: "Delete file?",
-            actionButtonText: "Delete",
+            actionButtonText: "Delete File",
             closeButtonText: "Cancel",
           }}
-          submitting={modalLoading}
+          submitting={!!deleteFile && deletingFileIds.has(deleteFile.fileId)}
         >
-          Deleting {deleteFile?.filename} will remove it from the system and
-          revokes CMS access. This action cannot be undone.{" "}
+          Are you sure you want to delete {deleteFile?.filename}? This action
+          cannot be undone, and the file will be removed from the system.
         </Modal>
       </PageTemplate>
     </>

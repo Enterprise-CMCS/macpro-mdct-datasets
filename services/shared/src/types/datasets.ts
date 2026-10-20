@@ -52,6 +52,7 @@ export type UploadType = {
   uploadedDate: string;
   state: string;
   uploadStatus: UploadStatus;
+  filesize: number;
 };
 
 export enum UploadStatus {
