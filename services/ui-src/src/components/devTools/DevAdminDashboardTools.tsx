@@ -53,7 +53,11 @@ export const DevAdminDashboardTools = ({ reload, datasets, files }: Props) => {
       setLoading(true);
       const dataset =
         datasets[Math.floor(Math.random() * datasets?.length)].value;
-      const { items } = await devCreateUpload(dataset, file);
+      const { items } = await devCreateUpload(
+        dataset,
+        file,
+        selectedStates.filter((state) => state != "all")
+      );
       const urls = items.map((item: { psurl: string; fileId: string }) =>
         uploadFileToS3({ presignedUploadUrl: item.psurl }, file)
       );

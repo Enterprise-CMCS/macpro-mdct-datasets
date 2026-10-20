@@ -138,13 +138,18 @@ export const deleteUploadsForState = async (state: string) => {
   await apiLib.del(`/uploads/${state}`, options);
 };
 
-export const devCreateUpload = async (id: string, uploadedFile: File) => {
+export const devCreateUpload = async (
+  id: string,
+  uploadedFile: File,
+  states: string[]
+) => {
   const requestHeaders = await getRequestHeaders();
   const body = {
     uploadedFileName: uploadedFile.name,
     uploadedFileType: uploadedFile.type,
     uploadedFileSize: uploadedFile.size,
     datasetId: id,
+    states,
   };
 
   const options = {

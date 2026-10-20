@@ -152,7 +152,7 @@ describe("upload apis", () => {
       items: [{ psurl: "https://mock.url" }],
     });
 
-    const result = await devCreateUpload("mock-id", mockPng);
+    const result = await devCreateUpload("mock-id", mockPng, ["PA"]);
     expect(result).toEqual({ items: [{ psurl: "https://mock.url" }] });
   });
 });

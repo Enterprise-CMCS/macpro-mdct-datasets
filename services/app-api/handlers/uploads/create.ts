@@ -12,7 +12,6 @@ import KSUID from "ksuid";
 import { canWriteState } from "../../utils/authorization";
 import { error } from "../../utils/constants";
 import { isFeatureFlagEnabled } from "../../utils/featureFlags";
-import { StateNames } from "@datasets/shared";
 
 export const createUpload = handler(
   parseFileUpdateParameters,
@@ -52,16 +51,16 @@ export const createUpload = handler(
 export const createUploadDev = handler(emptyParser, async (request) => {
   const { user, body } = request;
   // Format Info
-  const { uploadedFileName, uploadedFileSize, datasetId } =
-    body as UploadFileData;
+  const { uploadedFileName, uploadedFileSize, datasetId, states } =
+    body as UploadFileData & { states: string[] };
   const useDevTools = await isFeatureFlagEnabled("devTools");
   const username = user.fullName ?? "";
-  const stateKeys = Object.keys(StateNames);
+
   const files = [];
   if (useDevTools) {
-    for (var i = 0; i < Object.keys(StateNames).length; i++) {
+    for (var i = 0; i < states.length; i++) {
       const fileId = `${KSUID.randomSync().string}_${uploadedFileName}`;
-      const state = stateKeys[i];
+      const state = states[i];
       await updateUpload(
         state,
         username,
