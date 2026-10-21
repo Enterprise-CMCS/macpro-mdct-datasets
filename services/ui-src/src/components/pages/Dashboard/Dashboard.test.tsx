@@ -159,6 +159,85 @@ describe("<Dashboard />", () => {
   testA11yAct(<Dashboard />);
 });
 
+describe("Dashboard status sorting", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("sorts displayed statuses, including timed-out uploads, without mutating files", async () => {
+    vi.clearAllMocks();
+    const now = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    const statuses = [
+      UploadStatus.PENDING,
+      UploadStatus.ERROR,
+      UploadStatus.COMPLETE,
+      UploadStatus.WORKING,
+      UploadStatus.PENDING,
+      UploadStatus.ERROR,
+    ];
+    const files = statuses.map((uploadStatus, index) => ({
+      ...mockFileData[0],
+      fileId: `status-${index}`,
+      filename: `file ${index}`,
+      filesize: 70011,
+      uploadStatus,
+      uploadedDate: new Date(
+        now - (index === 4 ? 120_001 : index * 1_000)
+      ).toISOString(),
+    }));
+    mockedGetDatasets.mockResolvedValue(mockDatasetsData);
+    mockedGetFilesByState.mockResolvedValue(files);
+    render(<Dashboard />);
+    await screen.findByRole("cell", { name: "file 0" });
+
+    const displayedFiles = () =>
+      screen
+        .getAllByRole("row")
+        .slice(1)
+        .map((row) => within(row).getAllByRole("cell")[0].textContent);
+    const originalOrder = [
+      "file 0",
+      "file 1",
+      "file 2",
+      "file 3",
+      "file 5",
+      "file 4",
+    ];
+    expect(displayedFiles()).toEqual(originalOrder);
+
+    const sortButton = screen.getByRole("button", { name: "Status" });
+    await userEvent.click(sortButton);
+    expect(displayedFiles()).toEqual([
+      "file 2",
+      "file 1",
+      "file 5",
+      "file 4",
+      "file 3",
+      "file 0",
+    ]);
+    await userEvent.click(sortButton);
+    expect(displayedFiles()).toEqual([
+      "file 0",
+      "file 3",
+      "file 1",
+      "file 5",
+      "file 4",
+      "file 2",
+    ]);
+    await userEvent.click(sortButton);
+    expect(displayedFiles()).toEqual(originalOrder);
+    expect(files.map((file) => file.filename)).toEqual([
+      "file 0",
+      "file 1",
+      "file 2",
+      "file 3",
+      "file 4",
+      "file 5",
+    ]);
+  });
+});
+
 describe("Dashboard deletion loading", () => {
   test.each([UploadStatus.COMPLETE, UploadStatus.ERROR])(
     "shows a spinner only for the deleting %s file",
@@ -180,6 +259,7 @@ describe("Dashboard deletion loading", () => {
       const deleteButton = await screen.findByRole("button", {
         name: "Delete mock filename 1",
       });
+
       const otherDeleteButton = screen.getByRole("button", {
         name: "Delete mock filename 2",
       });

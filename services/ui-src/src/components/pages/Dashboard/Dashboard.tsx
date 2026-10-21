@@ -36,6 +36,13 @@ import { DropdownOptions } from "types";
 import { activeBannerSelector } from "utils/state/selectors";
 import errorIcon from "assets/icons/alert/icon_error_red.svg";
 
+const statusLabels: Record<UploadStatus, string> = {
+  [UploadStatus.COMPLETE]: "Complete",
+  [UploadStatus.ERROR]: "Error",
+  [UploadStatus.WORKING]: "Processing",
+  [UploadStatus.PENDING]: "Uploading",
+};
+
 export const Dashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
   const [isLoading, setIsLoading] = useState(false);
@@ -88,7 +95,7 @@ export const Dashboard = () => {
     }
     if (files) {
       setFiles(
-        files.toSorted((a, b) => (b.uploadedDate! < a.uploadedDate! ? -1 : 1))
+        files.toSorted((a, b) => b.uploadedDate.localeCompare(a.uploadedDate))
       );
     }
 
@@ -162,21 +169,15 @@ export const Dashboard = () => {
 
   const getStatusElement = (status: UploadStatus) => {
     switch (status) {
-      case UploadStatus.COMPLETE:
-        return "Complete";
-      case UploadStatus.WORKING:
-        return "Processing";
-      case UploadStatus.PENDING:
-        return "Uploading";
       case UploadStatus.ERROR:
         return (
           <Flex alignItems="flex-start" gap="spacer1">
             <Image src={errorIcon} alt="Alert" />
-            <Text color="error">Error</Text>
+            <Text color="error">{statusLabels[status]}</Text>
           </Flex>
         );
       default:
-        return "Processing";
+        return statusLabels[status] ?? "Processing";
     }
   };
 
@@ -255,6 +256,8 @@ export const Dashboard = () => {
           return answer.uploadedUsername;
         case "Upload Date":
           return answer.uploadedDate!;
+        case "Status":
+          return statusLabels[getFileStatus(answer)] ?? "Processing";
         default:
           return "";
       }
@@ -266,6 +269,7 @@ export const Dashboard = () => {
         : arr.toSorted((a, b) => {
             const valueA = getValue(a, row);
             const valueB = getValue(b, row);
+            if (valueA === valueB) return 0;
             if (type === SORT_TYPE.DESCENDING) {
               return valueA < valueB ? -1 : 1;
             } else {
