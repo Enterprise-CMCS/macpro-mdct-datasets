@@ -1,4 +1,4 @@
-import { JSX, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Heading,
@@ -17,6 +17,11 @@ import {
 } from "@datasets/shared";
 import { Banner, PageTemplate } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
+import {
+  FileStatus,
+  getFileStatus,
+  getFileStatusLabel,
+} from "components/tables/FileStatus";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
 import { getFiles } from "../../utils/api/requestMethods/uploads";
@@ -33,9 +38,6 @@ export const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<UploadType[]>([]);
   const [sortedFiles, setSortedFiles] = useState<UploadType[]>([]);
-  const [tableRows, setTableRows] = useState<
-    (string | number | JSX.Element | undefined)[][]
-  >([]);
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
   const [lastSorted, setLastSorted] = useState<{
@@ -85,10 +87,6 @@ export const AdminDashboard = () => {
     } else setSortedFiles(files);
   }, [files, selectedStates, selectedDatasets]);
 
-  useEffect(() => {
-    sortRows(lastSorted.sort, lastSorted.type);
-  }, [sortedFiles]);
-
   const clearFilter = () => {
     setStatesHandler([]);
     setDatasetHandler([]);
@@ -118,12 +116,13 @@ export const AdminDashboard = () => {
         datasetOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
+        <FileStatus status={getFileStatus(file)} />,
         columnAction,
       ];
     });
   };
 
-  const sortRows = (row: string, type: SORT_TYPE) => {
+  const getSortedFiles = (row: string, type: SORT_TYPE) => {
     const getValue = (answer: UploadType, type: string) => {
       switch (type) {
         case "State/Territory":
@@ -136,6 +135,8 @@ export const AdminDashboard = () => {
           return answer.uploadedUsername;
         case "Upload Date":
           return answer.uploadedDate!;
+        case "Status":
+          return getFileStatusLabel(getFileStatus(answer));
         default:
           return "";
       }
@@ -147,6 +148,7 @@ export const AdminDashboard = () => {
         : arr.toSorted((a, b) => {
             const valueA = getValue(a, row);
             const valueB = getValue(b, row);
+            if (valueA === valueB) return 0;
             if (type === SORT_TYPE.DESCENDING) {
               return valueA < valueB ? -1 : 1;
             } else {
@@ -154,8 +156,11 @@ export const AdminDashboard = () => {
             }
           });
     };
-    setLastSorted({ sort: row, type: type });
-    setTableRows(buildRows(runSort(sortedFiles)));
+    return runSort(sortedFiles);
+  };
+
+  const sortRows = (row: string, type: SORT_TYPE) => {
+    setLastSorted({ sort: row, type });
   };
 
   return (
@@ -226,9 +231,10 @@ export const AdminDashboard = () => {
                 { label: "Dataset", sortable: true },
                 { label: "Uploaded By", sortable: true },
                 { label: "Upload Date", sortable: true },
+                { label: "Status", sortable: true },
                 { label: "Actions" },
               ],
-              tableRows,
+              buildRows(getSortedFiles(lastSorted.sort, lastSorted.type)),
               "",
               sortRows,
               undefined,

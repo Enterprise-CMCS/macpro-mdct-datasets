@@ -34,14 +34,11 @@ import { EditDrawer } from "../../drawers/EditDrawer";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { activeBannerSelector } from "utils/state/selectors";
-import errorIcon from "assets/icons/alert/icon_error_red.svg";
-
-const statusLabels: Record<UploadStatus, string> = {
-  [UploadStatus.COMPLETE]: "Complete",
-  [UploadStatus.ERROR]: "Error",
-  [UploadStatus.WORKING]: "Processing",
-  [UploadStatus.PENDING]: "Uploading",
-};
+import {
+  FileStatus,
+  getFileStatus,
+  getFileStatusLabel,
+} from "components/tables/FileStatus";
 
 export const Dashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
@@ -154,33 +151,6 @@ export const Dashboard = () => {
     );
   };
 
-  const getFileStatus = (file: UploadType) => {
-    const isTooLongError =
-      Date.now() - new Date(file.uploadedDate).getTime() > 120000; // 120 seconds
-
-    // Return error if file has been uploading for over 2 minutes
-    // Can revisit this to make the timeout dynamic based on file size
-    if (file.uploadStatus === UploadStatus.PENDING && isTooLongError) {
-      return UploadStatus.ERROR;
-    }
-
-    return file.uploadStatus;
-  };
-
-  const getStatusElement = (status: UploadStatus) => {
-    switch (status) {
-      case UploadStatus.ERROR:
-        return (
-          <Flex alignItems="flex-start" gap="spacer1">
-            <Image src={errorIcon} alt="Alert" />
-            <Text color="error">{statusLabels[status]}</Text>
-          </Flex>
-        );
-      default:
-        return statusLabels[status] ?? "Processing";
-    }
-  };
-
   const buildRows = (data: UploadType[]) => {
     return data.map((file) => {
       const fileStatus = getFileStatus(file);
@@ -239,7 +209,7 @@ export const Dashboard = () => {
         datasetFilterOptions.find((opt) => opt.value === file.datasetId)?.label,
         file.uploadedUsername,
         formattedDate,
-        getStatusElement(fileStatus),
+        <FileStatus status={fileStatus} />,
         columnAction,
       ];
     });
@@ -257,7 +227,7 @@ export const Dashboard = () => {
         case "Upload Date":
           return answer.uploadedDate!;
         case "Status":
-          return statusLabels[getFileStatus(answer)] ?? "Processing";
+          return getFileStatusLabel(getFileStatus(answer));
         default:
           return "";
       }
