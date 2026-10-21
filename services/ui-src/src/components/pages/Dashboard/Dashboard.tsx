@@ -33,6 +33,7 @@ import { EditDrawer } from "../../drawers/EditDrawer";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { activeBannerSelector } from "utils/state/selectors";
+import { DevTools, ToolType } from "components/devTools/DevTools";
 
 export const Dashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
@@ -277,6 +278,13 @@ export const Dashboard = () => {
         </Box>
       ) : null}
       <PageTemplate type="report" sxOverride={sx.layout}>
+        <DevTools
+          type={ToolType.DASHBOARD}
+          state={state}
+          datasets={datasetOptions}
+          files={files}
+          reload={reloadData}
+        ></DevTools>
         <Stack sx={sx.box} gap="2rem">
           <Heading as="h1" variant="h1">
             {StateNames[state as keyof typeof StateNames]} File Upload
@@ -288,8 +296,8 @@ export const Dashboard = () => {
           <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
             Upload File(s)
           </Button>
-          <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
-            {datasetFilterOptions.length > 0 && (
+          {datasetFilterOptions.length > 0 && (
+            <Flex gap="spacer3" alignItems="flex-end" sx={sx.filters}>
               <MultiSelect
                 label="Filter by Dataset:"
                 placeholder="Search dataset"
@@ -298,17 +306,18 @@ export const Dashboard = () => {
                 values={filterDataset}
                 onChange={(selected) => setDatasetHandler(selected)}
               />
-            )}
-            <Button
-              onClick={clearFilter}
-              variant="link"
-              height="40px"
-              fontWeight="bold"
-              aria-label="Clear All Filters"
-            >
-              Clear Filters
-            </Button>
-          </Flex>
+
+              <Button
+                onClick={clearFilter}
+                variant="link"
+                height="40px"
+                fontWeight="bold"
+                aria-label="Clear All Filters"
+              >
+                Clear Filters
+              </Button>
+            </Flex>
+          )}
           {isLoading ? (
             <Flex justify="center">
               <Spinner size="md" />
@@ -409,11 +418,6 @@ const sx = {
   filters: {
     ".ds-c-dropdown__menu-container": {
       zIndex: "1001",
-    },
-  },
-  accordionPanel: {
-    ".mobile &": {
-      paddingTop: "spacer2",
     },
   },
 };
