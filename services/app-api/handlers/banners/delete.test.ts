@@ -15,7 +15,7 @@ const dynamoClientMock = mockClient(DynamoDBDocumentClient);
 vi.mock("../../utils/authentication");
 const mockAuthenticatedUser = vi.mocked(authenticatedUser);
 mockAuthenticatedUser.mockResolvedValue({
-  role: UserRoles.ADMIN,
+  role: UserRoles.BOR,
   state: "PA",
 } as User);
 

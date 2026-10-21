@@ -9,7 +9,7 @@ import { putBanner } from "../../storage/banners";
 
 vi.mock("../../utils/authentication", () => ({
   authenticatedUser: vi.fn().mockReturnValue({
-    role: UserRoles.ADMIN,
+    role: UserRoles.BOR,
     state: "PA",
     fullName: "mock state user",
   }),

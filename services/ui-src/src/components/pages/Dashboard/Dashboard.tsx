@@ -264,6 +264,9 @@ export const Dashboard = () => {
     const set = datasetOptions.find(
       (opt) => opt.value === displayValue?.datasetId
     )?.label;
+
+    if (set === undefined) return;
+
     const instruction =
       !displayValue || displayValue.fileId === ""
         ? {

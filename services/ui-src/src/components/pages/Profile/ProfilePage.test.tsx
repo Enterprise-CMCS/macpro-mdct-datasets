@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { ProfilePage } from "components";
 import {
   mockAdminUserStore,
+  mockBORUserStore,
   mockStateUserStore,
   RouterWrappedComponent,
 } from "utils/testing/setupTest";
@@ -21,15 +22,15 @@ vi.mock("utils/state/useStore");
 const mockedUseStore = useStore as unknown as MockedFunction<typeof useStore>;
 
 // TESTS
-describe("Test ProfilePage for admin users", () => {
+describe("Test ProfilePage for bor users", () => {
   beforeEach(async () => {
-    mockedUseStore.mockReturnValue(mockAdminUserStore);
+    mockedUseStore.mockReturnValue(mockBORUserStore);
     render(ProfilePageComponent);
   });
 
   test("Check that Profile page renders properly", () => {
     expect(
-      screen.getByRole("row", { name: "Email adminuser@test.com" })
+      screen.getByRole("row", { name: "Email boruser@test.com" })
     ).toBeVisible();
     expect(screen.queryByText("stateuser@test.com")).not.toBeInTheDocument();
   });

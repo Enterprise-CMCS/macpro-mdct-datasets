@@ -155,6 +155,21 @@ export const mockAdminUserStore: UserState = {
   setShowLocalLogins: () => {},
 };
 
+export const mockBORUserStore: UserState = {
+  user: {
+    userRole: UserRoles.BOR,
+    email: "boruser@test.com",
+    given_name: "Bus",
+    family_name: "Business",
+    full_name: "Bus Business",
+    state: undefined,
+    userIsAdmin: true,
+  },
+  showLocalLogins: false,
+  setUser: () => {},
+  setShowLocalLogins: () => {},
+};
+
 // BOUND STORE
 
 export const mockUseStore: UserState = {
