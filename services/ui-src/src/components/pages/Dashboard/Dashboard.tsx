@@ -330,7 +330,11 @@ export const Dashboard = () => {
             {StateNames[state as keyof typeof StateNames]} File Upload
           </Heading>
           {files.some((file) => getFileStatus(file) === UploadStatus.ERROR) && (
-            <Alert status={AlertTypes.ERROR} title="File Upload Error">
+            <Alert
+              status={AlertTypes.ERROR}
+              title="File Upload Error"
+              skipScroll={true}
+            >
               We encountered an issue while processing your uploaded file.
               Please remove the file and try uploading it again.
             </Alert>
