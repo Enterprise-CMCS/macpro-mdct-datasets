@@ -31,6 +31,7 @@ import { DropdownOptions } from "types";
 import { useNavigate } from "react-router";
 import { activeBannerSelector } from "utils/state/selectors";
 import { useUploadStatusRefresh } from "utils/other/useUploadStatusRefresh";
+import { DevTools, ToolType } from "components/devTools/DevTools";
 
 export const AdminDashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
@@ -175,6 +176,12 @@ export const AdminDashboard = () => {
         </Box>
       ) : null}
       <PageTemplate type="report" sxOverride={sx.layout}>
+        <DevTools
+          type={ToolType.ADMIN_DASHBOARD}
+          datasets={datasetOptions}
+          reload={reloadData}
+          files={files}
+        ></DevTools>
         <Stack sx={sx.box} gap="2rem">
           <Heading as="h1" variant="h1">
             File Upload Admin Dashboard
@@ -265,11 +272,6 @@ const sx = {
   filters: {
     ".ds-c-dropdown__menu-container": {
       zIndex: "1001",
-    },
-  },
-  accordionPanel: {
-    ".mobile &": {
-      paddingTop: "spacer2",
     },
   },
 };
