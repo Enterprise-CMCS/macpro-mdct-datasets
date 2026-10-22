@@ -33,6 +33,7 @@ const mockDatasetUpload: UploadType = {
   uploadedDate: "date",
   state: "AL",
   uploadStatus: UploadStatus.COMPLETE,
+  filesize: 70011,
 };
 
 const originalFetch = window.fetch;

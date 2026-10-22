@@ -1,6 +1,7 @@
 import { StateAbbr, UploadStatus } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import { updateUploadStatus } from "../../storage/uploads";
+import { isLocalStack } from "../../libs/localstack";
 
 /**
  * Write back to the dynamo Uploads table on S3 activity.
@@ -36,6 +37,11 @@ const s3EventHandler = () => {
           break;
         default:
           status = UploadStatus.WORKING;
+      }
+
+      if (isLocalStack()) {
+        // Change this locally to test other statuses if needed
+        status = UploadStatus.COMPLETE;
       }
 
       console.info(`Marking ${fileInfo.state} ${fileInfo.fileId}: ${status}`);

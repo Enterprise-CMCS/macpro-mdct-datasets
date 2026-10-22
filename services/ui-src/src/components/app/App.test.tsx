@@ -11,6 +11,15 @@ import { testA11yAct } from "utils/testing/commonTests";
 import { getFilesByState } from "utils/api/requestMethods/uploads";
 import { mockFileData } from "utils/testing/mockDatasets";
 
+vi.mock("utils/api/requestMethods/datasets", () => ({
+  getDatasets: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("utils/api/requestMethods/uploads", () => ({
+  getFilesByState: vi.fn().mockResolvedValue([]),
+  getFiles: vi.fn().mockResolvedValue([]),
+}));
+
 vi.mock("utils/state/useStore");
 const mockedUseStore = useStore as unknown as MockedFunction<typeof useStore>;
 

@@ -103,6 +103,7 @@ describe("Test DevAdminDashboard component", () => {
             uploadedDate: "2/2/2022",
             state: "PA",
             uploadStatus: UploadStatus.COMPLETE,
+            filesize: 12345,
           },
         ]}
       />
