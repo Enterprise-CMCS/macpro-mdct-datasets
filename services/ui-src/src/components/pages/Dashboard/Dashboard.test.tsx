@@ -44,6 +44,7 @@ const mockValidateFile = vi.mocked(validateFileContentMatchesExtension);
 const mockPng = new File(["0xMockPngData"], "bar.png", { type: "image/png" });
 
 console.error = vi.fn();
+Element.prototype.scrollIntoView = vi.fn();
 
 describe("<Dashboard />", () => {
   beforeEach(async () => {
@@ -157,6 +158,50 @@ describe("<Dashboard />", () => {
     expect(screen.queryByRole("cell", { name: "Fruits" })).toBeInTheDocument();
   });
   testA11yAct(<Dashboard />);
+});
+
+describe("Dashboard automatic status refresh", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test.each([
+    [UploadStatus.PENDING, "Error"],
+    [UploadStatus.COMPLETE, "Complete"],
+  ])(
+    "refreshes a pending upload to %s without reloading the page",
+    async (uploadStatus, label) => {
+      vi.clearAllMocks();
+      vi.useFakeTimers();
+      const file = {
+        ...mockFileData[0],
+        uploadStatus: UploadStatus.PENDING,
+        uploadedDate: new Date().toISOString(),
+      };
+      mockedGetDatasets.mockResolvedValue(mockDatasetsData);
+      mockedGetFilesByState.mockResolvedValue([file]);
+      await act(async () => {
+        render(<Dashboard />);
+      });
+      expect(screen.getByRole("cell", { name: "Uploading" })).toBeVisible();
+      expect(screen.queryByText("File Upload Error")).not.toBeInTheDocument();
+
+      mockedGetFilesByState.mockResolvedValue([{ ...file, uploadStatus }]);
+      await act(() => vi.advanceTimersByTimeAsync(120_001));
+      expect(mockedGetFilesByState).toHaveBeenCalledTimes(2);
+      if (label === "Error") {
+        expect(screen.getByText("File Upload Error")).toBeVisible();
+      } else {
+        expect(screen.queryByText("File Upload Error")).not.toBeInTheDocument();
+      }
+      expect(
+        screen.getByRole("cell", { name: new RegExp(`${label}$`) })
+      ).toBeVisible();
+      expect(
+        screen.getByRole("button", { name: "Delete mock filename 1" })
+      ).toBeVisible();
+    }
+  );
 });
 
 describe("Dashboard status sorting", () => {

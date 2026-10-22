@@ -30,6 +30,7 @@ import { getDatasets } from "../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { useNavigate } from "react-router";
 import { activeBannerSelector } from "utils/state/selectors";
+import { useUploadStatusRefresh } from "utils/other/useUploadStatusRefresh";
 
 export const AdminDashboard = () => {
   const banner = useStore(activeBannerSelector(BannerAreas.Dashboard));
@@ -55,8 +56,8 @@ export const AdminDashboard = () => {
     setSelectedDatasets(dataset);
   };
 
-  const reloadData = async () => {
-    setIsLoading(true);
+  const reloadData = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
     const [datasets, files] = await Promise.all([getDatasets(), getFiles()]);
     setDatasetOptions(
       datasets.map((set) => ({ label: set.name, value: set.key! }))
@@ -64,8 +65,10 @@ export const AdminDashboard = () => {
     setFiles(
       files.toSorted((a, b) => b.uploadedDate.localeCompare(a.uploadedDate))
     );
-    setIsLoading(false);
+    if (showLoading) setIsLoading(false);
   };
+
+  useUploadStatusRefresh(files, () => reloadData(false));
 
   useEffect(() => {
     reloadData();

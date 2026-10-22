@@ -9,6 +9,8 @@ import {
   Image,
   Text,
   Box,
+  UnorderedList,
+  ListItem,
 } from "@chakra-ui/react";
 import {
   AlertTypes,
@@ -18,7 +20,7 @@ import {
   StateNames,
   UploadStatus,
 } from "@datasets/shared";
-import { PageTemplate, Modal, Banner } from "components";
+import { PageTemplate, Modal, Banner, Alert } from "components";
 import { ResponsiveTable, SORT_TYPE } from "components/tables/ResponsiveTable";
 import { useStore } from "utils";
 import { MultiSelect } from "components/forms/Multiselect";
@@ -34,6 +36,7 @@ import { EditDrawer } from "../../drawers/EditDrawer";
 import { getDatasets } from "../../../utils/api/requestMethods/datasets";
 import { DropdownOptions } from "types";
 import { activeBannerSelector } from "utils/state/selectors";
+import { useUploadStatusRefresh } from "utils/other/useUploadStatusRefresh";
 import {
   FileStatus,
   getFileStatus,
@@ -99,6 +102,8 @@ export const Dashboard = () => {
     if (showLoading) setIsLoading(false);
   };
 
+  useUploadStatusRefresh(files, () => reloadData(false));
+
   useEffect(() => {
     reloadData();
   }, []);
@@ -161,6 +166,7 @@ export const Dashboard = () => {
           <Button
             variant="outline"
             onClick={() => downloadFile(file.datasetId, state!, file.fileId)}
+            disabled={fileStatus === UploadStatus.ERROR}
           >
             Download
           </Button>
@@ -168,7 +174,10 @@ export const Dashboard = () => {
             variant="link"
             fontWeight="bold"
             onClick={() => onEditHandler(file)}
-            disabled={isDatasetInactive(file.datasetId)}
+            disabled={
+              isDatasetInactive(file.datasetId) ||
+              fileStatus === UploadStatus.ERROR
+            }
           >
             Edit
           </Button>
@@ -312,10 +321,27 @@ export const Dashboard = () => {
           <Heading as="h1" variant="h1">
             {StateNames[state as keyof typeof StateNames]} File Upload
           </Heading>
+          {files.some((file) => getFileStatus(file) === UploadStatus.ERROR) && (
+            <Alert status={AlertTypes.ERROR} title="File Upload Error">
+              We encountered an issue while processing your uploaded file.
+              Please remove the file and try uploading it again.
+            </Alert>
+          )}
           <Text>
             Use this page to upload documents and data requested by CMS. Select
             the relevant dataset for each file before uploading.
           </Text>
+          <UnorderedList>
+            <ListItem>
+              Files in a "Processing/Uploading" status are refreshed
+              automatically every two minutes.
+            </ListItem>
+            <ListItem>
+              If your file is in an "Error" status please delete and try to
+              re-upload the file. If it continues to show an error contact the
+              helpdesk for support.
+            </ListItem>
+          </UnorderedList>
           <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
             Upload File(s)
           </Button>
