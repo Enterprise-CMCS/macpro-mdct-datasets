@@ -12,7 +12,7 @@ const dynamoClient = createDynamoClient();
 const logPrefix = () => new Date().toISOString() + " | ";
 const TableName = `${process.env.STAGE}-datasets-uploads`;
 const startDate = new Date(); // today
-startDate.setDate(startDate.getDate() - 1); // yesterday
+startDate.setDate(startDate.getDate() - 1); // yesterday; modify number to change how many days back this looks
 
 async function main() {
   console.info("Beginning Scan of DB Records");
