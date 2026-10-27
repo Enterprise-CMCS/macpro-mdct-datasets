@@ -339,21 +339,23 @@ export const Dashboard = () => {
               Please remove the file and try uploading it again.
             </Alert>
           )}
-          <Text>
-            Use this page to upload documents and data requested by CMS. Select
-            the relevant dataset for each file before uploading.
-          </Text>
-          <UnorderedList>
-            <ListItem>
-              Files in a "Processing/Uploading" status are refreshed
-              automatically every two minutes.
-            </ListItem>
-            <ListItem>
-              If your file is in an "Error" status please delete and try to
-              re-upload the file. If it continues to show an error contact the
-              helpdesk for support.
-            </ListItem>
-          </UnorderedList>
+          <Stack>
+            <Text>
+              Use this page to upload documents and data requested by CMS.
+              Select the relevant dataset for each file before uploading.
+            </Text>
+            <UnorderedList>
+              <ListItem>
+                If your file is in a "Processing/Uploading" status please
+                refresh the page to that the upload has successfully completed.
+              </ListItem>
+              <ListItem>
+                If your file is in an "Error" status please delete and try to
+                re-upload the file. If it continues to show an error contact the
+                helpdesk for support.
+              </ListItem>
+            </UnorderedList>
+          </Stack>
           <Button onClick={() => setUploadDrawerOpen(true)} maxWidth="156px">
             Upload File(s)
           </Button>
