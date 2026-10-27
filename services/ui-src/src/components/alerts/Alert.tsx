@@ -28,10 +28,11 @@ export const Alert = ({
   title,
   link,
   children,
+  skipScroll = false,
 }: Props) => {
   // Focus the alert whenever an error is rendered (or re-rendered)
   const ref = useRef<HTMLDivElement>(null);
-  if (ref.current && status === AlertTypes.ERROR) {
+  if (!skipScroll && ref.current && status === AlertTypes.ERROR) {
     ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
     ref.current.focus({ preventScroll: true });
   }
@@ -74,6 +75,7 @@ interface Props {
   title: string;
   children?: ReactNode;
   link?: string;
+  skipScroll?: boolean;
 }
 
 const sx = {
