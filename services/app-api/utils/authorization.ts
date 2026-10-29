@@ -44,3 +44,7 @@ export const canWriteDataset = (user: User) => {
 export const canRequestZip = (user: User) => {
   return statelessRoles.includes(user.role);
 };
+
+export const canModifyNotificationRecipients = (user: User) => {
+  return user.role === UserRoles.APPROVER || user.role === UserRoles.ADMIN;
+};

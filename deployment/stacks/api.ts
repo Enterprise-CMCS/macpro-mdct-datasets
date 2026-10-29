@@ -355,6 +355,30 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
+  new Lambda(scope, "createNotificationRecipient", {
+    entry: "services/app-api/handlers/notifications/recipients/create.ts",
+    handler: "createNotificationRecipient",
+    path: "notifications/recipients",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getNotificationRecipients", {
+    entry: "services/app-api/handlers/notifications/recipients/get.ts",
+    handler: "getNotificationRecipients",
+    path: "notifications/recipients",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteNotificationRecipient", {
+    entry: "services/app-api/handlers/notifications/recipients/delete.ts",
+    handler: "deleteNotificationRecipient",
+    path: "notifications/recipients/{id}",
+    method: "DELETE",
+    ...commonProps,
+  });
+
   /** TODO: enable kafka sync, update tables included
   new LambdaDynamoEventSource(scope, "postKafkaData", {
     entry: "services/app-api/handlers/kafka/postKafkaData.ts",
