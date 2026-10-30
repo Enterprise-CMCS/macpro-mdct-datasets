@@ -41,6 +41,8 @@ mockedGetDatasets.mockResolvedValue([
   },
 ]);
 
+vi.mock("react-router");
+
 describe("NotificationsPage component", () => {
   describe("without recipient", () => {
     beforeEach(async () => {
