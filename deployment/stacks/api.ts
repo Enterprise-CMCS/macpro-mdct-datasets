@@ -7,7 +7,7 @@ import {
   aws_ec2 as ec2,
   // aws_ses as ses,
   // aws_sns as sns,
-  // aws_iam as iam,
+  aws_iam as iam,
   // Aws,
   CfnOutput,
   Duration,
@@ -64,14 +64,14 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   //   }
   // );
 
-  // // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
-  // let sesPolicy = new iam.PolicyStatement({
-  //   effect: iam.Effect.DENY,
-  //   actions: ["ses:SendEmail", "ses:SendRawEmail"],
-  //   resources: ["*"],
-  // });
-  /* if (!isDev) {
-    const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
+  // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
+  let sesPolicy = new iam.PolicyStatement({
+    effect: iam.Effect.DENY,
+    actions: ["ses:SendEmail", "ses:SendRawEmail"],
+    resources: ["*"],
+  });
+  if (!isDev) {
+    /*  const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
       topic: sns.Topic.fromTopicArn(
         scope,
@@ -110,17 +110,18 @@ export function createApiComponents(props: CreateApiComponentsProps) {
         identity: ses.Identity.domain("cms.hhs.gov"),
         configurationSet: configSet,
       }
-    );
+    ); */
 
     sesPolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: ["ses:SendEmail", "ses:SendRawEmail"],
-      resources: [
+      resources: ["*"],
+      /* resources: [
         senderIdentity.emailIdentityArn,
         `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:configuration-set/${configSet.configurationSetName}`,
-      ],
+      ], */
     });
-  } */
+  }
 
   const logGroup = new logs.LogGroup(scope, "ApiAccessLogs", {
     removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
@@ -403,6 +404,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   const uploadComplete = new Lambda(scope, "uploadComplete", {
     entry: "services/app-api/handlers/uploads/uploadComplete.ts",
     handler: "handler",
+    additionalPolicies: [sesPolicy],
     ...commonProps,
   });
 
