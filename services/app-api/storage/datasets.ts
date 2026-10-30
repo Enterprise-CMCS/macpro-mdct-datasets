@@ -1,4 +1,4 @@
-import { paginateScan, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, paginateScan, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { createClient } from "./dynamo/dynamodb-lib";
 import { DatasetType } from "@datasets/shared";
 
@@ -10,6 +10,15 @@ export const putDataset = async (dataset: DatasetType) => {
     new PutCommand({
       TableName: datasetTableName,
       Item: dataset,
+    })
+  );
+};
+
+export const getDatasetById = async (datasetId: string) => {
+  return await client.send(
+    new GetCommand({
+      TableName: datasetTableName,
+      Key: { key: datasetId },
     })
   );
 };

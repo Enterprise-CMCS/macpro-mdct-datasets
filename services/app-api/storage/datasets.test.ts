@@ -1,7 +1,8 @@
-import { putDataset, scanAllDatasets } from "./datasets";
+import { getDatasetById, putDataset, scanAllDatasets } from "./datasets";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   DynamoDBDocumentClient,
+  GetCommand,
   PutCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
@@ -47,6 +48,24 @@ describe("Dataset storage methods", () => {
 
     expect(datasets).toEqual([mockDataset, mockDataset]);
     expect(mockScan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        TableName: "local-datasets",
+      }),
+      expect.any(Function)
+    );
+  });
+
+  test("should call Dynamo to get dataset by id", async () => {
+    const mockDataset = { key: "123", name: "matching dataset" };
+    const mockGet = vi.fn(() => ({
+      Item: mockDataset,
+    }));
+    mockDynamo.on(GetCommand).callsFakeOnce(mockGet);
+
+    const dataset = await getDatasetById("123");
+
+    expect(dataset).toEqual({ Item: mockDataset });
+    expect(mockGet).toHaveBeenCalledWith(
       expect.objectContaining({
         TableName: "local-datasets",
       }),

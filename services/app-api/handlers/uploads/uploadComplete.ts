@@ -2,6 +2,9 @@ import { StateAbbr, UploadStatus } from "@datasets/shared";
 import s3Lib from "../../libs/s3-lib";
 import { updateUploadStatus } from "../../storage/uploads";
 import { isLocalStack } from "../../libs/localstack";
+import { sendEmail } from "../../utils/notifications/email";
+import { logger } from "../../libs/debug-lib";
+import { ScannedFileInfo, ScanStatus } from "../../types/uploads";
 
 /**
  * Write back to the dynamo Uploads table on S3 activity.
@@ -12,7 +15,7 @@ const s3EventHandler = () => {
   return async (event: AwsStreamEvent) => {
     console.debug(`Raw event: ${JSON.stringify(event, null, 2)}`);
 
-    const updates: FileInfo[] = [];
+    const updates: ScannedFileInfo[] = [];
     for (const record of event.Records ?? []) {
       const fileInfo = await handleRecord(record);
       if (fileInfo) {
@@ -42,6 +45,16 @@ const s3EventHandler = () => {
       if (isLocalStack()) {
         // Change this locally to test other statuses if needed
         status = UploadStatus.COMPLETE;
+      }
+
+      // notify assigned users if file upload complete
+      if (status === UploadStatus.COMPLETE) {
+        try {
+          await sendEmail(fileInfo);
+        } catch (error) {
+          // log and allow call to succeed even if email fails
+          logger.error(error);
+        }
       }
 
       console.info(`Marking ${fileInfo.state} ${fileInfo.fileId}: ${status}`);
@@ -93,7 +106,7 @@ const getFileInfo = async (bucket: string, key: string) => {
    *     Datasets - AK/fileId
    */
   const fragments = key.split("/");
-  const fileInfo: FileInfo = {
+  const fileInfo: ScannedFileInfo = {
     state: fragments[0] as StateAbbr,
     fileId: fragments[1],
     scanStatus,
@@ -124,23 +137,3 @@ type S3StreamRecord = {
     };
   };
 };
-
-type FileInfo = {
-  state: StateAbbr;
-  fileId: string;
-  scanStatus: ScanStatus;
-};
-
-/**
- * Docs https://docs.aws.amazon.com/guardduty/latest/ug/monitoring-malware-protection-backup-scans.html
- * OK: NO_THREATS_FOUND
- * Bad: THREATS_FOUND
- * Still Working: RUNNING, COMPLETED, COMPLETED_WITH_ISSUES, FAILED, or SKIPPED
- */
-enum ScanStatus {
-  NO_THREATS_FOUND = "NO_THREATS_FOUND",
-  THREATS_FOUND = "THREATS_FOUND",
-  RUNNING = "RUNNING",
-  FAILED = "FAILED",
-  COMPLETED_WITH_ISSUES = "COMPLETED_WITH_ISSUES",
-}
