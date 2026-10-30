@@ -4,6 +4,16 @@ import { logger } from "./debug-lib";
 
 export const emptyParser = (_event: APIGatewayProxyEvent) => ({});
 
+export const parseNotificationRecipientId = (event: APIGatewayProxyEvent) => {
+  const { id } = event.pathParameters ?? {};
+  if (!id) {
+    logger.warn("Invalid notification recipient id in path");
+    return undefined;
+  }
+
+  return { id };
+};
+
 export const parseBannerId = (event: APIGatewayProxyEvent) => {
   const { bannerId } = event.pathParameters ?? {};
   if (!bannerId) {

@@ -1,4 +1,5 @@
 import {
+  canModifyNotificationRecipients,
   canReadState,
   canRequestZip,
   canWriteBanner,
@@ -102,6 +103,20 @@ describe("Authorization functions", () => {
     });
     test("state users cannot get zip", () => {
       expect(canRequestZip(stateUser)).toBe(false);
+    });
+  });
+
+  describe("canModifyNotificationRecipients", () => {
+    test("should allow admin and approver users", () => {
+      expect(canModifyNotificationRecipients(adminUser)).toBe(true);
+      expect(canModifyNotificationRecipients(approverUser)).toBe(true);
+    });
+
+    test("should not allow state, help desk, internal, or bor users", () => {
+      expect(canModifyNotificationRecipients(stateUser)).toBe(false);
+      expect(canModifyNotificationRecipients(helpDeskUser)).toBe(false);
+      expect(canModifyNotificationRecipients(internalUser)).toBe(false);
+      expect(canModifyNotificationRecipients(borUser)).toBe(false);
     });
   });
 });
