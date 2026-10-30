@@ -56,6 +56,13 @@ export const AdminMenu = () => {
             <MenuOption role="button" text="Manage Datasets" />
           </MenuItem>
         </Link>
+        {(userRole === UserRoles.ADMIN || userRole === UserRoles.APPROVER) && (
+          <Link as={RouterLink} to="/notifications" variant="unstyled">
+            <MenuItem sx={sx.menuItem}>
+              <MenuOption role="button" text="Notifications" />
+            </MenuItem>
+          </Link>
+        )}
       </MenuList>
     </MenuRoot>
   );

@@ -28,6 +28,7 @@ export { AdminPage } from "./pages/Admin/AdminPage";
 export { HelpPage } from "./pages/HelpPage/HelpPage";
 export { AccessDeniedPage } from "./pages/AccessDenied/AccessDeniedPage";
 export { NotFoundPage } from "./pages/NotFound/NotFoundPage";
+export { NotificationsPage } from "./pages/Notifications/NotificationsPage";
 export { ProfilePage } from "./pages/Profile/ProfilePage";
 // menus
 export { AdminMenu } from "./menus/AdminMenu";
