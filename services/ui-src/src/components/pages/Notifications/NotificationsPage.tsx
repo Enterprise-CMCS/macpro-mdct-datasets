@@ -458,7 +458,7 @@ export const NotificationsPage = () => {
   }, []);
 
   return (
-    <PageTemplate>
+    <PageTemplate returnTo={{ label: "Return to admin dashboard", path: "/" }}>
       <Box>
         <Heading as="h1" id="AdminHeader" tabIndex={-1} sx={sx.headerText}>
           Notifications Settings
