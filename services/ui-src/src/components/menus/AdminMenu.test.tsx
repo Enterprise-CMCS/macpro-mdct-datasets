@@ -5,7 +5,7 @@ import { AdminMenu } from "components";
 import { useStore } from "utils";
 import { testA11y } from "utils/testing/commonTests";
 import { RouterWrappedComponent } from "utils/testing/mockRouter";
-import { mockAdminUserStore } from "utils/testing/setupTest";
+import { mockAdminUserStore, mockBORUserStore } from "utils/testing/setupTest";
 
 vi.mock("utils/state/useStore");
 const mockedUseStore = useStore as unknown as MockedFunction<typeof useStore>;
@@ -17,10 +17,18 @@ const menuComponent = (
 );
 
 describe("<Menu />", () => {
-  beforeEach(() => {
+  test("should not contain a banner editor link as admin user", async () => {
     mockedUseStore.mockReturnValue(mockAdminUserStore);
+    render(menuComponent);
+    await userEvent.click(screen.getByRole("button", { name: "admin menu" }));
+
+    expect(
+      screen.queryByRole("button", { name: "Banner Editor" })
+    ).not.toBeInTheDocument();
   });
-  test("should contain a working link to the banner editor", async () => {
+
+  test("should show banner editor when bor user", async () => {
+    mockedUseStore.mockReturnValue(mockBORUserStore);
     render(menuComponent);
     await userEvent.click(screen.getByRole("button", { name: "admin menu" }));
 

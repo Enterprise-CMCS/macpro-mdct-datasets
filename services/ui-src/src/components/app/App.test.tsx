@@ -8,10 +8,24 @@ import {
 import { useStore, UserProvider } from "utils";
 import { App } from "components";
 import { testA11yAct } from "utils/testing/commonTests";
+import { getFilesByState } from "utils/api/requestMethods/uploads";
+import { mockFileData } from "utils/testing/mockDatasets";
+
+vi.mock("utils/api/requestMethods/datasets", () => ({
+  getDatasets: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("utils/api/requestMethods/uploads", () => ({
+  getFilesByState: vi.fn().mockResolvedValue([]),
+  getFiles: vi.fn().mockResolvedValue([]),
+}));
 
 vi.mock("utils/state/useStore");
 const mockedUseStore = useStore as unknown as MockedFunction<typeof useStore>;
-mockedUseStore.mockReturnValue(mockUseStore);
+
+vi.mock("utils/api/requestMethods/uploads");
+const mockedGetFilesByState = getFilesByState as unknown as MockedFunction<any>;
+mockedGetFilesByState.mockReturnValue(mockFileData);
 
 const appComponent = (
   <RouterWrappedComponent>
@@ -43,7 +57,7 @@ describe("<App />", () => {
     expect(
       screen.getAllByAltText("Medicaid.gov: Keeping America Healthy")
     ).toBeTruthy();
-    expect(screen.getAllByRole("button").length).toBe(4);
+    expect(screen.getAllByRole("button").length).toBe(3);
   });
 
   test("App renders local logins if there is no user", async () => {

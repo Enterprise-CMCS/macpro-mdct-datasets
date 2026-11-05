@@ -1,10 +1,10 @@
-import { DatasetType } from "@datasets/shared";
+import { DatasetStatusType, DatasetType } from "@datasets/shared";
 import { apiLib } from "utils";
 import { getRequestHeaders } from "utils/api/requestMethods/getRequestHeaders";
 
 export async function createDataset(datasetData: {
   name: string;
-  status: Boolean;
+  status: DatasetStatusType;
 }) {
   const requestHeaders = await getRequestHeaders();
   const options = {
