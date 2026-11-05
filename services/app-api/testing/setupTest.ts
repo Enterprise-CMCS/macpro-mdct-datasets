@@ -1,8 +1,9 @@
 process.env.BannersTable = "local-datasets-banners";
 process.env.DatasetsTable = "local-datasets";
 process.env.UploadsTable = "local-datasets-uploads";
-process.env.NotificationRecipientsTable = "local-notifications-recipients";
-process.env.NotificationsTable = "local-notifications";
+process.env.NotificationRecipientsTable =
+  "local-datasets-notifications-recipients";
+process.env.NotificationsTable = "local-datasets-notifications";
 process.env.brokerString = "broker1,broker2";
 process.env.STAGE = "local";
 /*

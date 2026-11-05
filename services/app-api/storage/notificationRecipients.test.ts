@@ -36,7 +36,7 @@ describe("Notification Recipient storage helpers", () => {
 
       expect(mockPut).toHaveBeenCalledWith(
         {
-          TableName: "local-notifications-recipients",
+          TableName: "local-datasets-notifications-recipients",
           Item: mockNotificationRecipientData,
         },
         expect.any(Function)
@@ -57,7 +57,7 @@ describe("Notification Recipient storage helpers", () => {
       expect(result).toEqual([mockNotificationRecipientData]);
       expect(mockScan).toHaveBeenCalledWith(
         expect.objectContaining({
-          TableName: "local-notifications-recipients",
+          TableName: "local-datasets-notifications-recipients",
         }),
         expect.any(Function)
       );
