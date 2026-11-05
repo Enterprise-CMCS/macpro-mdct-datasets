@@ -40,7 +40,7 @@ describe("Notification storage helpers", () => {
 
       expect(mockPut).toHaveBeenCalledWith(
         {
-          TableName: "local-notifications",
+          TableName: "local-datasets-notifications",
           Item: mockNotificationData,
         },
         expect.any(Function)
