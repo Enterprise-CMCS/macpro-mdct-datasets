@@ -1,4 +1,5 @@
 import {
+  canModifyNotificationRecipients,
   canReadState,
   canRequestZip,
   canWriteBanner,
@@ -27,6 +28,10 @@ const helpDeskUser = {
 const stateUser = {
   role: UserRoles.STATE_USER,
   state: "CO",
+} as User;
+
+const borUser = {
+  role: UserRoles.BOR,
 } as User;
 
 describe("Authorization functions", () => {
@@ -63,11 +68,12 @@ describe("Authorization functions", () => {
   });
 
   describe("canWriteBanner", () => {
-    test("should only allow admins", () => {
-      expect(canWriteBanner(adminUser)).toBe(true);
+    test("should only allow bor user", () => {
+      expect(canWriteBanner(borUser)).toBe(true);
     });
 
     test("should forbid others", () => {
+      expect(canWriteBanner(adminUser)).toBe(false);
       expect(canWriteBanner(approverUser)).toBe(false);
       expect(canWriteBanner(stateUser)).toBe(false);
       expect(canWriteBanner(helpDeskUser)).toBe(false);
@@ -97,6 +103,20 @@ describe("Authorization functions", () => {
     });
     test("state users cannot get zip", () => {
       expect(canRequestZip(stateUser)).toBe(false);
+    });
+  });
+
+  describe("canModifyNotificationRecipients", () => {
+    test("should allow admin and approver users", () => {
+      expect(canModifyNotificationRecipients(adminUser)).toBe(true);
+      expect(canModifyNotificationRecipients(approverUser)).toBe(true);
+    });
+
+    test("should not allow state, help desk, internal, or bor users", () => {
+      expect(canModifyNotificationRecipients(stateUser)).toBe(false);
+      expect(canModifyNotificationRecipients(helpDeskUser)).toBe(false);
+      expect(canModifyNotificationRecipients(internalUser)).toBe(false);
+      expect(canModifyNotificationRecipients(borUser)).toBe(false);
     });
   });
 });

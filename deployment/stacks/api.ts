@@ -7,7 +7,7 @@ import {
   aws_ec2 as ec2,
   // aws_ses as ses,
   // aws_sns as sns,
-  // aws_iam as iam,
+  aws_iam as iam,
   // Aws,
   CfnOutput,
   Duration,
@@ -49,7 +49,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     launchDarklyLocalFlags = '{"local": false, "flags": {}}',
   } = props;
 
-  // const isProduction = stage === "production";
+  const isProduction = stage === "production";
 
   const service = "app-api";
 
@@ -64,14 +64,14 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   //   }
   // );
 
-  // // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
-  // let sesPolicy = new iam.PolicyStatement({
-  //   effect: iam.Effect.DENY,
-  //   actions: ["ses:SendEmail", "ses:SendRawEmail"],
-  //   resources: ["*"],
-  // });
-  /* if (!isDev) {
-    const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
+  // sending emails requires manual steps and approvals, so we only do them in dev, val, prod
+  let sesPolicy = new iam.PolicyStatement({
+    effect: iam.Effect.DENY,
+    actions: ["ses:SendEmail", "ses:SendRawEmail"],
+    resources: ["*"],
+  });
+  if (!isDev) {
+    /*  const topic = new sns.Topic(scope, `${project}-${stage}-failedEmailTopic`);
     new sns.Subscription(scope, `${project}-${stage}-email-subscription`, {
       topic: sns.Topic.fromTopicArn(
         scope,
@@ -110,17 +110,18 @@ export function createApiComponents(props: CreateApiComponentsProps) {
         identity: ses.Identity.domain("cms.hhs.gov"),
         configurationSet: configSet,
       }
-    );
+    ); */
 
     sesPolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: ["ses:SendEmail", "ses:SendRawEmail"],
-      resources: [
+      resources: ["*"],
+      /* resources: [
         senderIdentity.emailIdentityArn,
         `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:configuration-set/${configSet.configurationSetName}`,
-      ],
+      ], */
     });
-  } */
+  }
 
   const logGroup = new logs.LogGroup(scope, "ApiAccessLogs", {
     removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
@@ -313,6 +314,24 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
+  //paths made only for dev tool, not to be used on real data
+  if (!isProduction) {
+    new Lambda(scope, "deleteUploadsForState", {
+      entry: "services/app-api/handlers/uploads/delete.ts",
+      handler: "deleteUploadsForState",
+      path: "uploads/{state}",
+      method: "DELETE",
+      ...commonProps,
+    });
+    new Lambda(scope, "createUploadDev", {
+      entry: "services/app-api/handlers/uploads/create.ts",
+      handler: "createUploadDev",
+      path: "/uploads/dev",
+      method: "POST",
+      ...commonProps,
+    });
+  }
+
   new Lambda(scope, "createDataset", {
     entry: "services/app-api/handlers/datasets/create.ts",
     handler: "createDataset",
@@ -334,6 +353,30 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     handler: "getDatasets",
     path: "datasets",
     method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "createNotificationRecipient", {
+    entry: "services/app-api/handlers/notifications/recipients/create.ts",
+    handler: "createNotificationRecipient",
+    path: "notifications/recipients",
+    method: "POST",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "getNotificationRecipients", {
+    entry: "services/app-api/handlers/notifications/recipients/get.ts",
+    handler: "getNotificationRecipients",
+    path: "notifications/recipients",
+    method: "GET",
+    ...commonProps,
+  });
+
+  new Lambda(scope, "deleteNotificationRecipient", {
+    entry: "services/app-api/handlers/notifications/recipients/delete.ts",
+    handler: "deleteNotificationRecipient",
+    path: "notifications/recipients/{id}",
+    method: "DELETE",
     ...commonProps,
   });
 
@@ -361,6 +404,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   const uploadComplete = new Lambda(scope, "uploadComplete", {
     entry: "services/app-api/handlers/uploads/uploadComplete.ts",
     handler: "handler",
+    additionalPolicies: [sesPolicy],
     ...commonProps,
   });
 

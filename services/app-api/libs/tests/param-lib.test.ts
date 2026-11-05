@@ -6,6 +6,7 @@ import {
   parseFileDownloadParameters,
   parseFileUpdateParameters,
   parseFileUploadParameters,
+  parseNotificationRecipientId,
   parseZipIdParameters,
 } from "../param-lib";
 
@@ -15,6 +16,23 @@ describe("Path parameter parsing", () => {
       const result = emptyParser(proxyEvent);
       expect(result).toBeDefined();
       expect(result).toEqual({});
+    });
+  });
+
+  describe("parseNotificationRecipientId", () => {
+    test("should return undefined if no id provided", () => {
+      const result = parseNotificationRecipientId(proxyEvent);
+      expect(result).toBeUndefined();
+    });
+
+    test("should return id", () => {
+      const event = {
+        ...proxyEvent,
+        pathParameters: { id: "foo" },
+      };
+      const result = parseNotificationRecipientId(event)!;
+      expect(result).toBeDefined();
+      expect(result.id).toBe("foo");
     });
   });
 
