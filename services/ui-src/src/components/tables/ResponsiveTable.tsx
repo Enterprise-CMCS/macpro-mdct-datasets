@@ -122,7 +122,17 @@ const HorizontalTable = (
             className={styleOverride?.[rowIndex] ?? ""}
           >
             {column.map((data, dataIndex) => (
-              <Td key={`data-${rowIndex}-${dataIndex}`}>{data}</Td>
+              <Td key={`data-${rowIndex}-${dataIndex}`}>
+                <Flex
+                  justifyContent={
+                    headers[dataIndex]?.label === "Actions"
+                      ? "center"
+                      : undefined
+                  }
+                >
+                  {data}
+                </Flex>
+              </Td>
             ))}
           </Tr>
         ))}

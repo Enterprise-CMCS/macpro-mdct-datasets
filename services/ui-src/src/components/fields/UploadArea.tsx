@@ -3,9 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   acceptedFileTypes,
   AlertTypes,
+  getExtension,
   UploadListProp,
+  validateFileContentMatchesExtension,
 } from "@datasets/shared";
 import {
+  deleteUploadedFile,
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
 } from "../../utils/api/requestMethods/uploads";
@@ -19,9 +22,6 @@ import { Alert } from "components/alerts/Alert";
 import alert from "assets/icons/status/icon_status_alert.svg";
 
 interface Props {
-  answer: UploadListProp[];
-  saveToReport: (uploads: UploadListProp[]) => void;
-  deleteFromReport?: (file: UploadListProp) => void;
   multiple?: boolean;
   disabled?: boolean;
   notification?: {
@@ -32,9 +32,6 @@ interface Props {
 }
 
 export const UploadArea = ({
-  answer,
-  saveToReport,
-  deleteFromReport,
   multiple = true,
   disabled,
   notification,
@@ -44,10 +41,7 @@ export const UploadArea = ({
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [uploadSuccess, setUploadSuccess] = useState<
-    {
-      fileId: string;
-      message: string;
-    }[]
+    (UploadListProp & { message: string })[]
   >([]);
 
   const { state } = useStore().user ?? {};
@@ -59,22 +53,17 @@ export const UploadArea = ({
           setUploadSuccess([
             ...uploadSuccess,
             ...response.map((file) => ({
-              fileId: file.fileId,
+              ...file,
               message: notification?.success ?? "",
             })),
           ]);
           setFilesToUpload([]);
-          saveToReport(response);
         });
       fetchData();
     }
   }, [filesToUpload]);
 
-  const disableUploadArea = () => {
-    return (
-      (!multiple && (answer.length > 0 || filesToUpload.length > 0)) || disabled
-    );
-  };
+  const disableUploadArea = () => disabled;
 
   const handleFileKeyboardEvent = (
     e: React.KeyboardEvent<HTMLLabelElement>
@@ -94,9 +83,21 @@ export const UploadArea = ({
     event.preventDefault();
   };
 
-  const filterFilesAndStartUpload = (files: File[]) => {
-    const filteredFiles = files.filter((file) => {
-      if (file === null) return false;
+  const isValidFile = async (file: File) => {
+    const fileExtension = getExtension(file.name);
+    if (!fileExtension) {
+      return false;
+    }
+    return await validateFileContentMatchesExtension(
+      await file.bytes(),
+      fileExtension
+    );
+  };
+
+  const filterFilesAndStartUpload = async (files: File[]) => {
+    const filteredFiles: File[] = [];
+    for (const file of files) {
+      if (file === null) continue;
       const splitName = file.name.split(".");
 
       if (splitName.at(0)?.trim() === "") {
@@ -104,28 +105,26 @@ export const UploadArea = ({
           ...(prevErrors ?? []),
           `File ${file.name} has an invalid name and was not uploaded`,
         ]);
-        return false;
+        continue;
       }
 
-      const fileType = splitName.at(-1)?.toLowerCase();
-
-      if (!fileType || !acceptedFileTypes.includes(`.${fileType}`)) {
+      const isValid = await isValidFile(file);
+      if (!isValid) {
         setUploadErrors((prevErrors) => [
           ...(prevErrors ?? []),
-          `File ${file.name} has unsupported file type and was not uploaded`,
+          `There is a problem with ${file.name}. Try re-exporting the file from your system and uploading it again. If you still have trouble, contact the help desk.`,
         ]);
-        return false;
+        continue;
       }
 
-      return true;
-    });
+      filteredFiles.push(file);
+    }
 
     const prevFiles = filesToUpload ?? [];
-
     setFilesToUpload([...prevFiles, ...filteredFiles]);
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     if (disableUploadArea()) return;
 
@@ -137,13 +136,13 @@ export const UploadArea = ({
       setUploadErrors(["File is limited to 1"]);
     } else {
       setUploadErrors([]);
-      filterFilesAndStartUpload(files);
+      await filterFilesAndStartUpload(files);
     }
   };
 
-  const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      filterFilesAndStartUpload([...event.target.files]);
+      await filterFilesAndStartUpload([...event.target.files]);
     }
   };
 
@@ -153,32 +152,34 @@ export const UploadArea = ({
     for (var i = 0; i < files.length; i++) {
       const displayName = files[i].name;
       const file = getFileWithSafeName(files[i]);
+      let createdFileId: string | undefined;
       try {
         const { presignedUploadUrl, fileId } =
           await recordFileInDatabaseAndGetUploadUrl(state!, datasetId, file);
-        savedFiles.push({ name: displayName, fileId: fileId, size: file.size });
+        createdFileId = fileId;
         await uploadFileToS3({ presignedUploadUrl }, file);
+        savedFiles.push({
+          name: displayName,
+          fileId: createdFileId,
+          size: file.size,
+        });
       } catch (error) {
         console.error("File upload error", error);
         setUploadErrors((prevErrors) => [
           ...(prevErrors ?? []),
           `File ${file.name} failed to upload`,
         ]);
+        if (createdFileId) {
+          deleteUploadedFile(state!, createdFileId);
+        }
       }
     }
+
     return savedFiles;
   };
 
-  const modifiedAnswer = (answer: UploadListProp[]) => {
-    return answer.map((item) => ({
-      ...item,
-      message: uploadSuccess.find((success) => success.fileId === item.fileId)
-        ?.message,
-    }));
-  };
-
   const displayUploadStatus = () => {
-    return filesToUpload.length > 0 || answer.length > 0;
+    return filesToUpload.length > 0 || uploadSuccess.length > 0;
   };
 
   return (
@@ -259,18 +260,13 @@ export const UploadArea = ({
             </Heading>
           </div>
           {filesToUpload.length > 0 &&
+            uploadListRender(state!, datasetId, filesToUpload ?? [])}
+          {uploadSuccess.length > 0 &&
             uploadListRender(
               state!,
               datasetId,
-              filesToUpload ?? [],
-              deleteFromReport
-            )}
-          {answer.length > 0 &&
-            uploadListRender(
-              state!,
-              datasetId,
-              modifiedAnswer(answer ?? []),
-              deleteFromReport,
+              uploadSuccess,
+              undefined,
               downloadFile
             )}
         </>
@@ -321,6 +317,11 @@ const sx = {
       color: "primary",
       textDecoration: "underline",
       fontWeight: "700",
+      cursor: "pointer",
+
+      "&:hover": {
+        textDecoration: "none",
+      },
     },
 
     "#file-input": {
@@ -329,6 +330,10 @@ const sx = {
 
     "&.disabled": {
       opacity: "0.4",
+
+      "&, label": {
+        cursor: "not-allowed",
+      },
     },
   },
 };

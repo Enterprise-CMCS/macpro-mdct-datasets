@@ -23,7 +23,9 @@ import { UploadListProp, ZipRequestBody } from "@datasets/shared";
 const negatedAllowedCharacters = /[^0-9a-zA-Z._-]+/g;
 
 export const getFileWithSafeName = (file: File) => {
-  const newName = file.name.replaceAll(negatedAllowedCharacters, "");
+  const newName = file.name
+    .replaceAll(negatedAllowedCharacters, "")
+    .replace(/\.[^.]*$/, (extension) => extension.toLowerCase());
   return new File([file], newName, {
     type: file.type,
     lastModified: file.lastModified,

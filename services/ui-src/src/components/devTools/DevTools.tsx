@@ -2,26 +2,31 @@ import { Box, Button, Stack, Text } from "@chakra-ui/react";
 import { useFlags } from "launchdarkly-react-client-sdk";
 import { DevDashboardTools } from "./DevDashboardTools";
 import { useState } from "react";
+import { DropdownOptions } from "types";
+import { DevAdminDashboardTools } from "./DevAdminDashboardTools";
+import { UploadType } from "@datasets/shared";
 
 interface Props {
   type: ToolType;
   reload?: Function;
   state?: string;
-  datasetId?: string;
+  datasets?: DropdownOptions[];
+  files: UploadType[];
 }
 
 export enum ToolType {
   DASHBOARD = "dashboard",
+  ADMIN_DASHBOARD = "adminDashboard",
 }
 
-export const DevTools = ({ type, reload, state, datasetId }: Props) => {
+export const DevTools = ({ type, reload, state, datasets, files }: Props) => {
   const devTools = useFlags()?.devTools;
-  if (!devTools) return;
+  if (!devTools || !datasets) return;
 
   const [showOptions, setShowOptions] = useState<boolean>();
 
   return (
-    <Box sx={sx.container} top={type === ToolType.DASHBOARD ? "96px" : "156px"}>
+    <Box sx={sx.container} top="96px">
       <Button sx={sx.primaryBtn} onClick={() => setShowOptions(!showOptions)}>
         <Text transform="rotate(-90deg)" color="white">
           Dev Tools
@@ -33,7 +38,14 @@ export const DevTools = ({ type, reload, state, datasetId }: Props) => {
             <DevDashboardTools
               state={state}
               reload={reload}
-              datasetId={datasetId}
+              datasets={datasets}
+            />
+          )}
+          {type === ToolType.ADMIN_DASHBOARD && (
+            <DevAdminDashboardTools
+              reload={reload}
+              datasets={datasets}
+              files={files}
             />
           )}
         </Stack>
@@ -60,7 +72,7 @@ const sx = {
     borderRadius: "0px 0px 0px 12px",
     boxShadow: "0px 3px 9px rgba(0, 0, 0, 0.1)",
     minHeight: "110px",
-    maxHeight: "500px",
+    maxHeight: "100%",
     overflowY: "auto",
     overflowX: "hidden",
   },

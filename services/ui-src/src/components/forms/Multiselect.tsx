@@ -6,6 +6,7 @@ import { DropdownOptions } from "types";
 
 interface Prop {
   label: string;
+  hint?: string;
   values: string[];
   options: DropdownOptions[];
   placeholder: string;
@@ -17,6 +18,7 @@ interface Prop {
 
 export const MultiSelect = ({
   label,
+  hint,
   values,
   options,
   countLabel,
@@ -112,6 +114,7 @@ export const MultiSelect = ({
   return (
     <Box sx={sx.container} id="multiselect">
       <Box className="ds-c-label">{label}</Box>
+      {hint && <Box className="ds-c-hint">{hint}</Box>}
       {errorMessage ? <InlineError>{errorMessage}</InlineError> : null}
       <Box position="relative" id={`multiselect-field-${label}`}>
         <Box className="displayContainer">

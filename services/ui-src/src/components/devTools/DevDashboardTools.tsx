@@ -1,21 +1,23 @@
-import { Button, Text, Divider, Box } from "@chakra-ui/react";
+import { Button, Divider, Box } from "@chakra-ui/react";
 import { TextField } from "@cmsgov/design-system";
-import { acceptedFileTypes } from "@datasets/shared";
 import { useState } from "react";
+import { DropdownOptions } from "types";
 import {
+  deleteUploadsForState,
   recordFileInDatabaseAndGetUploadUrl,
   uploadFileToS3,
 } from "utils/api/requestMethods/uploads";
+import { DevDragDrop } from "./DevDragDrop";
 
 interface Props {
   reload?: Function;
   state?: string;
-  datasetId?: string;
+  datasets: DropdownOptions[];
 }
 
-export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
+export const DevDashboardTools = ({ reload, state, datasets }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState<File[]>([]);
+  const [file, setFile] = useState<File | undefined>();
   const [amount, setAmount] = useState<number>(0);
 
   const onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,19 +26,24 @@ export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
   };
 
   const runUpload = async () => {
+    if (!file || datasets.length === 0) return;
+
     setLoading(true);
     for (var i = 0; i < amount; i++) {
-      const newName = file[0].name.replace(
+      const newName = file.name.replace(
         /(\.[\w\d_-]+)$/i,
         "_" + i.toString().padStart(2, "0") + "$1"
       );
-      const copyFile = new File([file[0]], newName, {
-        type: file[0].type,
-        lastModified: file[0].lastModified,
+      const copyFile = new File([file], newName, {
+        type: file.type,
+        lastModified: file.lastModified,
       });
+      const randomizeDataSetIds =
+        datasets[Math.floor(Math.random() * datasets?.length)].value;
+
       const { presignedUploadUrl } = await recordFileInDatabaseAndGetUploadUrl(
         state!,
-        datasetId!,
+        randomizeDataSetIds!,
         copyFile
       );
       await uploadFileToS3({ presignedUploadUrl }, copyFile);
@@ -45,126 +52,38 @@ export const DevDashboardTools = ({ reload, state, datasetId }: Props) => {
     setLoading(false);
   };
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const files = [...event.dataTransfer.items]
-      .map((item) => item.getAsFile())
-      .filter((file) => file != null);
-    setFile(files);
-  };
-
   const onGenerateUploads = () => {
     runUpload();
+    setFile(undefined);
+    setAmount(0);
   };
 
-  const onDeletFile = () => {};
-
-  const onDeleteAll = () => {};
+  const onDeleteAll = async () => {
+    setLoading(true);
+    if (!state) return;
+    await deleteUploadsForState(state);
+    if (reload) reload();
+    setLoading(false);
+  };
 
   return (
     <>
-      <>
-        <Box
-          sx={sx.uploadBox}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          width="100%"
-          aria-label="file drop area"
-        >
-          {file.length > 0 ? (
-            <Box>
-              <Text>{file[0].name}</Text>{" "}
-              <Button onClick={onDeletFile}> Delete </Button>
-            </Box>
-          ) : (
-            <span>
-              Drag file here or
-              <label id="drop-zone">
-                Choose from folder
-                <input
-                  type="file"
-                  id="file-input"
-                  accept={acceptedFileTypes.join(",")}
-                />
-              </label>
-            </span>
-          )}
-        </Box>
-        <Box>Dataset: {datasetId}</Box>
-        <TextField
-          name={"amount"}
-          label="Amount To Generate:"
-          onChange={onTextChange}
-          value={amount}
-          type="number"
-        ></TextField>
-        <Divider />
-      </>
-      <Button onClick={onDeleteAll} disabled={loading}>
-        Delete All Uploads
-      </Button>
-      <Divider />
+      <DevDragDrop setFile={setFile} file={file}></DevDragDrop>
+      <Box>Dataset: Randomize</Box>
+      <TextField
+        name={"amount"}
+        label="Amount To Generate:"
+        onChange={onTextChange}
+        value={amount}
+        numeric
+      ></TextField>
       <Button onClick={onGenerateUploads} disabled={loading}>
         Generate Uploads
       </Button>
+      <Divider />
+      <Button onClick={onDeleteAll} disabled={loading}>
+        Delete All Uploads
+      </Button>
     </>
   );
-};
-
-const sx = {
-  container: {
-    h2: {
-      margin: "1.5rem 0",
-      fontWeight: "700",
-    },
-
-    ".ds-c-alert": {
-      width: "100%",
-    },
-  },
-  uploadedLabel: {
-    fontWeight: "600",
-  },
-  uploadErrorLabel: {
-    color: "error",
-    fontSize: "14px",
-    marginY: "0.25rem",
-  },
-  hint: {
-    fontSize: "14px",
-    color: "gray_dark",
-  },
-  uploadBox: {
-    display: "flex",
-    flexDir: "column",
-    border: "1px dashed #0071bc",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "2rem",
-
-    span: {
-      display: "flex",
-      margin: ".50rem",
-    },
-
-    label: {
-      paddingLeft: ".25rem",
-      marginBlock: 0,
-      color: "primary",
-      textDecoration: "underline",
-      fontWeight: "700",
-    },
-
-    "#file-input": {
-      display: "none",
-    },
-
-    "&.disabled": {
-      opacity: "0.4",
-    },
-  },
 };

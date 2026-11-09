@@ -110,10 +110,14 @@ export const uploadFileToS3 = async (
   { presignedUploadUrl }: { presignedUploadUrl: string },
   file: File
 ) => {
-  return await fetch(presignedUploadUrl, {
+  const response = await fetch(presignedUploadUrl, {
     method: "PUT",
     body: file,
   });
+  if (!response.ok) {
+    throw new Error(`File upload failed with status ${response.status}`);
+  }
+  return response;
 };
 
 export const getFileDownloadUrl = async (state: string, fileId: string) => {
@@ -144,4 +148,36 @@ export const deleteUploadedFile = async (state: string, fileId: string) => {
     headers: { ...requestHeaders },
   };
   await apiLib.del(`/uploads/${state}/${fileId}`, options);
+};
+
+export const deleteUploadsForState = async (state: string) => {
+  const requestHeaders = await getRequestHeaders();
+  const options = {
+    headers: { ...requestHeaders },
+  };
+  await apiLib.del(`/uploads/${state}`, options);
+};
+
+export const devCreateUpload = async (
+  id: string,
+  uploadedFile: File,
+  states: string[]
+) => {
+  const requestHeaders = await getRequestHeaders();
+  const body = {
+    uploadedFileName: uploadedFile.name,
+    uploadedFileType: uploadedFile.type,
+    uploadedFileSize: uploadedFile.size,
+    datasetId: id,
+    states,
+  };
+
+  const options = {
+    headers: { ...requestHeaders },
+    body: { ...body },
+  };
+
+  const { items } = await apiLib.post<{ items: [] }>(`/uploads/dev`, options);
+
+  return { items };
 };

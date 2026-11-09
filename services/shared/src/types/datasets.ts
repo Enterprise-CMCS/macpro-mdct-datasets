@@ -51,4 +51,13 @@ export type UploadType = {
   uploadedUsername: string;
   uploadedDate: string;
   state: string;
+  uploadStatus: UploadStatus;
+  filesize: number;
 };
+
+export enum UploadStatus {
+  COMPLETE = "complete",
+  PENDING = "pending", // Awaiting User Upload
+  WORKING = "working", // Awaiting Virus Scan
+  ERROR = "error",
+}

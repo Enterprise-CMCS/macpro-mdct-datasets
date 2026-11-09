@@ -1,6 +1,8 @@
-import { UploadType, ZipRequestTypes } from "@datasets/shared";
+import { UploadStatus, UploadType, ZipRequestTypes } from "@datasets/shared";
 import {
   deleteUploadedFile,
+  deleteUploadsForState,
+  devCreateUpload,
   getFileDownloadUrl,
   getFiles,
   getFilesByState,
@@ -30,13 +32,15 @@ const mockDatasetUpload: UploadType = {
   uploadedUsername: "user",
   uploadedDate: "date",
   state: "AL",
+  uploadStatus: UploadStatus.COMPLETE,
+  filesize: 70011,
 };
 
 const originalFetch = window.fetch;
 
 describe("upload apis", () => {
   beforeAll(() => {
-    window.fetch = vi.fn().mockResolvedValue("200");
+    window.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
   });
   afterAll(() => {
     window.fetch = originalFetch;
@@ -86,7 +90,28 @@ describe("upload apis", () => {
   test("uploadFileToS3", async () => {
     const mockPostData = { presignedUploadUrl: "mock.s3/url" };
     const result = await uploadFileToS3(mockPostData, mockPng);
-    expect(result).toEqual("200");
+    expect(result).toEqual({ ok: true, status: 200 });
+    expect(window.fetch).toHaveBeenCalledWith("mock.s3/url", {
+      method: "PUT",
+      body: mockPng,
+    });
+  });
+
+  test("uploadFileToS3 rejects HTTP failures", async () => {
+    vi.mocked(window.fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+    } as Response);
+    await expect(
+      uploadFileToS3({ presignedUploadUrl: "mock.s3/url" }, mockPng)
+    ).rejects.toThrow("File upload failed with status 403");
+  });
+
+  test("uploadFileToS3 rejects network failures", async () => {
+    vi.mocked(window.fetch).mockRejectedValueOnce(new Error("Network error"));
+    await expect(
+      uploadFileToS3({ presignedUploadUrl: "mock.s3/url" }, mockPng)
+    ).rejects.toThrow("Network error");
   });
 
   test("getFileDownloadUrl", async () => {
@@ -113,5 +138,22 @@ describe("upload apis", () => {
         headers: { "x-api-key": undefined },
       }
     );
+  });
+
+  test("deleteUploadsForState", async () => {
+    (apiLib.del as Mock).mockReturnValue(Promise.resolve());
+    await deleteUploadsForState("PA");
+    expect(apiLib.del as Mock).toHaveBeenCalledWith("/uploads/PA", {
+      headers: { "x-api-key": undefined },
+    });
+  });
+
+  test("devCreateUpload", async () => {
+    (apiLib.post as Mock).mockReturnValue({
+      items: [{ psurl: "https://mock.url" }],
+    });
+
+    const result = await devCreateUpload("mock-id", mockPng, ["PA"]);
+    expect(result).toEqual({ items: [{ psurl: "https://mock.url" }] });
   });
 });
