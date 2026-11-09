@@ -182,10 +182,6 @@ export const paginateUploads = async (
     pageSize?: number;
     nextToken?: string;
   },
-  filters: {
-    state: string[];
-    dataset: string[];
-  }
 ) => {
   let startingToken: string | undefined = undefined;
   let pageSize = metadata.pageSize || 25;
@@ -201,12 +197,6 @@ export const paginateUploads = async (
     paginatorConfig.startingToken = startingToken;
   }
 
-  let attributeValues: any = {};
-  for (var i = 0; i < filters.dataset.length; i++) {
-    const name = `:datasetId${i}`;
-    attributeValues[name] = filters.dataset[i];
-  }
-
   const params: QueryCommandInput = {
     TableName: uploadTableName,
     KeyConditionExpression: "#state = :state",
@@ -219,18 +209,6 @@ export const paginateUploads = async (
     ExclusiveStartKey: metadata.nextToken as any,
     ScanIndexForward: false,
   };
-
-  if (attributeValues.length > 0) {
-    params.ExpressionAttributeNames = {
-      ...params.ExpressionAttributeNames,
-      "#datasetId": "datasetId",
-    };
-    params.ExpressionAttributeValues = {
-      ...params.ExpressionAttributeValues,
-      ...attributeValues,
-    };
-    params.FilterExpression = "#datasetId IN (:datasetId1)";
-  }
 
   const paginator = paginateQuery(
     { client, pageSize: metadata.pageSize },

@@ -10,14 +10,12 @@ interface PathURL {
 export async function getFilesByState2(
   state: string,
   metadata?: any,
-  filters?: { state: string[]; dataset: [] }
 ) {
   const requestHeaders = await getRequestHeaders();
   const options = {
     headers: { ...requestHeaders },
     body: {
       metadata: metadata,
-      filters,
     },
   };
 
