@@ -63,6 +63,9 @@ export const AdminDashboard = () => {
     setDatasetOptions(
       datasets.map((set) => ({ label: set.name, value: set.key! }))
     );
+
+    console.log("files", files);
+
     setFiles(
       files.toSorted((a, b) => b.uploadedDate.localeCompare(a.uploadedDate))
     );

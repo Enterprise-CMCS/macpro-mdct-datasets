@@ -27,7 +27,7 @@ import { MultiSelect } from "components/forms/Multiselect";
 import { UploadDrawer } from "../../drawers/UploadDrawer";
 import { Dropdown, DropdownChangeObject } from "@cmsgov/design-system";
 import {
-  getFilesByState,
+  getFilesByState2,
   updateUploadedFile,
 } from "../../../utils/api/requestMethods/uploads";
 import { downloadFile, removeFile } from "../../../utils/other/fileUtils";
@@ -73,6 +73,22 @@ export const Dashboard = () => {
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFile, setDeleteFile] = useState<UploadType | undefined>();
 
+  //TEMPORARY TEST VARIABLES
+  const [storedResults, setStoredResults] = useState<UploadType[]>([]);
+  const [lastEvaluatedKeys, setLastEvaluatedKeys] = useState<
+    Map<
+      number,
+      {
+        done: boolean;
+        nextToken?: any;
+        pageSize: number;
+      }
+    >
+  >(new Map().set(1, { pageSize: 10, done: false }));
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  /////////////////////////////////////
+
   const setDatasetHandler = (dataset: string[]) => {
     setFilterDataset(dataset);
   };
@@ -82,8 +98,9 @@ export const Dashboard = () => {
 
     const [datasets, files] = await Promise.all([
       getDatasets(),
-      getFilesByState(state!),
+      getFilesByState2(state!, lastEvaluatedKeys.get(page)),
     ]);
+
     if (datasets && datasets.length > 0) {
       setDatasetFilterOptions(
         datasets.map((set) => ({ label: set.name, value: set.key! }))
@@ -94,10 +111,15 @@ export const Dashboard = () => {
           .map((set) => ({ label: set.name, value: set.key! }))
       );
     }
-    if (files) {
-      setFiles(
-        files.toSorted((a, b) => b.uploadedDate.localeCompare(a.uploadedDate))
-      );
+
+    if (files.items && files.items.length > 0) {
+      setFiles(files.items);
+      setStoredResults(files.items);
+
+      if (files.metadata) {
+        setLastEvaluatedKeys(lastEvaluatedKeys.set(2, files.metadata));
+        setTotalPages(lastEvaluatedKeys.size);
+      }
     }
 
     if (showLoading) setIsLoading(false);
@@ -309,6 +331,29 @@ export const Dashboard = () => {
     setModalLoading(false);
   };
 
+  const onNextPage = async (
+    evt: React.MouseEvent<Element, MouseEvent>,
+    page: number
+  ) => {
+    evt.preventDefault();
+
+    setPage(page);
+    setIsLoading(true);
+    const files = await getFilesByState2(state!, lastEvaluatedKeys.get(page));
+
+    setFiles(files.items);
+    setStoredResults([...storedResults, ...files.items]);
+
+    const nextPageIndex = page + 1;
+    if (!lastEvaluatedKeys.has(nextPageIndex) && files.metadata) {
+      setLastEvaluatedKeys(
+        lastEvaluatedKeys.set(nextPageIndex, files.metadata)
+      );
+      setTotalPages(lastEvaluatedKeys.size);
+    }
+    setIsLoading(false);
+  };
+
   return (
     <>
       {banner ? (
@@ -399,7 +444,8 @@ export const Dashboard = () => {
               "",
               sortRows,
               undefined,
-              "No files uploaded yet. Select Upload Files above to submit documents for an active data request."
+              "No files uploaded yet. Select Upload Files above to submit documents for an active data request.",
+              { currentPage: page, totalPages, onPageChange: onNextPage }
             )
           )}
         </Stack>
