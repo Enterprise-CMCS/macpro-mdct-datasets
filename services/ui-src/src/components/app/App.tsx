@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router";
+import { Routes, Route, useLocation, useNavigate } from "react-router";
 import {
   AppRoutes,
   Error,
@@ -14,6 +14,7 @@ import {
 import { Container, Divider, Flex, Heading, Stack } from "@chakra-ui/react";
 import { ErrorBoundary } from "react-error-boundary";
 import {
+  getReturnUrl,
   getTabTitle,
   makeMediaQueryClasses,
   UserContext,
@@ -26,10 +27,14 @@ export const App = () => {
   const { logout } = context;
   const { user, showLocalLogins } = useStore();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  // on app load, check for clicked link pathname
+  // on app load, check for stored redirect URL
   useEffect(() => {
-    localStorage.setItem("ReturnURL", pathname);
+    const returnUrl = getReturnUrl();
+    if (returnUrl !== "/") {
+      navigate(returnUrl);
+    }
   }, []);
 
   useEffect(() => {

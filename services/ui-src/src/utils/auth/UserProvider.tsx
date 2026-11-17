@@ -114,6 +114,7 @@ export const UserProvider = ({ children }: Props) => {
     } catch {
       if (isProduction) {
         try {
+          localStorage.setItem("ReturnURL", location?.pathname);
           await authenticateWithIDM();
         } catch (error) {
           console.log("Error initiating IDM sign-in:", error);

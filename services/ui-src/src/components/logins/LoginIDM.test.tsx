@@ -3,11 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { RouterWrappedComponent } from "utils/testing/setupTest";
 import { LoginIDM } from "components";
 import { testA11y } from "utils/testing/commonTests";
-import { getReturnUrl } from "utils";
 
 vi.mock("aws-amplify/auth");
 vi.mock("utils");
-const mockGetReturnUrl = vi.mocked(getReturnUrl);
 
 const loginIDMComponent = (
   <RouterWrappedComponent>
@@ -26,7 +24,8 @@ describe("<LoginIDM />", () => {
     render(loginIDMComponent);
     const loginButton = screen.getByRole("button");
     await userEvent.click(loginButton);
-    expect(mockGetReturnUrl).toHaveBeenCalled();
+    expect(localStorage.getItem("ReturnURL")).toBe("/");
+    localStorage.removeItem("ReturnURL");
   });
 
   testA11y(loginIDMComponent);
