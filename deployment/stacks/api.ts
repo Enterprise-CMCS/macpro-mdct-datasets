@@ -138,7 +138,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
       loggingLevel: isDev
         ? apigateway.MethodLoggingLevel.OFF
         : apigateway.MethodLoggingLevel.INFO,
-      dataTraceEnabled: true,
+      dataTraceEnabled: stage !== "production",
       metricsEnabled: false,
       throttlingBurstLimit: 5000,
       throttlingRateLimit: 10000,
@@ -176,6 +176,26 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     },
   });
 
+  api.addGatewayResponse("InvalidSignatureResponse", {
+    type: apigateway.ResponseType.INVALID_SIGNATURE,
+    responseHeaders: {
+      "Access-Control-Allow-Origin": "'*'",
+      "Access-Control-Allow-Headers": "'*'",
+    },
+    // API Gateway's default bodies for this say more than a caller needs
+    templates: { "application/json": '{"message":"Forbidden"}' },
+  });
+
+  api.addGatewayResponse("AccessDeniedResponse", {
+    type: apigateway.ResponseType.ACCESS_DENIED,
+    responseHeaders: {
+      "Access-Control-Allow-Origin": "'*'",
+      "Access-Control-Allow-Headers": "'*'",
+    },
+    // API Gateway's default bodies for this say more than a caller needs
+    templates: { "application/json": '{"message":"Forbidden"}' },
+  });
+
   const environment = {
     NODE_OPTIONS: "--enable-source-maps",
     STAGE: stage,
@@ -186,7 +206,12 @@ export function createApiComponents(props: CreateApiComponentsProps) {
       tables.map((table) => [`${table.node.id}Table`, table.table.tableName])
     ),
     brokerString,
-    ...(isLocalStack && { AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL }),
+    ...(isLocalStack && {
+      AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL,
+      // Deployed stages get these from setCognitoEnvironment; locally, use .env
+      COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID,
+      COGNITO_USER_POOL_CLIENT_ID: process.env.COGNITO_USER_POOL_CLIENT_ID,
+    }),
   };
 
   const commonProps = {
@@ -199,39 +224,7 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     buckets: [uploadsBucket],
   };
 
-  // Banner handlers
-  new Lambda(scope, "createBanner", {
-    entry: "services/app-api/handlers/banners/create.ts",
-    handler: "createBanner",
-    path: "banners",
-    method: "POST",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "updateBanner", {
-    entry: "services/app-api/handlers/banners/update.ts",
-    handler: "updateBanner",
-    path: "banners/{bannerId}",
-    method: "PUT",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "deleteBanner", {
-    entry: "services/app-api/handlers/banners/delete.ts",
-    handler: "deleteBanner",
-    path: "banners/{bannerId}",
-    method: "DELETE",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getBanners", {
-    entry: "services/app-api/handlers/banners/fetch.ts",
-    handler: "getBanners",
-    path: "banners",
-    method: "GET",
-    ...commonProps,
-  });
-
+  // Non-Api lambdas
   const zipWorkerLambda = new Lambda(scope, "zipWorker", {
     entry: "services/app-api/handlers/uploads/zip.ts",
     handler: "zipWorker",
@@ -240,145 +233,169 @@ export function createApiComponents(props: CreateApiComponentsProps) {
     ...commonProps,
   });
 
-  new Lambda(scope, "triggerZipGeneration", {
-    entry: "services/app-api/handlers/uploads/zip.ts",
-    handler: "triggerZipGeneration",
-    path: "/zips",
-    method: "POST",
-    additionalPolicies: [
-      new PolicyStatement({
-        actions: ["lambda:InvokeFunction"],
-        resources: [zipWorkerLambda.lambda.functionArn],
-      }),
-    ],
-    ...commonProps,
-    environment: {
-      ...commonProps.environment,
-      zipWorkerFunctionName: zipWorkerLambda.lambda.functionName,
-    },
-  });
-
-  new Lambda(scope, "getZipStatus", {
-    entry: "services/app-api/handlers/uploads/zip.ts",
-    handler: "getZipStatus",
-    path: "/zips/{id}",
-    method: "GET",
+  const uploadComplete = new Lambda(scope, "uploadComplete", {
+    entry: "services/app-api/handlers/uploads/uploadComplete.ts",
+    handler: "handler",
+    additionalPolicies: [sesPolicy],
     ...commonProps,
   });
 
-  new Lambda(scope, "createUpload", {
-    entry: "services/app-api/handlers/uploads/create.ts",
-    handler: "createUpload",
-    path: "/uploads/{state}/",
-    method: "POST",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getUploadsByState", {
-    entry: "services/app-api/handlers/uploads/get.ts",
-    handler: "getUploadsByState",
-    path: "/uploads/{state}",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getUploadByFileId", {
-    entry: "services/app-api/handlers/uploads/get.ts",
-    handler: "getUploadByFileId",
-    path: "/uploads/{state}/{id}",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "getUploads", {
-    entry: "services/app-api/handlers/uploads/get.ts",
-    handler: "getUploads",
-    path: "uploads",
-    method: "GET",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "updateUpload", {
-    entry: "services/app-api/handlers/uploads/update.ts",
-    handler: "updateUploadHandler",
-    path: "/uploads/{state}/{id}",
-    method: "PUT",
-    ...commonProps,
-  });
-
-  new Lambda(scope, "deleteUpload", {
-    entry: "services/app-api/handlers/uploads/delete.ts",
-    handler: "deleteUploadHandler",
-    path: "/uploads/{state}/{id}",
-    method: "DELETE",
-    ...commonProps,
-  });
-
-  //paths made only for dev tool, not to be used on real data
-  if (!isProduction) {
-    new Lambda(scope, "deleteUploadsForState", {
-      entry: "services/app-api/handlers/uploads/delete.ts",
-      handler: "deleteUploadsForState",
-      path: "uploads/{state}",
-      method: "DELETE",
-      ...commonProps,
-    });
-    new Lambda(scope, "createUploadDev", {
-      entry: "services/app-api/handlers/uploads/create.ts",
-      handler: "createUploadDev",
-      path: "/uploads/dev",
+  const apiLambdas = [
+    // Banner handlers
+    new Lambda(scope, "createBanner", {
+      entry: "services/app-api/handlers/banners/create.ts",
+      handler: "createBanner",
+      path: "banners",
       method: "POST",
       ...commonProps,
-    });
-  }
+    }),
 
-  new Lambda(scope, "createDataset", {
-    entry: "services/app-api/handlers/datasets/create.ts",
-    handler: "createDataset",
-    path: "datasets",
-    method: "POST",
-    ...commonProps,
-  });
+    new Lambda(scope, "updateBanner", {
+      entry: "services/app-api/handlers/banners/update.ts",
+      handler: "updateBanner",
+      path: "banners/{bannerId}",
+      method: "PUT",
+      ...commonProps,
+    }),
 
-  new Lambda(scope, "updateDataset", {
-    entry: "services/app-api/handlers/datasets/update.ts",
-    handler: "updateDataset",
-    path: "datasets/{id}",
-    method: "PUT",
-    ...commonProps,
-  });
+    new Lambda(scope, "deleteBanner", {
+      entry: "services/app-api/handlers/banners/delete.ts",
+      handler: "deleteBanner",
+      path: "banners/{bannerId}",
+      method: "DELETE",
+      ...commonProps,
+    }),
 
-  new Lambda(scope, "getDatasets", {
-    entry: "services/app-api/handlers/datasets/get.ts",
-    handler: "getDatasets",
-    path: "datasets",
-    method: "GET",
-    ...commonProps,
-  });
+    new Lambda(scope, "getBanners", {
+      entry: "services/app-api/handlers/banners/fetch.ts",
+      handler: "getBanners",
+      path: "banners",
+      method: "GET",
+      ...commonProps,
+    }),
 
-  new Lambda(scope, "createNotificationRecipient", {
-    entry: "services/app-api/handlers/notifications/recipients/create.ts",
-    handler: "createNotificationRecipient",
-    path: "notifications/recipients",
-    method: "POST",
-    ...commonProps,
-  });
+    new Lambda(scope, "triggerZipGeneration", {
+      entry: "services/app-api/handlers/uploads/zip.ts",
+      handler: "triggerZipGeneration",
+      path: "/zips",
+      method: "POST",
+      additionalPolicies: [
+        new PolicyStatement({
+          actions: ["lambda:InvokeFunction"],
+          resources: [zipWorkerLambda.lambda.functionArn],
+        }),
+      ],
+      ...commonProps,
+      environment: {
+        ...commonProps.environment,
+        zipWorkerFunctionName: zipWorkerLambda.lambda.functionName,
+      },
+    }),
 
-  new Lambda(scope, "getNotificationRecipients", {
-    entry: "services/app-api/handlers/notifications/recipients/get.ts",
-    handler: "getNotificationRecipients",
-    path: "notifications/recipients",
-    method: "GET",
-    ...commonProps,
-  });
+    new Lambda(scope, "getZipStatus", {
+      entry: "services/app-api/handlers/uploads/zip.ts",
+      handler: "getZipStatus",
+      path: "/zips/{id}",
+      method: "GET",
+      ...commonProps,
+    }),
 
-  new Lambda(scope, "deleteNotificationRecipient", {
-    entry: "services/app-api/handlers/notifications/recipients/delete.ts",
-    handler: "deleteNotificationRecipient",
-    path: "notifications/recipients/{id}",
-    method: "DELETE",
-    ...commonProps,
-  });
+    new Lambda(scope, "createUpload", {
+      entry: "services/app-api/handlers/uploads/create.ts",
+      handler: "createUpload",
+      path: "/uploads/{state}/",
+      method: "POST",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "getUploadsByState", {
+      entry: "services/app-api/handlers/uploads/get.ts",
+      handler: "getUploadsByState",
+      path: "/uploads/{state}",
+      method: "GET",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "getUploadByFileId", {
+      entry: "services/app-api/handlers/uploads/get.ts",
+      handler: "getUploadByFileId",
+      path: "/uploads/{state}/{id}",
+      method: "GET",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "getUploads", {
+      entry: "services/app-api/handlers/uploads/get.ts",
+      handler: "getUploads",
+      path: "uploads",
+      method: "GET",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "updateUpload", {
+      entry: "services/app-api/handlers/uploads/update.ts",
+      handler: "updateUploadHandler",
+      path: "/uploads/{state}/{id}",
+      method: "PUT",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "deleteUpload", {
+      entry: "services/app-api/handlers/uploads/delete.ts",
+      handler: "deleteUploadHandler",
+      path: "/uploads/{state}/{id}",
+      method: "DELETE",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "createDataset", {
+      entry: "services/app-api/handlers/datasets/create.ts",
+      handler: "createDataset",
+      path: "datasets",
+      method: "POST",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "updateDataset", {
+      entry: "services/app-api/handlers/datasets/update.ts",
+      handler: "updateDataset",
+      path: "datasets/{id}",
+      method: "PUT",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "getDatasets", {
+      entry: "services/app-api/handlers/datasets/get.ts",
+      handler: "getDatasets",
+      path: "datasets",
+      method: "GET",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "createNotificationRecipient", {
+      entry: "services/app-api/handlers/notifications/recipients/create.ts",
+      handler: "createNotificationRecipient",
+      path: "notifications/recipients",
+      method: "POST",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "getNotificationRecipients", {
+      entry: "services/app-api/handlers/notifications/recipients/get.ts",
+      handler: "getNotificationRecipients",
+      path: "notifications/recipients",
+      method: "GET",
+      ...commonProps,
+    }),
+
+    new Lambda(scope, "deleteNotificationRecipient", {
+      entry: "services/app-api/handlers/notifications/recipients/delete.ts",
+      handler: "deleteNotificationRecipient",
+      path: "notifications/recipients/{id}",
+      method: "DELETE",
+      ...commonProps,
+    }),
+  ];
 
   /** TODO: enable kafka sync, update tables included
   new LambdaDynamoEventSource(scope, "postKafkaData", {
@@ -401,12 +418,33 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   });
   */
 
-  const uploadComplete = new Lambda(scope, "uploadComplete", {
-    entry: "services/app-api/handlers/uploads/uploadComplete.ts",
-    handler: "handler",
-    additionalPolicies: [sesPolicy],
-    ...commonProps,
-  });
+  // Dev Tool lambdas, not to be used on real data
+  if (!isProduction) {
+    new Lambda(scope, "deleteUploadsForState", {
+      entry: "services/app-api/handlers/uploads/delete.ts",
+      handler: "deleteUploadsForState",
+      path: "uploads/{state}",
+      method: "DELETE",
+      ...commonProps,
+    });
+    new Lambda(scope, "createUploadDev", {
+      entry: "services/app-api/handlers/uploads/create.ts",
+      handler: "createUploadDev",
+      path: "/uploads/dev",
+      method: "POST",
+      ...commonProps,
+    });
+  }
+
+  const setCognitoEnvironment = (
+    userPoolId: string,
+    userPoolClientId: string
+  ) => {
+    for (const { lambda } of apiLambdas) {
+      lambda.addEnvironment("COGNITO_USER_POOL_ID", userPoolId);
+      lambda.addEnvironment("COGNITO_USER_POOL_CLIENT_ID", userPoolClientId);
+    }
+  };
 
   uploadsBucket.addEventNotification(
     s3.EventType.OBJECT_CREATED,
@@ -444,5 +482,6 @@ export function createApiComponents(props: CreateApiComponentsProps) {
   return {
     restApiId: api.restApiId,
     apiGatewayRestApiUrl,
+    setCognitoEnvironment,
   };
 }
